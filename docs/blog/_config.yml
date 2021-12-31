@@ -1,0 +1,21 @@
+title: NES Emulator
+description: >- # this means to ignore newlines until "baseurl:"
+  Project site for NES Emulator.
+show_excerpts: true
+baseurl: "" # the subpath of your site, e.g. /blog
+
+minima:
+  skin: dark
+
+# Build settings
+# theme: minima
+remote_theme: jekyll/minima
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+collections:
+  r:
+    output: true
+    permalink: /:collection/:name/
