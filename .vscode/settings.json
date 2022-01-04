@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.additionalKits": [
+        "${workspaceFolder}/cmake/kits/setup_cmake-kits.json"
+    ]
+}

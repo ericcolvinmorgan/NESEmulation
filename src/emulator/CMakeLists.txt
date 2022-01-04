@@ -1,0 +1,1 @@
+add_library(emulator nesemulation.cpp)
