@@ -1,0 +1,8 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.additionalKits": [
+        "${workspaceFolder}/cmake/kits/setup_cmake-kits.json"
+    ],
+    //"testMate.cpp.test.executables": "{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
+    "testMate.cpp.test.executables": "build/test/test"
+}
