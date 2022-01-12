@@ -8,9 +8,7 @@ TEST_CASE("Properly advances frame") {
   REQUIRE(emu.getFrame() == 2);
 }
 
-TEST_CASE("Frame error") {
+TEST_CASE("Zero frames") {
   Emulator emu;
-  emu.advanceFrame();
-  emu.advanceFrame();
-  REQUIRE(emu.getFrame() == 1);
+  REQUIRE(emu.getFrame() == 0);
 }
