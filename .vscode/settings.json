@@ -4,5 +4,7 @@
         "${workspaceFolder}/cmake/kits/setup_cmake-kits.json"
     ],
     //"testMate.cpp.test.executables": "{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
-    "testMate.cpp.test.executables": "build/test/test"
+    "testMate.cpp.test.executables": "build/test/test",
+    "coverage-gutters.coverageReportFileName": "**/build/coverage/**/index.html",
+    "coverage-gutters.lcovname": "output_filtered.info"
 }
