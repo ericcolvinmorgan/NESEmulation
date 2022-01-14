@@ -1,3 +1,5 @@
+#pragma once
+
 class Emulator
 {
 private:

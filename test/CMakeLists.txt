@@ -14,7 +14,7 @@ if(NOT DEFINED EMSCRIPTEN)
     include(CTest) 
     include(Catch)
 
-    add_executable(test test.cpp)
+    add_executable(test emulator.cpp cpu.cpp)
     target_link_libraries(test LINK_PUBLIC emulator)
     target_link_libraries(test PRIVATE Catch2::Catch2WithMain)
 
