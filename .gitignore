@@ -2,6 +2,7 @@ build
 .vscode/c_cpp_properties.json
 cmake/kits/setup_cmake-kits.json
 **/node_modules/
+out
 
 # Prerequisites
 *.d
