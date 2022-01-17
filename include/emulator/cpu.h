@@ -1,6 +1,7 @@
 #pragma once
 
 #include "constants.h"
+#include "imemory_accessor.h"
 
 struct Flags
 {
@@ -34,8 +35,9 @@ private:
     WORD _pc = 0;                                    // Program Counter
 
 public:
-    CPU(){};
+    CPU(IMemoryAccessor *memory){};
     ~CPU(){};
-    WORD getProgramCounter() { return _pc; }
     void advanceProgramCounter();
+    WORD getProgramCounter() { return _pc; }
+    void reset();
 };
