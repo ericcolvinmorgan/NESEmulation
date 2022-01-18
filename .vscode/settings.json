@@ -8,6 +8,10 @@
     "coverage-gutters.coverageReportFileName": "**/build/coverage/**/index.html",
     "coverage-gutters.lcovname": "output_filtered.info",
     "files.associations": {
-        "optional": "cpp"
+        "optional": "cpp",
+        "chrono": "cpp",
+        "type_traits": "cpp",
+        "variant": "cpp",
+        "tuple": "cpp"
     }
 }
