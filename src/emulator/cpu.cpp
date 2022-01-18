@@ -8,5 +8,5 @@ void CPU::advanceProgramCounter()
 
 void CPU::reset()
 {
-    _pc++;
+    _pc = _memory->readWord(kReset);
 }

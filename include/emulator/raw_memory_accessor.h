@@ -13,5 +13,5 @@ public:
     WORD readWord(uint16_t location);
     void writeMemory(uint16_t location, BYTE data);
     void writeMemory(uint16_t location, WORD data);
-    void writeMemory(uint16_t location, BYTE *data, uint16_t length);
+    void writeMemory(uint16_t location, const BYTE *data, uint16_t length);
 };

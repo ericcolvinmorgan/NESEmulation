@@ -9,5 +9,5 @@ public:
     
     virtual void writeMemory(uint16_t location, BYTE data) = 0;
     virtual void writeMemory(uint16_t location, WORD data) = 0;
-    virtual void writeMemory(uint16_t location, BYTE *data, uint16_t length) = 0;
+    virtual void writeMemory(uint16_t location, const BYTE *data, uint16_t length) = 0;
 };

@@ -33,11 +33,13 @@ private:
     BYTE _sp = 0;                                    // Stack Pointer
     struct StatusRegister _sr = {data : 0b00000100}; // Status Register
     WORD _pc = 0;                                    // Program Counter
+    IMemoryAccessor *_memory;
 
 public:
-    CPU(IMemoryAccessor *memory){};
+    CPU(IMemoryAccessor *memory){ _memory = memory; };
     ~CPU(){};
     void advanceProgramCounter();
     WORD getProgramCounter() { return _pc; }
+    BYTE getCurrentOpCode() { return _memory->readByte(_pc); }
     void reset();
 };

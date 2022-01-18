@@ -23,7 +23,7 @@ void RawMemoryAccessor::writeMemory(uint16_t location, WORD data)
     *((WORD*)(_memory + location)) = data;
 }
 
-void RawMemoryAccessor::writeMemory(uint16_t location, BYTE *data, uint16_t length)
+void RawMemoryAccessor::writeMemory(uint16_t location, const BYTE *data, uint16_t length)
 {
     std::memcpy(&_memory[location], data, length);
 }
