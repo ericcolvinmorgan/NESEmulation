@@ -24,22 +24,39 @@ struct StatusRegister
     };
 };
 
+struct Registers
+{
+    Byte a = 0;                                      // Accumulator
+    Byte x = 0;                                      // X Index
+    Byte y = 0;                                      // Y Index
+    Byte sp = 0;                                     // Stack Pointer
+    struct StatusRegister sr = {.data = 0b00000100}; // Status Register
+    Word pc = 0;                                     // Program Counter
+};
+
 class CPU
 {
 private:
-    Byte a_ = 0;                                     // Accumulator
-    Byte x_ = 0;                                     // X Index
-    Byte y_ = 0;                                     // Y Index
-    Byte sp_ = 0;                                    // Stack Pointer
-    struct StatusRegister sr_ = {data : 0b00000100}; // Status Register
-    Word pc_ = 0;                                    // Program Counter
+    Registers registers_;
+    uint32_t cycle_count_ = 0;
     MemoryAccessorInterface *memory_;
 
 public:
-    CPU(MemoryAccessorInterface *memory){ memory_ = memory; };
+    CPU(MemoryAccessorInterface *memory);
+    CPU(Registers registers, MemoryAccessorInterface *memory);
     ~CPU(){};
     void AdvanceProgramCounter();
-    Word GetProgramCounter() { return pc_; }
-    Byte GetCurrentOpCode() { return memory_->ReadByte(pc_); }
+    Byte GetAccumulator() { return registers_.a; };
+    Byte GetCurrentOpCode() { return memory_->ReadByte(registers_.pc); };
+    uint32_t GetCycleCount() { return cycle_count_; };
+    Word GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
+    Word GetMemoryWord(uint16_t location) { return memory_->ReadWord(location); };
+    Word GetProgramCounter() { return registers_.pc; };
+    const struct Registers *GetRegistersSnapshot() { return &registers_; };
+    void IncreaseCycleCount(uint32_t cycles) { cycle_count_ += cycles; };
     void Reset();
+    void ResetCycleCount() { cycle_count_ = 0; };
+    void SetAccumulator(Byte value) { registers_.a = value; }
+    void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
+    void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
 };
