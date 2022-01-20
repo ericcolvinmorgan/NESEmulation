@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef uint8_t BYTE;
-typedef uint16_t WORD;
+typedef uint8_t Byte;
+typedef uint16_t Word;
 
-const WORD kReset = 0xFFFC;
+const Word kReset = 0xFFFC;

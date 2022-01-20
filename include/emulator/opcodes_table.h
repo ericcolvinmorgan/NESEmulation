@@ -1,26 +1,26 @@
 #pragma once
-#include "iopcodes.h"
+#include "opcodes_interface.h"
 #include "cpu.h"
 
-class OpCodesTable : public IOpCodes
+class OpCodesTable : public OpCodesInterface
 {
 private:
-    typedef void (OpCodesTable::*opcodeFunction)(CPU *, BYTE);
+    typedef void (OpCodesTable::*OpCodeFunction)(CPU *, Byte);
 
     struct OpCodesDef
     {
-        opcodeFunction opcodeFunc;
+        OpCodeFunction opcode_func;
         uint8_t bytes;
         uint8_t cycles;
     };
 
-    struct OpCodesDef _opcodes[0xFF + 1] = {0};
+    struct OpCodesDef opcodes_[0xFF + 1] = {0};
 
 public:
     OpCodesTable();
-    uint8_t runOpCode(CPU *cpu, BYTE opcode);
-    void notImplemented(CPU *cpu, BYTE opcode)
+    uint8_t RunOpCode(CPU *cpu, Byte opcode);
+    void NotImplemented(CPU *cpu, Byte opcode)
     {
-        cpu->advanceProgramCounter();
+        cpu->AdvanceProgramCounter();
     };
 };

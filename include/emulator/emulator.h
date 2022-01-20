@@ -3,11 +3,11 @@
 class Emulator
 {
 private:
-    int _frame = 0;
+    int frame_ = 0;
 
 public:
     Emulator(){};
     ~Emulator(){};
-    int getFrame() { return _frame; };
-    void advanceFrame();
+    int GetFrame() { return frame_; };
+    void AdvanceFrame();
 };

@@ -1,12 +1,12 @@
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/constants.h"
 
-void CPU::advanceProgramCounter()
+void CPU::AdvanceProgramCounter()
 {
-    _pc++;
+    pc_++;
 }
 
-void CPU::reset()
+void CPU::Reset()
 {
-    _pc = _memory->readWord(kReset);
+    pc_ = memory_->ReadWord(kReset);
 }
