@@ -1,12 +1,20 @@
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/constants.h"
 
+CPU::CPU(MemoryAccessorInterface *memory) { memory_ = memory; };
+
+CPU::CPU(Registers registers, MemoryAccessorInterface *memory)
+{
+    registers_ = registers;
+    memory_ = memory;
+};
+
 void CPU::AdvanceProgramCounter()
 {
-    pc_++;
+    registers_.pc++;
 }
 
 void CPU::Reset()
 {
-    pc_ = memory_->ReadWord(kReset);
+    registers_.pc = memory_->ReadWord(kReset);
 }
