@@ -99,6 +99,20 @@ void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
     cpu->AdvanceProgramCounter();
 };
 
+// BRK
+// cycle 1: fetch opcode, increment PC
+// cycle 2: read next instruction byte(unused), increment pc_
+// cycle 3: push PCH on stack with B flag set, decrement sp_
+// cycle 4: puch PCL on stack, decrement sp_
+// cycle 5: push status register on stack, decrement sp_
+// cycle 6: fetch PCL at $FFFE
+// cycle 7: fetch PCH at $FFFF
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
+{
+
+}
+
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
 {

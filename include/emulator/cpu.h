@@ -52,6 +52,7 @@ public:
     Word GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
     Word GetMemoryWord(uint16_t location) { return memory_->ReadWord(location); };
     Word GetProgramCounter() { return registers_.pc; };
+    struct StatusRegister GetStatusRegister() { return registers_.sr; };
     const struct Registers *GetRegistersSnapshot() { return &registers_; };
     void IncreaseCycleCount(uint32_t cycles) { cycle_count_ += cycles; };
     void Reset();
@@ -59,4 +60,5 @@ public:
     void SetAccumulator(Byte value) { registers_.a = value; }
     void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
     void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
+    void SetStatusRegisterFlag(uint8_t bitmask) { registers_.sr.data |= bitmask; };
 };

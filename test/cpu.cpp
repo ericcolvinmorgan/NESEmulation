@@ -40,3 +40,22 @@ TEST_CASE("CPU - Successfully runs kThreePixels example")
     REQUIRE(memory.ReadByte(0x0201) == 0x05);
     REQUIRE(memory.ReadByte(0x0202) == 0x08);
 }
+
+// test for setting the status register flags
+TEST_CASE("CPU - Succesfully sets appropriate flag on status register")
+{
+    RawMemoryAccessor memory;
+    Registers registers;
+    CPU cpu(registers, &memory);
+    // set 7th bit (Negative flag)
+    cpu.SetStatusRegisterFlag(0b10000000);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10000100 );
+
+    // set 1st bit (Carry flag)
+    cpu.SetStatusRegisterFlag(0b00000001);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10000101 );
+
+    // set already set bit
+    cpu.SetStatusRegisterFlag(0b00000001);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10000101 );
+}
