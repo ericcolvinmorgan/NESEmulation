@@ -3,27 +3,27 @@
 #include <cstring>
 #include "../../include/emulator/raw_memory_accessor.h"
 
-BYTE RawMemoryAccessor::readByte(uint16_t location)
+Byte RawMemoryAccessor::ReadByte(uint16_t location)
 {
-    return _memory[location];
+    return memory_[location];
 }
 
-WORD RawMemoryAccessor::readWord(uint16_t location)
+Word RawMemoryAccessor::ReadWord(uint16_t location)
 {
-    return _memory[location] | ((_memory[location + 1]) << 8);
+    return memory_[location] | ((memory_[location + 1]) << 8);
 }
 
-void RawMemoryAccessor::writeMemory(uint16_t location, BYTE data)
+void RawMemoryAccessor::WriteMemory(uint16_t location, Byte data)
 {
-    _memory[location] = data;
+    memory_[location] = data;
 }
 
-void RawMemoryAccessor::writeMemory(uint16_t location, WORD data)
+void RawMemoryAccessor::WriteMemory(uint16_t location, Word data)
 {
-    *((WORD*)(_memory + location)) = data;
+    *((Word*)(memory_ + location)) = data;
 }
 
-void RawMemoryAccessor::writeMemory(uint16_t location, const BYTE *data, uint16_t length)
+void RawMemoryAccessor::WriteMemory(uint16_t location, const Byte *data, uint16_t length)
 {
-    std::memcpy(&_memory[location], data, length);
+    std::memcpy(&memory_[location], data, length);
 }

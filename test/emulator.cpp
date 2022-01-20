@@ -3,12 +3,12 @@
 
 TEST_CASE("Properly advances frame") {
   Emulator emu;
-  emu.advanceFrame();
-  emu.advanceFrame();
-  REQUIRE(emu.getFrame() == 2);
+  emu.AdvanceFrame();
+  emu.AdvanceFrame();
+  REQUIRE(emu.GetFrame() == 2);
 }
 
 TEST_CASE("Zero frames") {
   Emulator emu;
-  REQUIRE(emu.getFrame() == 0);
+  REQUIRE(emu.GetFrame() == 0);
 }

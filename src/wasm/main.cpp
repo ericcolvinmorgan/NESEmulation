@@ -6,8 +6,8 @@
 #include <emscripten/emscripten.h>
 #include "../../include/emulator/emulator.h"
 
-const int SCREEN_WIDTH = 256;
-const int SCREEN_HEIGHT = 224;
+const int kScreenWidth = 256;
+const int kScreenHeight = 224;
 
 Uint8 r = 0x00;
 Uint8 g = 0x00;
@@ -16,18 +16,18 @@ Uint8 b = 0xFF;
 SDL_Window *window = nullptr;
 Emulator *emulator =nullptr;
 
-void renderContent()
+void RenderContent()
 {
-    emulator->advanceFrame();
-    SDL_Surface *screenSurface = SDL_GetWindowSurface(window);
+    emulator->AdvanceFrame();
+    SDL_Surface *screen_surface = SDL_GetWindowSurface(window);
     Uint8 temp = b;
     b = g;
     g = r;
     r = temp;
-    SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, r, g, b));
+    SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, r, g, b));
     SDL_UpdateWindowSurface(window);
     SDL_Delay(1000);
-    printf("Current Frame: %d\n", emulator->getFrame());
+    printf("Current Frame: %d\n", emulator->GetFrame());
 }
 
 int main()
@@ -40,14 +40,14 @@ int main()
     }
     else
     {
-        window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, kScreenWidth, kScreenHeight, SDL_WINDOW_SHOWN);
         if (window == NULL)
         {
             printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         }
         else
         {
-            emscripten_set_main_loop(renderContent, 0, 1);
+            emscripten_set_main_loop(RenderContent, 0, 1);
         }
     }
 

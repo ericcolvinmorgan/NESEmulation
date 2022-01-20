@@ -1,18 +1,18 @@
 #pragma once
 
 #include "constants.h"
-#include "imemory_accessor.h"
+#include "memory_accessor_interface.h"
 
 struct Flags
 {
-    BYTE n : 1; // Negative Flag
-    BYTE o : 1; // Overflow Flag
-    BYTE : 1;   // Unused - Documentation indicates this seems to always be set to 1.
-    BYTE b : 1; // Break Flag
-    BYTE d : 1; // Decimal Mode Flag
-    BYTE i : 1; // Interrupt Disable Flag
-    BYTE z : 1; // Zero Flag
-    BYTE c : 1; // Carry Flag
+    Byte n : 1; // Negative Flag
+    Byte o : 1; // Overflow Flag
+    Byte : 1;   // Unused - Documentation indicates this seems to always be set to 1.
+    Byte b : 1; // Break Flag
+    Byte d : 1; // Decimal Mode Flag
+    Byte i : 1; // Interrupt Disable Flag
+    Byte z : 1; // Zero Flag
+    Byte c : 1; // Carry Flag
 };
 
 struct StatusRegister
@@ -20,26 +20,26 @@ struct StatusRegister
     union
     {
         struct Flags flags;
-        BYTE data;
+        Byte data;
     };
 };
 
 class CPU
 {
 private:
-    BYTE _a = 0;                                     // Accumulator
-    BYTE _x = 0;                                     // X Index
-    BYTE _y = 0;                                     // Y Index
-    BYTE _sp = 0;                                    // Stack Pointer
-    struct StatusRegister _sr = {data : 0b00000100}; // Status Register
-    WORD _pc = 0;                                    // Program Counter
-    IMemoryAccessor *_memory;
+    Byte a_ = 0;                                     // Accumulator
+    Byte x_ = 0;                                     // X Index
+    Byte y_ = 0;                                     // Y Index
+    Byte sp_ = 0;                                    // Stack Pointer
+    struct StatusRegister sr_ = {data : 0b00000100}; // Status Register
+    Word pc_ = 0;                                    // Program Counter
+    MemoryAccessorInterface *memory_;
 
 public:
-    CPU(IMemoryAccessor *memory){ _memory = memory; };
+    CPU(MemoryAccessorInterface *memory){ memory_ = memory; };
     ~CPU(){};
-    void advanceProgramCounter();
-    WORD getProgramCounter() { return _pc; }
-    BYTE getCurrentOpCode() { return _memory->readByte(_pc); }
-    void reset();
+    void AdvanceProgramCounter();
+    Word GetProgramCounter() { return pc_; }
+    Byte GetCurrentOpCode() { return memory_->ReadByte(pc_); }
+    void Reset();
 };
