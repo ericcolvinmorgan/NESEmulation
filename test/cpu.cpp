@@ -15,10 +15,28 @@ TEST_CASE("CPU - Successfully loads first OP")
     memory.WriteMemory(kReset, (Word)0x0600);
     CPU cpu(&memory);
     cpu.Reset();
-    // OpCodesTable table;
-    // for (int i = 0; i <= 0xFF; i++)
-    //     cpu.advanceProgramCounter();
 
     REQUIRE(cpu.GetProgramCounter() == 0x0600);
     REQUIRE(cpu.GetCurrentOpCode() == 0xa9);
+}
+
+TEST_CASE("CPU - Successfully runs kThreePixels example")
+{
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, kThreePixels, 15);
+    memory.WriteMemory(kReset, (Word)0x0600);
+    CPU cpu(&memory);
+    cpu.Reset();
+
+    OpCodesTable opcodes;
+    while(cpu.GetProgramCounter() < 0x0600 + 15)
+    {
+        auto opcode = cpu.GetCurrentOpCode();
+        cpu.AdvanceProgramCounter();
+        opcodes.RunOpCode(&cpu, opcode);
+    }
+
+    REQUIRE(memory.ReadByte(0x0200) == 0x01);
+    REQUIRE(memory.ReadByte(0x0201) == 0x05);
+    REQUIRE(memory.ReadByte(0x0202) == 0x08);
 }

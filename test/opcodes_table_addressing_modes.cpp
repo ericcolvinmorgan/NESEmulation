@@ -10,8 +10,8 @@ TEST_CASE("OpCodes Table - Addressing Mode - None")
     CPU cpu(&memory);
     OpCodesTable opcodes;
 
-    auto address = opcodes.AddressingModeNone(&cpu);
-    REQUIRE(address == 0);
+    auto address_value = opcodes.AddressingModeNone(&cpu);
+    REQUIRE(address_value.value == 0);
     REQUIRE(cpu.GetCycleCount() == 0);
 }
 
@@ -21,8 +21,8 @@ TEST_CASE("OpCodes Table - Addressing Mode - Implied")
     CPU cpu(&memory);
     OpCodesTable opcodes;
 
-    auto address = opcodes.AddressingModeImplied(&cpu);
-    REQUIRE(address == 0);
+    auto address_value = opcodes.AddressingModeImplied(&cpu);
+    REQUIRE(address_value.value == 0);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -33,8 +33,8 @@ TEST_CASE("OpCodes Table - Addressing Mode - Accumulator")
     CPU cpu(registers, &memory);
     OpCodesTable opcodes;
 
-    auto address = opcodes.AddressingModeAccumulator(&cpu);
-    REQUIRE(address == 0x00AF);
+    auto address_value = opcodes.AddressingModeAccumulator(&cpu);
+    REQUIRE(address_value.value == 0x00AF);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -46,7 +46,20 @@ TEST_CASE("OpCodes Table - Addressing Mode - Immediate")
     CPU cpu(registers, &memory);
     OpCodesTable opcodes;
 
-    auto address = opcodes.AddressingModeImmediate(&cpu);
-    REQUIRE(address == 0x00AF);
+    auto address_value = opcodes.AddressingModeImmediate(&cpu);
+    REQUIRE(address_value.value == 0x00AF);
     REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute")
+{
+    Registers registers{.pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0xFFF0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsolute(&cpu);
+    REQUIRE(address_value.value == 0xFFF0);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }

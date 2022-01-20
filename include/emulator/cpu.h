@@ -47,11 +47,16 @@ public:
     ~CPU(){};
     void AdvanceProgramCounter();
     Byte GetAccumulator() { return registers_.a; };
-    uint32_t GetCycleCount() { return cycle_count_; };
     Byte GetCurrentOpCode() { return memory_->ReadByte(registers_.pc); };
+    uint32_t GetCycleCount() { return cycle_count_; };
+    Word GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
+    Word GetMemoryWord(uint16_t location) { return memory_->ReadWord(location); };
     Word GetProgramCounter() { return registers_.pc; };
     const struct Registers *GetRegistersSnapshot() { return &registers_; };
     void IncreaseCycleCount(uint32_t cycles) { cycle_count_ += cycles; };
     void Reset();
     void ResetCycleCount() { cycle_count_ = 0; };
+    void SetAccumulator(Byte value) { registers_.a = value; }
+    void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
+    void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
 };

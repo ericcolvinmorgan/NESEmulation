@@ -14,7 +14,7 @@ if(NOT DEFINED EMSCRIPTEN)
     include(CTest) 
     include(Catch)
 
-    add_executable(test cpu.cpp emulator.cpp opcodes_table.cpp raw_memory_accessor.cpp)
+    add_executable(test cpu.cpp emulator.cpp opcodes_table_addressing_modes.cpp opcodes_table_ops.cpp raw_memory_accessor.cpp)
     target_link_libraries(test LINK_PUBLIC emulator)
     target_link_libraries(test PRIVATE Catch2::Catch2WithMain)
 

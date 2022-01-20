@@ -4,8 +4,14 @@
 
 class OpCodesTable : public OpCodesInterface
 {
+    struct AddressingVal
+    {
+        uint16_t value;
+        bool is_address;
+    };
+
 private:
-    typedef uint16_t (OpCodesTable::*AddressMode)(CPU *);
+    typedef struct AddressingVal (OpCodesTable::*AddressMode)(CPU *);
     typedef void (OpCodesTable::*OpCodeFunction)(CPU *, Byte);
     OpCodeFunction opcodes_[0xFF + 1] = {0};
 
@@ -14,21 +20,26 @@ public:
     uint8_t RunOpCode(CPU *cpu, Byte opcode);
 
     // Addressing Modes
-    uint16_t AddressingModeNone(CPU *cpu) { return 0; };
-    uint16_t AddressingModeImplied(CPU *cpu);
-    uint16_t AddressingModeAccumulator(CPU *cpu);
-    uint16_t AddressingModeImmediate(CPU *cpu);
-    uint16_t AddressingModeAbsolute(CPU *cpu);
-    uint16_t AddressingModeAbsoluteX(CPU *cpu);
-    uint16_t AddressingModeAbsoluteY(CPU *cpu);
-    uint16_t AddressingModeZeroPage(CPU *cpu);
-    uint16_t AddressingModeZeroPageX(CPU *cpu);
-    uint16_t AddressingModeZeroPageY(CPU *cpu);
-    uint16_t AddressingModeIndirectX(CPU *cpu);
-    uint16_t AddressingModeIndirectY(CPU *cpu);
-    uint16_t AddressingModeAbsoluteIndirect(CPU *cpu);
-    uint16_t AddressingModeRelative(CPU *cpu);
-    
+    AddressingVal AddressingModeNone(CPU *cpu) { return {0, false}; };
+    AddressingVal AddressingModeImplied(CPU *cpu);
+    AddressingVal AddressingModeAccumulator(CPU *cpu);
+    AddressingVal AddressingModeImmediate(CPU *cpu);
+    AddressingVal AddressingModeAbsolute(CPU *cpu);
+    AddressingVal AddressingModeAbsoluteX(CPU *cpu);
+    AddressingVal AddressingModeAbsoluteY(CPU *cpu);
+    AddressingVal AddressingModeZeroPage(CPU *cpu);
+    AddressingVal AddressingModeZeroPageX(CPU *cpu);
+    AddressingVal AddressingModeZeroPageY(CPU *cpu);
+    AddressingVal AddressingModeIndirectX(CPU *cpu);
+    AddressingVal AddressingModeIndirectY(CPU *cpu);
+    AddressingVal AddressingModeAbsoluteIndirect(CPU *cpu);
+    AddressingVal AddressingModeRelative(CPU *cpu);
+
     // Implemented Op Codes
-    template <AddressMode addrMode> void OpNotImplemented(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpNotImplemented(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpLDA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSTA(CPU *cpu, Byte opcode);
 };
