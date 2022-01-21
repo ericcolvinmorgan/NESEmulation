@@ -19,6 +19,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x08] = &OpCodesTable::OpPHP;
     opcodes_[0x28] = &OpCodesTable::OpPLP;
+    opcodes_[0x40] = &OpCodesTable::OpRTI;
     opcodes_[0x48] = &OpCodesTable::OpPHA;
     opcodes_[0x68] = &OpCodesTable::OpPLA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
@@ -233,6 +234,26 @@ void OpCodesTable::OpPLP(CPU *cpu, Byte opcode){
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetStatusRegister(copied_value);
     cpu->IncreaseCycleCount(4);
+}
+
+// RTI
+// pop top of stack and store in status register
+// pop top of stack and store in pc_l
+// pop top of stack and store in pc_h
+void OpCodesTable::OpRTI(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte new_sr = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetStatusRegister(new_sr);
+
+    cpu->IncrementStackPointer();
+    Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    
+    cpu->IncrementStackPointer();
+    Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+
+    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+
+    cpu->IncreaseCycleCount(6);
 }
 
 template <OpCodesTable::AddressMode A>

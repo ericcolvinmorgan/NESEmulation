@@ -124,7 +124,7 @@ TEST_CASE("OpCodes Table - Ops - PLA - Implied - Store top of stack in accumulat
     CPU cpu(registers, &memory);
     Byte new_accumulator = 0x3D;
     // write test data to top of stack
-    cpu.WriteMemory(0x100 + cpu.GetStackPointer() + 1, (Word)new_accumulator);
+    cpu.WriteMemory(0x100 + (cpu.GetStackPointer() + 1), (Byte)new_accumulator);
     
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x68);
@@ -152,7 +152,7 @@ TEST_CASE("OpCodes Table - Ops - PLP - Implied - Store top of stack in status re
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x28);
     
-    // check accumulator for new val
+    // check updated status register
     REQUIRE(cpu.GetStatusRegister().data == new_sr);
     
     // sp incremented once
@@ -160,4 +160,37 @@ TEST_CASE("OpCodes Table - Ops - PLP - Implied - Store top of stack in status re
 
     // cpu cycle count should increase by 4
     REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - RTI - Implied - Return from Interrupt ")
+{
+    RawMemoryAccessor memory;
+    Byte top_of_stack = 0xFF;
+    Registers registers { .sp = (Byte)(top_of_stack - 3) };
+    CPU cpu(registers, &memory);
+    // test data
+    Byte new_sr = 0b10101011;  
+    Byte pc_l = 0x50;
+    Byte pc_h = 0x80; 
+    
+    // write test data
+    memory.WriteMemory(0x100 + top_of_stack, (Byte) pc_h);
+    memory.WriteMemory(0x100 + (top_of_stack - 1), (Byte) pc_l);
+    memory.WriteMemory(0x100 + (top_of_stack - 2), (Byte) new_sr);
+    
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x40);
+    
+    // check updated status register
+    REQUIRE(cpu.GetStatusRegister().data == new_sr);
+    
+    // sp incremented 3 times
+    REQUIRE(cpu.GetStackPointer() == top_of_stack);
+
+    // pc = 0x5080
+    REQUIRE(cpu.GetProgramCounter() == 0x8050);
+
+    // cpu cycle count should increase by 6
+    REQUIRE(cpu.GetCycleCount() == 6);
 }
