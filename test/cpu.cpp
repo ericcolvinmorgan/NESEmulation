@@ -78,3 +78,14 @@ TEST_CASE("CPU - Succesfully clears appropriate flag on status register")
     cpu.ClearStatusRegisterFlag(0b00000001);
     REQUIRE(cpu.GetStatusRegister().data == 0b00000100 );
 }
+
+TEST_CASE("CPU - SetStatusRegister Succesfully updates status register")
+{
+    RawMemoryAccessor memory;
+    Registers registers;
+    Byte new_sr_data = 0b01010101; // test data
+    CPU cpu(registers, &memory);
+
+    cpu.SetStatusRegister(new_sr_data);
+    REQUIRE(cpu.GetStatusRegister().data == new_sr_data );
+}

@@ -42,6 +42,7 @@ public:
     void OpPHP(CPU *cpu, Byte opcode);
     void OpPHA(CPU *cpu, Byte opcode);
     void OpPLA(CPU *cpu, Byte opcode);
+    void OpPLP(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>

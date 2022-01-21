@@ -18,6 +18,7 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x08] = &OpCodesTable::OpPHP;
+    opcodes_[0x28] = &OpCodesTable::OpPLP;
     opcodes_[0x48] = &OpCodesTable::OpPHA;
     opcodes_[0x68] = &OpCodesTable::OpPLA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
@@ -162,8 +163,7 @@ void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
 // cycle 7: fetch PCH at $FFFF
 void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 {
-    Byte b_flag = 0b00110000; // bits 4 and 5 set BRK
-    cpu->SetStatusRegisterFlag(b_flag);
+    cpu->SetStatusRegisterFlag(kBreakFlag);
 
     Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
     Byte pc_l = cpu->GetProgramCounter() & 0xFF;
@@ -201,7 +201,7 @@ void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
 }
 
 // PLA
-// pulls top of stack and stores in accumulator
+// increment stack pointer, pull top of stack and store in accumulator
 // zero flag set if copied value is 0, otherwise cleared
 // negative flag is set to 7th bit of copied value
 void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
@@ -210,21 +210,28 @@ void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
     cpu->SetAccumulator(copied_value);
 
     // set zero flag
-    if(copied_value){
-        cpu->SetStatusRegisterFlag(0b00000010);
-    }
-    else{
-        cpu->ClearStatusRegisterFlag(0b00000010);
+    if (copied_value) {
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+    } else {
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
     }
 
     // negative flag
-    if(copied_value >> 7 == 1){
-        cpu->SetStatusRegisterFlag(0b10000000);
-    }
-    else{
-        cpu->ClearStatusRegisterFlag(0b10000000);
+    if (copied_value >> 7 == 1) {
+        cpu->SetStatusRegisterFlag(kNegativeFlag);
+    } else {
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
     }
 
+    cpu->IncreaseCycleCount(4);
+}
+
+// PLP
+// increment stack pointer, pull top of stack and store in status register
+void OpCodesTable::OpPLP(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetStatusRegister(copied_value);
     cpu->IncreaseCycleCount(4);
 }
 
