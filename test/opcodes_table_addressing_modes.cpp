@@ -63,3 +63,199 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute")
     REQUIRE(address_value.value == 0xFFF0);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, No Page Crossing")
+{
+    Registers registers{.x = 0x05, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0xFFF0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
+    REQUIRE(address_value.value == 0xFFF5);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, Page Crossing")
+{
+    Registers registers{.x = 0xFF, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0x09FA);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
+    REQUIRE(address_value.value == 0x0AF9);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - With Wrap")
+{
+    Registers registers{.x = 0xFF, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0xFFF0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
+    REQUIRE(address_value.value == 0x00EF);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, No Page Crossing")
+{
+    Registers registers{.y = 0x05, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0xFFF0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
+    REQUIRE(address_value.value == 0xFFF5);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, Page Crossing")
+{
+    Registers registers{.y = 0xFF, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0x09FA);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
+    REQUIRE(address_value.value == 0x0AF9);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - With Wrap")
+{
+    Registers registers{.y = 0xFF, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Word)0xFFF0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
+    REQUIRE(address_value.value == 0x00EF);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Zero Page")
+{
+    Registers registers{.pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Byte)0xAF);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeZeroPage(&cpu);
+    REQUIRE(address_value.value == 0xAF);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - Wrap No Carry")
+{
+    Registers registers{.x = 0x02, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Byte)0x10);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeZeroPageX(&cpu);
+    REQUIRE(address_value.value == 0x12);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - No Wrap")
+{
+    Registers registers{.x = 0x02, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Byte)0xFF);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeZeroPageX(&cpu);
+    REQUIRE(address_value.value == 0x01);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - Wrap No Carry")
+{
+    Registers registers{.y = 0x02, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Byte)0x10);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeZeroPageY(&cpu);
+    REQUIRE(address_value.value == 0x12);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - No Wrap")
+{
+    Registers registers{.y = 0x02, .pc = 0x0100};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, (Byte)0xFF);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeZeroPageY(&cpu);
+    REQUIRE(address_value.value == 0x01);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset")
+{
+    Registers registers{.pc = 0x0105};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0105, (Byte)0xFA);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeRelative(&cpu);
+    REQUIRE(address_value.value == 0x0100);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset - Cross Page")
+{
+    Registers registers{.pc = 0x0105};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0105, (Byte)0xA0);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeRelative(&cpu);
+    REQUIRE(address_value.value == 0x00A6);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset")
+{
+    Registers registers{.pc = 0x0105};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0105, (Byte)0x02);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeRelative(&cpu);
+    REQUIRE(address_value.value == 0x0108);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset - Cross Page")
+{
+    Registers registers{.pc = 0x01F1};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x01F1, (Byte)0x60);
+    int8_t sdf = (int8_t)0x60;
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeRelative(&cpu);
+    REQUIRE(address_value.value == 0x0252);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
