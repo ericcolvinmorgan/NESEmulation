@@ -47,9 +47,11 @@ public:
     ~CPU(){};
     void AdvanceProgramCounter();
     Byte GetAccumulator() { return registers_.a; };
+    Byte GetXIndex() { return registers_.x; };
+    Byte GetYIndex() { return registers_.y; };
     Byte GetCurrentOpCode() { return memory_->ReadByte(registers_.pc); };
     uint32_t GetCycleCount() { return cycle_count_; };
-    Word GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
+    Byte GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
     Word GetMemoryWord(uint16_t location) { return memory_->ReadWord(location); };
     Word GetProgramCounter() { return registers_.pc; };
     struct StatusRegister GetStatusRegister() { return registers_.sr; };
