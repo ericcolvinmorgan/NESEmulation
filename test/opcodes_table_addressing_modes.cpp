@@ -251,11 +251,80 @@ TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset - Cross 
     Registers registers{.pc = 0x01F1};
     RawMemoryAccessor memory;
     memory.WriteMemory(0x01F1, (Byte)0x60);
-    int8_t sdf = (int8_t)0x60;
     CPU cpu(registers, &memory);
     OpCodesTable opcodes;
 
     auto address_value = opcodes.AddressingModeRelative(&cpu);
     REQUIRE(address_value.value == 0x0252);
     REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Indirect")
+{
+    Registers registers{.pc = 0x0201};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0201, (Word)0x00F0);
+    memory.WriteMemory(0x00F0, (Word)0xCC01);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeAbsoluteIndirect(&cpu);
+    REQUIRE(address_value.value == 0xCC01);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - Wrap No Carry")
+{
+    Registers registers{.x = 0xFF, .pc = 0x0201};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0201, (Word)0x00F0);
+    memory.WriteMemory(0x00EF, (Word)0x0705);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeIndirectX(&cpu);
+    REQUIRE(address_value.value == 0x0705);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - No Carry")
+{
+    Registers registers{.x = 0x01, .pc = 0x0201};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0201, (Word)0x00F0);
+    memory.WriteMemory(0x00F1, (Word)0x0705);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeIndirectX(&cpu);
+    REQUIRE(address_value.value == 0x0705);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - Cross Page")
+{
+    Registers registers{.y = 0xFF, .pc = 0x0201};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0201, (Word)0x00F0);
+    memory.WriteMemory(0x00F0, (Word)0x0703);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeIndirectY(&cpu);
+    REQUIRE(address_value.value == 0x0802);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - No Carry")
+{
+    Registers registers{.y = 0x01, .pc = 0x0201};
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0201, (Word)0x00F0);
+    memory.WriteMemory(0x00F0, (Word)0x0703);
+    CPU cpu(registers, &memory);
+    OpCodesTable opcodes;
+
+    auto address_value = opcodes.AddressingModeIndirectY(&cpu);
+    REQUIRE(address_value.value == 0x0704);
+    REQUIRE(cpu.GetCycleCount() == 5);
 }
