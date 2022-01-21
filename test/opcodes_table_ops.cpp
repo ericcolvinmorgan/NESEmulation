@@ -116,3 +116,25 @@ TEST_CASE("OpCodes Table - Ops - PHA - Implied - Push accumulator on stack")
     // cpu cycle count should increase by 3
     REQUIRE(cpu.GetCycleCount() == 3);
 }
+
+TEST_CASE("OpCodes Table - Ops - PLA - Implied - Store top of stack in accumulator")
+{
+    RawMemoryAccessor memory;
+    Registers registers {.a = 0x4D, .sp = 0xFE}; // test data
+    CPU cpu(registers, &memory);
+    Byte new_accumulator = 0x3D;
+    // write test data to top of stack
+    cpu.WriteMemory(0x100 + cpu.GetStackPointer() + 1, (Word)new_accumulator);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x68);
+    
+    // check accumulator for new val
+    REQUIRE(cpu.GetAccumulator() == new_accumulator);
+    
+    // sp incremented once
+    REQUIRE(cpu.GetStackPointer() == 0xFE + 1);
+
+    // cpu cycle count should increase by 4
+    REQUIRE(cpu.GetCycleCount() == 4);
+}

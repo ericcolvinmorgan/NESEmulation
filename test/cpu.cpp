@@ -59,3 +59,22 @@ TEST_CASE("CPU - Succesfully sets appropriate flag on status register")
     cpu.SetStatusRegisterFlag(0b00000001);
     REQUIRE(cpu.GetStatusRegister().data == 0b10000101 );
 }
+
+TEST_CASE("CPU - Succesfully clears appropriate flag on status register")
+{
+    RawMemoryAccessor memory;
+    Registers registers;
+    registers.sr.data = 0b10000101; // test data
+    CPU cpu(registers, &memory);
+    // clear 7th bit (Negative flag)
+    cpu.ClearStatusRegisterFlag(0b10000000);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00000101 );
+
+    // clear 1st bit (Carry flag)
+    cpu.ClearStatusRegisterFlag(0b00000001);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00000100 );
+
+    // clear already cleared bit does nothing
+    cpu.ClearStatusRegisterFlag(0b00000001);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00000100 );
+}

@@ -19,6 +19,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x08] = &OpCodesTable::OpPHP;
     opcodes_[0x48] = &OpCodesTable::OpPHA;
+    opcodes_[0x68] = &OpCodesTable::OpPLA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
 }
@@ -197,6 +198,34 @@ void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetAccumulator());
     cpu->DecrementStackPointer();
     cpu->IncreaseCycleCount(3);
+}
+
+// PLA
+// pulls top of stack and stores in accumulator
+// zero flag set if copied value is 0, otherwise cleared
+// negative flag is set to 7th bit of copied value
+void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetAccumulator(copied_value);
+
+    // set zero flag
+    if(copied_value){
+        cpu->SetStatusRegisterFlag(0b00000010);
+    }
+    else{
+        cpu->ClearStatusRegisterFlag(0b00000010);
+    }
+
+    // negative flag
+    if(copied_value >> 7 == 1){
+        cpu->SetStatusRegisterFlag(0b10000000);
+    }
+    else{
+        cpu->ClearStatusRegisterFlag(0b10000000);
+    }
+
+    cpu->IncreaseCycleCount(4);
 }
 
 template <OpCodesTable::AddressMode A>
