@@ -79,3 +79,21 @@ TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
     REQUIRE(cpu.GetCycleCount() == 7);
 }
 
+TEST_CASE("OpCodes Table - Ops - PHP - Implied - Push status register on stack")
+{
+    RawMemoryAccessor memory;
+    Registers registers {.x = 0x05, .y = 0xF2, .sp = 0xFF}; // test data
+    CPU cpu(registers, &memory);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x08);
+    
+    // check stack
+    REQUIRE(cpu.GetMemoryByte(0x100 + (cpu.GetStackPointer() + 1)) == cpu.GetStatusRegister().data);
+    
+    // sp decremented once
+    REQUIRE(cpu.GetStackPointer() == 0xff - 1);
+
+    // cpu cycle count should increase by 3
+    REQUIRE(cpu.GetCycleCount() == 3);
+}

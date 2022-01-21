@@ -39,6 +39,7 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpNotImplemented(CPU *cpu, Byte opcode);
     void OpBRK(CPU *cpu, Byte opcode);
+    void OpPHP(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
