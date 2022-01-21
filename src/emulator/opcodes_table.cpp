@@ -18,6 +18,7 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x08] = &OpCodesTable::OpPHP;
+    opcodes_[0x48] = &OpCodesTable::OpPHA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
 }
@@ -186,6 +187,14 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 // Push status register on stack, decrement stack pointer
 void OpCodesTable::OpPHP(CPU *cpu, Byte opcode){
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
+    cpu->DecrementStackPointer();
+    cpu->IncreaseCycleCount(3);
+}
+
+// PHA
+// Push accumulator on stack, decrement stack pointer
+void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetAccumulator());
     cpu->DecrementStackPointer();
     cpu->IncreaseCycleCount(3);
 }

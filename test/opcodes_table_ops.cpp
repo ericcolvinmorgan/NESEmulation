@@ -88,11 +88,30 @@ TEST_CASE("OpCodes Table - Ops - PHP - Implied - Push status register on stack")
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x08);
     
-    // check stack
+    // check top of stack
     REQUIRE(cpu.GetMemoryByte(0x100 + (cpu.GetStackPointer() + 1)) == cpu.GetStatusRegister().data);
     
     // sp decremented once
-    REQUIRE(cpu.GetStackPointer() == 0xff - 1);
+    REQUIRE(cpu.GetStackPointer() == 0xFF - 1);
+
+    // cpu cycle count should increase by 3
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - PHA - Implied - Push accumulator on stack")
+{
+    RawMemoryAccessor memory;
+    Registers registers {.a = 0x4D, .sp = 0xFF}; // test data
+    CPU cpu(registers, &memory);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x48);
+    
+    // check top of stack
+    REQUIRE(cpu.GetMemoryByte(0x100 + (cpu.GetStackPointer() + 1)) == cpu.GetAccumulator());
+    
+    // sp decremented once
+    REQUIRE(cpu.GetStackPointer() == 0xFF - 1);
 
     // cpu cycle count should increase by 3
     REQUIRE(cpu.GetCycleCount() == 3);
