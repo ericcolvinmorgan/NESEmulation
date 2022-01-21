@@ -5,6 +5,7 @@ OpCodesTable::OpCodesTable()
     for (int i = 0; i <= 0xFF; i++)
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
+    opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
 }
@@ -98,6 +99,38 @@ void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
     auto address_mode_val = ((*this).*A)(cpu);
     cpu->AdvanceProgramCounter();
 };
+
+// BRK
+// cycle 1: fetch opcode, increment pc_
+// cycle 2: read next instruction byte(unused), increment pc_
+// cycle 3: push PCH on stack with B flag set, decrement sp_
+// cycle 4: puch PCL on stack, decrement sp_
+// cycle 5: push status register on stack, decrement sp_
+// cycle 6: fetch PCL at $FFFE
+// cycle 7: fetch PCH at $FFFF
+void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
+{
+    Byte b_flag = 0b00110000; // bits 4 and 5 set BRK
+    cpu->SetStatusRegisterFlag(b_flag);
+
+    Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
+    Byte pc_l = cpu->GetProgramCounter() & 0xFF;
+
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_h); 
+    cpu->DecrementStackPointer();
+
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_l);
+    cpu->DecrementStackPointer();
+
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
+    cpu->DecrementStackPointer();
+
+    pc_l = cpu->GetMemoryByte(0xFFFE);
+    pc_h = cpu->GetMemoryByte(0xFFFF);
+    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+
+    cpu->IncreaseCycleCount(7);
+}
 
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)

@@ -52,11 +52,17 @@ public:
     Word GetMemoryByte(uint16_t location) { return memory_->ReadByte(location); };
     Word GetMemoryWord(uint16_t location) { return memory_->ReadWord(location); };
     Word GetProgramCounter() { return registers_.pc; };
+    struct StatusRegister GetStatusRegister() { return registers_.sr; };
+    Byte GetStackPointer() { return registers_.sp; };
     const struct Registers *GetRegistersSnapshot() { return &registers_; };
     void IncreaseCycleCount(uint32_t cycles) { cycle_count_ += cycles; };
     void Reset();
     void ResetCycleCount() { cycle_count_ = 0; };
-    void SetAccumulator(Byte value) { registers_.a = value; }
+    void SetAccumulator(Byte value) { registers_.a = value; };
     void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
     void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
+    void SetStatusRegisterFlag(Byte bitmask) { registers_.sr.data |= bitmask; };
+    void DecrementStackPointer() { registers_.sp--; };
+    void IncrementStackPointer() { registers_.sp++; };
+    void SetProgramCounter(Word new_pc) { registers_.pc = new_pc; };
 };

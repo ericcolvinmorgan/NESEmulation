@@ -43,3 +43,39 @@ TEST_CASE("OpCodes Table - Ops - LDA - Immediate - Load Accumulator with Memory"
     REQUIRE(cpu.GetAccumulator() == 0xAF);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
+
+TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
+{
+    RawMemoryAccessor memory;
+    Registers registers;
+
+    // create empty stack
+    registers.sp = 0xff;
+
+    // set pc to test address
+    registers.pc = 0x8020;
+
+    CPU cpu(registers, &memory);
+
+    // put test bytes in memory
+    cpu.WriteMemory((Word)0xFFFE, (Word)0x0055);
+    cpu.WriteMemory((Word)0xFFFF, (Word)0x00EE);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x00);
+    
+    // check stack data
+    REQUIRE(cpu.GetMemoryByte(0x1FF) == 0x80);
+    REQUIRE(cpu.GetMemoryByte(0x1FE) == 0x20); 
+    REQUIRE(cpu.GetMemoryByte(0x1FD) == cpu.GetStatusRegister().data);
+    
+    // sp decremented 3x
+    REQUIRE(cpu.GetStackPointer() == 0xff - 3);
+
+    // pcl set to 0xFFFE, pch set to 0xFFFF
+    REQUIRE(cpu.GetProgramCounter() == 0xEE55);
+
+    // cpu cycle count should increase by 7
+    REQUIRE(cpu.GetCycleCount() == 7);
+}
+
