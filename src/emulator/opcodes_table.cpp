@@ -1,15 +1,15 @@
 #include "../../include/emulator/opcodes_table.h"
 
-    /*
-    TODO - OPEN ITEMS:
-    
-    1) I'm a little unclear how to handle wrap around when we exceed FFFF.
-    https://softpixel.com/~cwright/sianse/docs/65816NFO.HTM
-    For absolute indexed, this resource seems to indicate we'd wrap around 
-    into the zero page, though I know I've seen other resources that seem 
-    to extend past FFFF and not wrap.
-    
-    */
+/*
+TODO - OPEN ITEMS:
+
+1) I'm a little unclear how to handle wrap around when we exceed FFFF.
+https://softpixel.com/~cwright/sianse/docs/65816NFO.HTM
+For absolute indexed, this resource seems to indicate we'd wrap around
+into the zero page, though I know I've seen other resources that seem
+to extend past FFFF and not wrap.
+
+*/
 
 OpCodesTable::OpCodesTable()
 {
@@ -25,7 +25,14 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x60] = &OpCodesTable::OpRTS;
     opcodes_[0x68] = &OpCodesTable::OpPLA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xb1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
 }
 
 uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
@@ -70,9 +77,9 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteX(CPU *cpu)
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
     uint32_t indexed_address = (absolute_address + cpu->GetXIndex());
-    
-    //Crossed page boundry increasing cycle count by 1.
-    if((indexed_address >> 8) > (absolute_address >> 8))
+
+    // Crossed page boundry increasing cycle count by 1.
+    if ((indexed_address >> 8) > (absolute_address >> 8))
         cpu->IncreaseCycleCount(1);
 
     return {(uint16_t)(indexed_address & 0x0000FFFF), true};
@@ -85,9 +92,9 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteY(CPU *cpu)
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
     uint32_t indexed_address = (absolute_address + cpu->GetYIndex());
-    
-    //Crossed page boundry increasing cycle count by 1.
-    if((indexed_address >> 8) > (absolute_address >> 8))
+
+    // Crossed page boundry increasing cycle count by 1.
+    if ((indexed_address >> 8) > (absolute_address >> 8))
         cpu->IncreaseCycleCount(1);
 
     return {(uint16_t)(indexed_address & 0x0000FFFF), true};
@@ -121,20 +128,35 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeZeroPageY(CPU *cpu)
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeIndirectX(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(2);
-    auto immediate_val = cpu->GetCurrentOpCode();
+    cpu->IncreaseCycleCount(6);
+    Byte indirect_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
+    Word addr = cpu->GetMemoryWord((indirect_addr + cpu->GetXIndex()) & 0x00FF);
     cpu->AdvanceProgramCounter();
-    return {immediate_val, true};
+    return {addr, true};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeIndirectY(CPU *cpu)
 {
-    return {0, false};
+    cpu->IncreaseCycleCount(5);
+    Byte indirect_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
+    Word dereferenced_addr = cpu->GetMemoryWord(indirect_addr);
+    Word addr = dereferenced_addr + cpu->GetYIndex();
+    cpu->AdvanceProgramCounter();
+
+    if ((addr >> 8) > (dereferenced_addr >> 8))
+        cpu->IncreaseCycleCount(1);
+
+    return {addr, true};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteIndirect(CPU *cpu)
 {
-    return {0, false};
+    cpu->IncreaseCycleCount(5);
+    Word indirect_addr = cpu->GetMemoryWord(cpu->GetProgramCounter());
+    Word addr = cpu->GetMemoryWord(indirect_addr);
+    cpu->AdvanceProgramCounter();
+    cpu->AdvanceProgramCounter();
+    return {addr, true};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeRelative(CPU *cpu)
@@ -144,8 +166,8 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeRelative(CPU *cpu)
     cpu->AdvanceProgramCounter();
     uint16_t program_counter = cpu->GetProgramCounter();
     uint16_t relative_address = program_counter + ((int8_t)offset);
-    if(((program_counter ^ relative_address) & 0xFF00) != 0x0000)
-        cpu->IncreaseCycleCount(1);        
+    if (((program_counter ^ relative_address) & 0xFF00) != 0x0000)
+        cpu->IncreaseCycleCount(1);
     return {relative_address, false};
 }
 
@@ -171,7 +193,7 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
     Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
     Byte pc_l = cpu->GetProgramCounter() & 0xFF;
 
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_h); 
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_h);
     cpu->DecrementStackPointer();
 
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_l);
