@@ -46,6 +46,9 @@ public:
     void OpRTI(CPU *cpu, Byte opcode);
     void OpRTS(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpJSR(CPU *cpu, Byte opcode);
+
+    template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpSTA(CPU *cpu, Byte opcode);

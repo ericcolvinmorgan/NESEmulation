@@ -18,6 +18,7 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0x00] = &OpCodesTable::OpBRK;
     opcodes_[0x08] = &OpCodesTable::OpPHP;
+    opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x28] = &OpCodesTable::OpPLP;
     opcodes_[0x40] = &OpCodesTable::OpRTI;
     opcodes_[0x48] = &OpCodesTable::OpPHA;
@@ -273,6 +274,31 @@ void OpCodesTable::OpRTS(CPU *cpu, Byte opcode){
     cpu->AdvanceProgramCounter();
 
     cpu->IncreaseCycleCount(6);
+}
+
+// JSR
+// push pc_h on stack, decrement stack pointer
+// push pc_l on stack, decrement stack pointer
+// copy low address byte to pc_l
+// copy high address byte to pc_h
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+
+    // decrement pc to preserve last address before jump. pc will increment automatically with RTS
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 >> 8));
+    cpu->DecrementStackPointer();
+
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 & 0xFF));
+    cpu->DecrementStackPointer();
+
+    Byte new_pc_l = address_mode_val.value & 0xFF;
+    Byte new_pc_h = address_mode_val.value >> 8;
+    cpu->SetProgramCounter((new_pc_h << 8) | new_pc_l);
+
+    cpu->IncreaseCycleCount(2);
+
 }
 
 template <OpCodesTable::AddressMode A>

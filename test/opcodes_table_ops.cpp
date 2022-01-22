@@ -221,3 +221,68 @@ TEST_CASE("OpCodes Table - Ops - RTS - Implied - Return from subroutine ")
     // cpu cycle count should increase by 6
     REQUIRE(cpu.GetCycleCount() == 6);
 }
+
+TEST_CASE("OpCodes Table - Ops - JSR - Absolute - Jump to subroutine ")
+{
+    RawMemoryAccessor memory;
+    Byte top_of_stack = 0xFF;
+    Registers registers { .sp = top_of_stack, .pc = 0x0101 };
+    CPU cpu(registers, &memory);
+    // test data
+    Byte hi = 0x12;
+    Byte lo = 0x34;
+    
+    // write test data
+    cpu.WriteMemory(0x0101, (Byte) lo);
+    cpu.WriteMemory(0x0102, (Byte) hi);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x20);
+    
+    // check stack
+    REQUIRE(cpu.GetStackPointer() == top_of_stack - 2);
+    REQUIRE(cpu.GetMemoryByte(0x100 + top_of_stack) == 0x01);
+    REQUIRE(cpu.GetMemoryByte(0x100 + (top_of_stack - 1)) == 0x02);
+
+    // pc set to $1234
+    REQUIRE(cpu.GetProgramCounter() == 0x1234);
+
+    // cpu cycle count should increase by 6
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - JSR and RTS are synchronized ")
+{
+    /*  
+        PC $0100 JMP instruction read
+        PC $0101 fetch low address (0x34)
+        PC $0102 fetch high address (0x12)
+        $0102 pushed to stack
+        -jump to subroutine at 0x1234
+        -subroutine completes
+        pull $0102 off stack and put in PC, RTS increments PC
+        PC $0103 reads next instruction to execute
+    */
+    RawMemoryAccessor memory;
+    Byte top_of_stack = 0xFF;
+    Registers registers { .sp = top_of_stack, .pc = 0x0101 };
+    CPU cpu(registers, &memory);
+    // test data
+    Byte hi = 0x12;
+    Byte lo = 0x34;
+    
+    // write test data
+    cpu.WriteMemory(0x0101, (Byte) lo);
+    cpu.WriteMemory(0x0102, (Byte) hi);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x20);  // JSR
+    opcodes.RunOpCode(&cpu, 0x60);  // RTS
+
+    // stack should be empty again
+    REQUIRE(cpu.GetStackPointer() == top_of_stack);
+
+    REQUIRE(cpu.GetProgramCounter() == 0x103);
+    
+
+}
