@@ -180,9 +180,8 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
     cpu->DecrementStackPointer();
 
-    pc_l = cpu->GetMemoryByte(0xFFFE);
-    pc_h = cpu->GetMemoryByte(0xFFFF);
-    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+    Word new_pc = cpu->GetMemoryWord(0xFFFE);
+    cpu->SetProgramCounter(new_pc);
 
     cpu->IncreaseCycleCount(7);
 }
@@ -293,9 +292,7 @@ void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 & 0xFF));
     cpu->DecrementStackPointer();
 
-    Byte new_pc_l = address_mode_val.value & 0xFF;
-    Byte new_pc_h = address_mode_val.value >> 8;
-    cpu->SetProgramCounter((new_pc_h << 8) | new_pc_l);
+    cpu->SetProgramCounter(address_mode_val.value);
 
     cpu->IncreaseCycleCount(2);
 
