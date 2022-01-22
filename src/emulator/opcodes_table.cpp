@@ -21,6 +21,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x28] = &OpCodesTable::OpPLP;
     opcodes_[0x40] = &OpCodesTable::OpRTI;
     opcodes_[0x48] = &OpCodesTable::OpPHA;
+    opcodes_[0x60] = &OpCodesTable::OpRTS;
     opcodes_[0x68] = &OpCodesTable::OpPLA;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
@@ -252,6 +253,24 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode){
     Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
 
     cpu->SetProgramCounter((pc_h << 8) | pc_l);
+
+    cpu->IncreaseCycleCount(6);
+}
+
+// RTS
+// pop top of stack and store in pc_l
+// pop top of stack and store in pc_h
+// increment program counter
+void OpCodesTable::OpRTS(CPU *cpu, Byte opcode){
+
+    cpu->IncrementStackPointer();
+    Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    
+    cpu->IncrementStackPointer();
+    Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+
+    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+    cpu->AdvanceProgramCounter();
 
     cpu->IncreaseCycleCount(6);
 }

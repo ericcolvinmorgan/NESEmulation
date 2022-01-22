@@ -58,8 +58,8 @@ TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
     CPU cpu(registers, &memory);
 
     // put test bytes in memory
-    cpu.WriteMemory((Word)0xFFFE, (Word)0x0055);
-    cpu.WriteMemory((Word)0xFFFF, (Word)0x00EE);
+    cpu.WriteMemory((Word)0xFFFE, (Byte)0x55);
+    cpu.WriteMemory((Word)0xFFFF, (Byte)0xEE);
     
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x00);
@@ -147,7 +147,7 @@ TEST_CASE("OpCodes Table - Ops - PLP - Implied - Store top of stack in status re
     Byte new_sr = 0b10101011;   // test data
     
     // write test data to top of stack
-    cpu.WriteMemory(0x100 + cpu.GetStackPointer() + 1, (Word)new_sr);
+    cpu.WriteMemory(0x100 + cpu.GetStackPointer() + 1, (Byte)new_sr);
     
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x28);
@@ -190,6 +190,33 @@ TEST_CASE("OpCodes Table - Ops - RTI - Implied - Return from Interrupt ")
 
     // pc = 0x5080
     REQUIRE(cpu.GetProgramCounter() == 0x8050);
+
+    // cpu cycle count should increase by 6
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - RTS - Implied - Return from subroutine ")
+{
+    RawMemoryAccessor memory;
+    Byte top_of_stack = 0xFF;
+    Registers registers { .sp = (Byte)(top_of_stack - 2) };
+    CPU cpu(registers, &memory);
+    // test data
+    Byte pc_l = 0x02;
+    Byte pc_h = 0x01; 
+    
+    // write test data
+    memory.WriteMemory(0x100 + top_of_stack, (Byte) pc_h);
+    memory.WriteMemory(0x100 + (top_of_stack - 1), (Byte) pc_l);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x60);
+    
+    // sp incremented 2 times
+    REQUIRE(cpu.GetStackPointer() == top_of_stack);
+
+    // pc set to $0102 then incremented, so should equal $0103
+    REQUIRE(cpu.GetProgramCounter() == 0x0103);
 
     // cpu cycle count should increase by 6
     REQUIRE(cpu.GetCycleCount() == 6);

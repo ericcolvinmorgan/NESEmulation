@@ -44,6 +44,7 @@ public:
     void OpPLA(CPU *cpu, Byte opcode);
     void OpPLP(CPU *cpu, Byte opcode);
     void OpRTI(CPU *cpu, Byte opcode);
+    void OpRTS(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
