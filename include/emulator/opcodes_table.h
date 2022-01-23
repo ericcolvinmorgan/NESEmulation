@@ -38,16 +38,22 @@ public:
     // Implemented Op Codes
     template <OpCodesTable::AddressMode A>
     void OpNotImplemented(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpBRK(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpPHP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpPHA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpPLA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpPLP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpRTI(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpRTS(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpJSR(CPU *cpu, Byte opcode);
-
     template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
