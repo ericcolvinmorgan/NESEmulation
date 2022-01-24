@@ -624,3 +624,63 @@ TEST_CASE("OpCodes Table - Ops - LDX - Negative flag clears when load non-negati
     statusRegister = cpu.GetStatusRegister();
     REQUIRE(statusRegister.flags.n == 0);
 }
+
+TEST_CASE("OpCodes Table - Ops - STX - Zero Page - Store Index Register X In Memory")
+{
+    Byte test_case[] = {0x86, 0x7C};
+    Registers registers{.x = 0x73, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x86);
+    REQUIRE(memory.ReadByte(0x007C) == 0x73);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - STX - Absolute - Store Index Register X In Memory")
+{
+    Byte test_case[] = {0x8e, 0xAF, 0x08};
+    Registers registers{.x = 0x23, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x8e);
+    REQUIRE(memory.ReadByte(0x08AF) == 0x23);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - STX - Zero Page Y - Store Index Register X In Memory")
+{
+    Byte test_case[] = {0x96, 0xAF};
+    Registers registers{.x = 0x45, .y = 0x10, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x96);
+    REQUIRE(memory.ReadByte(0x00BF) == 0x45);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}

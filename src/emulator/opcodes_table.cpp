@@ -24,7 +24,10 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
@@ -375,4 +378,11 @@ void OpCodesTable::OpLDX(CPU *cpu, Byte opcode)
     }
 
     cpu->SetXIndex(loaded_value);
+};
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSTX(CPU *cpu, Byte opcode)
+{
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->WriteMemory(address_mode_val.value, cpu->GetXIndex());
 };

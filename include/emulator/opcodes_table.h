@@ -60,4 +60,6 @@ public:
     void OpSTA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLDX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSTX(CPU *cpu, Byte opcode);
 };
