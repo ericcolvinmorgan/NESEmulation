@@ -433,3 +433,108 @@ TEST_CASE("OpCodes Table - Ops - JSR and RTS are synchronized ")
     
 
 }
+
+TEST_CASE("OpCodes Table - Ops - LDX - Immediate - Load Index Register X From Memory")
+{
+    Byte test_case[] = {0xa2, 0xAF};
+    Registers registers{.x = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa2);
+    REQUIRE(cpu.GetXIndex() == 0xAF);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Zero Page - Load Index Register X From Memory")
+{
+    Byte test_case[] = {0xa6, 0xAF};
+    Registers registers{.x = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x00AF, (Byte)0xBC);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa6);
+    REQUIRE(cpu.GetXIndex() == 0xBC);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Absolute - Load Index Register X From Memory")
+{
+    Byte test_case[] = {0xae, 0xAF, 0x08};
+    Registers registers{.x = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x08AF, (Byte)0xA0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xae);
+    REQUIRE(cpu.GetXIndex() == 0xA0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+
+TEST_CASE("OpCodes Table - Ops - LDX - Zero Page Y - Load Index Register X From Memory")
+{
+    Byte test_case[] = {0xb6, 0xAF};
+    Registers registers{.x = 0x00, .y = 0x10, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x00BF, (Byte) 0xA0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xb6);
+    REQUIRE(cpu.GetXIndex() == 0xA0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Absolute Y - Load Index Register X From Memory")
+{
+    Byte test_case[] = {0xbe, 0xAF, 0x12};
+    Registers registers{.x = 0x00, .y = 0x21,.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x12D0, (Byte)0x73);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xbe);
+    REQUIRE(cpu.GetXIndex() == 0x73);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}

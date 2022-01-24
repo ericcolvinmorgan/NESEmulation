@@ -26,13 +26,18 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xa6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xb1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
 }
 
 uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
@@ -342,4 +347,32 @@ void OpCodesTable::OpSTA(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->WriteMemory(address_mode_val.value, cpu->GetAccumulator());
+};
+
+// Load register X from memory
+// zero flag set if loaded value is 0, otherwise cleared
+// negative flag is set to 7th bit of loaded value
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpLDX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
+
+    const auto loaded_value = address_mode_val.value;
+    // set zero flag
+    if (loaded_value) {
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+    } else {
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+    }
+
+    // negative flag
+    if (loaded_value >> 7 == 1) {
+        cpu->SetStatusRegisterFlag(kNegativeFlag);
+    } else {
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+    }
+
+    cpu->SetXIndex(loaded_value);
 };
