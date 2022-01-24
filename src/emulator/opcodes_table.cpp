@@ -16,7 +16,14 @@ OpCodesTable::OpCodesTable()
     for (int i = 0; i <= 0xFF; i++)
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
-    opcodes_[0x00] = &OpCodesTable::OpBRK;
+    opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
@@ -179,10 +186,10 @@ void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
 // cycle 5: push status register on stack, decrement sp_
 // cycle 6: fetch PCL at $FFFE
 // cycle 7: fetch PCH at $FFFF
+template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 {
-    Byte b_flag = 0b00110000; // bits 4 and 5 set BRK
-    cpu->SetStatusRegisterFlag(b_flag);
+    cpu->SetStatusRegisterFlag(kBreakFlag);
 
     Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
     Byte pc_l = cpu->GetProgramCounter() & 0xFF;
@@ -196,11 +203,128 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
     cpu->DecrementStackPointer();
 
-    pc_l = cpu->GetMemoryByte(0xFFFE);
-    pc_h = cpu->GetMemoryByte(0xFFFF);
-    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+    Word new_pc = cpu->GetMemoryWord(0xFFFE);
+    cpu->SetProgramCounter(new_pc);
 
     cpu->IncreaseCycleCount(7);
+}
+
+// PHP
+// Push status register on stack, decrement stack pointer
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpPHP(CPU *cpu, Byte opcode){
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
+    cpu->DecrementStackPointer();
+    cpu->IncreaseCycleCount(3);
+}
+
+// PHA
+// Push accumulator on stack, decrement stack pointer
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetAccumulator());
+    cpu->DecrementStackPointer();
+    cpu->IncreaseCycleCount(3);
+}
+
+// PLA
+// increment stack pointer, pull top of stack and store in accumulator
+// zero flag set if copied value is 0, otherwise cleared
+// negative flag is set to 7th bit of copied value
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetAccumulator(copied_value);
+
+    // set zero flag
+    if (copied_value) {
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+    } else {
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+    }
+
+    // negative flag
+    if (copied_value >> 7 == 1) {
+        cpu->SetStatusRegisterFlag(kNegativeFlag);
+    } else {
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+    }
+
+    cpu->IncreaseCycleCount(4);
+}
+
+// PLP
+// increment stack pointer, pull top of stack and store in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpPLP(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetStatusRegister(copied_value);
+    cpu->IncreaseCycleCount(4);
+}
+
+// RTI
+// pop top of stack and store in status register
+// pop top of stack and store in pc_l
+// pop top of stack and store in pc_h
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpRTI(CPU *cpu, Byte opcode){
+    cpu->IncrementStackPointer();
+    Byte new_sr = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    cpu->SetStatusRegister(new_sr);
+
+    cpu->IncrementStackPointer();
+    Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    
+    cpu->IncrementStackPointer();
+    Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+
+    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+
+    cpu->IncreaseCycleCount(6);
+}
+
+// RTS
+// pop top of stack and store in pc_l
+// pop top of stack and store in pc_h
+// increment program counter
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpRTS(CPU *cpu, Byte opcode){
+
+    cpu->IncrementStackPointer();
+    Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    
+    cpu->IncrementStackPointer();
+    Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+
+    cpu->SetProgramCounter((pc_h << 8) | pc_l);
+    cpu->AdvanceProgramCounter();
+
+    cpu->IncreaseCycleCount(6);
+}
+
+// JSR
+// push pc_h on stack, decrement stack pointer
+// push pc_l on stack, decrement stack pointer
+// copy low address byte to pc_l
+// copy high address byte to pc_h
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+
+    // decrement pc to preserve last address before jump. pc will increment automatically with RTS
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 >> 8));
+    cpu->DecrementStackPointer();
+
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 & 0xFF));
+    cpu->DecrementStackPointer();
+
+    cpu->SetProgramCounter(address_mode_val.value);
+
+    cpu->IncreaseCycleCount(2);
+
 }
 
 template <OpCodesTable::AddressMode A>

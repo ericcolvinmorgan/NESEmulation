@@ -64,7 +64,9 @@ public:
     void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
     void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
     void SetStatusRegisterFlag(Byte bitmask) { registers_.sr.data |= bitmask; };
+    void ClearStatusRegisterFlag(Byte bitmask) { registers_.sr.data &= ~(bitmask); }
     void DecrementStackPointer() { registers_.sp--; };
     void IncrementStackPointer() { registers_.sp++; };
     void SetProgramCounter(Word new_pc) { registers_.pc = new_pc; };
+    void SetStatusRegister(Byte new_data) { registers_.sr.data = new_data; };
 };
