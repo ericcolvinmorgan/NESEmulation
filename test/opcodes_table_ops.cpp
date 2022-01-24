@@ -538,3 +538,89 @@ TEST_CASE("OpCodes Table - Ops - LDX - Absolute Y - Load Index Register X From M
     REQUIRE(cpu.GetXIndex() == 0x73);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
+
+TEST_CASE("OpCodes Table - Ops - LDX - Zero flag sets when load zero")
+{
+    Byte test_case[] = {0xa2, 0x00};
+    Registers registers{.x = 0xA0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+    const auto statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.z == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Zero flag clears when load non-zero")
+{
+    Byte test_case[] = {0xa2, 0x00, 0xa2, 0x04};
+    Registers registers{.x = 0xA0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 4);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+    auto statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.z == 1);
+
+    opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    opcodes.RunOpCode(&cpu, opcode);
+    statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.z == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Negative flag sets when load negative")
+{
+    Byte test_case[] = {0xa2, 0xA0};
+    Registers registers{.x = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+    const auto statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.n == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDX - Negative flag clears when load non-negative")
+{
+    Byte test_case[] = {0xa2, 0xA0, 0xa2, 0x00};
+    Registers registers{.x = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 4);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+    auto statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.n == 1);
+
+    opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    opcodes.RunOpCode(&cpu, opcode);
+    statusRegister = cpu.GetStatusRegister();
+    REQUIRE(statusRegister.flags.n == 0);
+}
