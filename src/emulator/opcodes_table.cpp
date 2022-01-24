@@ -386,3 +386,73 @@ void OpCodesTable::OpSTX(CPU *cpu, Byte opcode)
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->WriteMemory(address_mode_val.value, cpu->GetXIndex());
 };
+
+// SED
+// Set decimal mode in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSED(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kDecimalFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLD
+// Clears decimal mode in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLD(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kDecimalFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// SEI
+// Set interrupt disable flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSEI(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kInterruptFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLI
+// Clear interrupt disable flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLI(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kInterruptFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// SEC
+// Set carry flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSEC(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kCarryFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLC
+// Clear carry flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLC(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kCarryFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLV
+// Clear overflow flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLV(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kOverflowFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
