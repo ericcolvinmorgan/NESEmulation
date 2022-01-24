@@ -39,6 +39,10 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpNotImplemented(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpADC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpAND(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpBRK(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpPHP(CPU *cpu, Byte opcode);
@@ -55,7 +59,15 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpJSR(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpCMP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpEOR(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpORA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSBC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpSTA(CPU *cpu, Byte opcode);
 };

@@ -433,3 +433,679 @@ TEST_CASE("OpCodes Table - Ops - JSR and RTS are synchronized ")
     
 
 }
+TEST_CASE("OpCodes Table - Ops - ORA - Immediate - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x09, 0xaa};
+    Registers registers{.a = 0x55, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x09);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Zero Page - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x05, 0x34};
+    Registers registers{.a = 0x55, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x05);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Zero Page X - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x15, 0x34};
+    Registers registers{.a = 0x55, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x15);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Absolute - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x0d, 0x34, 0x12};
+    Registers registers{.a = 0x55, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x0d);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Absolute X - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x1d, 0x34, 0x12};
+    Registers registers{.a = 0x55, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x1d);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Absolute Y - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x19, 0x34, 0x12};
+    Registers registers{.a = 0x55, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x19);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Indirect X - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x01, 0x34};
+    Registers registers{.a = 0x55, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Word)0x1236);
+    memory.WriteMemory(0x1236, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x01);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ORA - Indirect Y - OR Memory with Accumulator")
+{
+    Byte test_case[] = {0x11, 0x34};
+    Registers registers{.a = 0x55, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Word)0x1234);
+    memory.WriteMemory(0x1236, (Byte)0xaa);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x11);
+    REQUIRE(cpu.GetAccumulator() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Immediate - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x29, 0x91};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x29);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Zero Page - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x25, 0x34};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x25);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Zero Page X - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x35, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x35);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Absolute - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x2d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x2d);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Absolute X - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x3d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x3d);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Absolute Y - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x39, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x39);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Indirect X - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x21, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Word)0x1236);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x21);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - AND - Indirect Y - AND Memory with Accumulator")
+{
+    Byte test_case[] = {0x31, 0x34};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Word)0x1234);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x31);
+    REQUIRE(cpu.GetAccumulator() == 0x81);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Immediate - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x49, 0x91};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x49);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Zero Page - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x45, 0x34};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x45);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Zero Page X - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x55, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x55);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Absolute - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x4d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x4d);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Absolute X - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x5d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x5d);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Absolute Y - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x59, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x59);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Indirect X - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x41, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Word)0x1236);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x41);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - EOR - Indirect Y - EOR Memory with Accumulator")
+{
+    Byte test_case[] = {0x51, 0x34};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Word)0x1234);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x51);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Immediate - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x69, 0x91};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x69);
+    REQUIRE(cpu.GetAccumulator() == 0x40);                                            
+    REQUIRE(cpu.GetStatusRegister().data == 0b10000110);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Zero Page - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x65, 0x34};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x65);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Zero Page X - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x75, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x75);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Absolute - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x6d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x6d);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Absolute X - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x7d, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x7d);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Absolute Y - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x79, 0x34, 0x12};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x79);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Indirect X - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x61, 0x34};
+    Registers registers{.a = 0xaf, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0036, (Word)0x1236);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x61);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ADC - Indirect Y - Add Memory to Accumulator with Carry")
+{
+    Byte test_case[] = {0x71, 0x34};
+    Registers registers{.a = 0xaf, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Word)0x1234);
+    memory.WriteMemory(0x1236, (Byte)0x91);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x71);
+    REQUIRE(cpu.GetAccumulator() == 0x3e);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}

@@ -17,13 +17,45 @@ OpCodesTable::OpCodesTable()
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x01] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x05] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x09] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x0d] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x11] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x15] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x19] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x1d] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x21] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x25] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x29] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x2d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x31] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x35] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x39] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x3d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x41] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x45] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x49] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x4d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x51] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x55] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x59] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x5d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x61] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x65] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x69] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x6d] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x71] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x75] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x79] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x7d] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
@@ -33,6 +65,22 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xd5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xd9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xf9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xfd] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteX>;
 }
 
 uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
@@ -178,6 +226,30 @@ void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
     cpu->AdvanceProgramCounter();
 };
 
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpADC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() + address_mode_val.value;
+    cpu->SetAccumulator((Byte)(result & 0x00FF));
+    if ((result & 0xFF00) > 0x0000)
+        cpu->SetStatusRegisterFlag(kOverflowFlag | kCarryFlag);
+};
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpAND(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() & address_mode_val.value;
+    cpu->SetAccumulator((Byte)(result & 0x00FF));
+};
+
 // BRK
 // cycle 1: fetch opcode, increment pc_
 // cycle 2: read next instruction byte(unused), increment pc_
@@ -212,7 +284,8 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 // PHP
 // Push status register on stack, decrement stack pointer
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpPHP(CPU *cpu, Byte opcode){
+void OpCodesTable::OpPHP(CPU *cpu, Byte opcode)
+{
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
     cpu->DecrementStackPointer();
     cpu->IncreaseCycleCount(3);
@@ -221,7 +294,8 @@ void OpCodesTable::OpPHP(CPU *cpu, Byte opcode){
 // PHA
 // Push accumulator on stack, decrement stack pointer
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
+void OpCodesTable::OpPHA(CPU *cpu, Byte opcode)
+{
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetAccumulator());
     cpu->DecrementStackPointer();
     cpu->IncreaseCycleCount(3);
@@ -232,22 +306,29 @@ void OpCodesTable::OpPHA(CPU *cpu, Byte opcode){
 // zero flag set if copied value is 0, otherwise cleared
 // negative flag is set to 7th bit of copied value
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
+void OpCodesTable::OpPLA(CPU *cpu, Byte opcode)
+{
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetAccumulator(copied_value);
 
     // set zero flag
-    if (copied_value) {
+    if (copied_value)
+    {
         cpu->SetStatusRegisterFlag(kZeroFlag);
-    } else {
+    }
+    else
+    {
         cpu->ClearStatusRegisterFlag(kZeroFlag);
     }
 
     // negative flag
-    if (copied_value >> 7 == 1) {
+    if (copied_value >> 7 == 1)
+    {
         cpu->SetStatusRegisterFlag(kNegativeFlag);
-    } else {
+    }
+    else
+    {
         cpu->ClearStatusRegisterFlag(kNegativeFlag);
     }
 
@@ -257,7 +338,8 @@ void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
 // PLP
 // increment stack pointer, pull top of stack and store in status register
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpPLP(CPU *cpu, Byte opcode){
+void OpCodesTable::OpPLP(CPU *cpu, Byte opcode)
+{
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetStatusRegister(copied_value);
@@ -269,14 +351,15 @@ void OpCodesTable::OpPLP(CPU *cpu, Byte opcode){
 // pop top of stack and store in pc_l
 // pop top of stack and store in pc_h
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpRTI(CPU *cpu, Byte opcode){
+void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
+{
     cpu->IncrementStackPointer();
     Byte new_sr = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetStatusRegister(new_sr);
 
     cpu->IncrementStackPointer();
     Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
-    
+
     cpu->IncrementStackPointer();
     Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
 
@@ -290,11 +373,12 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode){
 // pop top of stack and store in pc_h
 // increment program counter
 template <OpCodesTable::AddressMode A>
-void OpCodesTable::OpRTS(CPU *cpu, Byte opcode){
+void OpCodesTable::OpRTS(CPU *cpu, Byte opcode)
+{
 
     cpu->IncrementStackPointer();
     Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
-    
+
     cpu->IncrementStackPointer();
     Byte pc_h = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
 
@@ -315,17 +399,37 @@ void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
 
     // decrement pc to preserve last address before jump. pc will increment automatically with RTS
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 >> 8));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 >> 8));
     cpu->DecrementStackPointer();
 
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte) (cpu->GetProgramCounter()-1 & 0xFF));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 & 0xFF));
     cpu->DecrementStackPointer();
 
     cpu->SetProgramCounter(address_mode_val.value);
 
     cpu->IncreaseCycleCount(2);
-
 }
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCMP(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() - address_mode_val.value;
+};
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpEOR(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() ^ address_mode_val.value;
+    cpu->SetAccumulator((Byte)(result & 0x00FF));
+};
 
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
@@ -335,6 +439,28 @@ void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
         address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
 
     cpu->SetAccumulator(address_mode_val.value);
+};
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpORA(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() | address_mode_val.value;
+    cpu->SetAccumulator((Byte)(result & 0x00FF));
+};
+
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSBC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+
+    Word result = cpu->GetAccumulator() - address_mode_val.value;
+    cpu->SetAccumulator((Byte)(result & 0x00FF));
 };
 
 template <OpCodesTable::AddressMode A>
