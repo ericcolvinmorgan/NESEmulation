@@ -76,4 +76,22 @@ public:
     void OpSBC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpSTA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpLDX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSTX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSED(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSEI(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSEC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCLD(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCLV(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCLI(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCLC(CPU *cpu, Byte opcode);
 };
