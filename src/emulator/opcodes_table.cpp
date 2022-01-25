@@ -20,6 +20,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x50] = &OpCodesTable::OpBVC<&OpCodesTable::AddressingModeRelative>;
+    opcodes_[0x70] = &OpCodesTable::OpBVS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
@@ -516,6 +517,19 @@ void OpCodesTable::OpBCC(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     if (cpu->GetStatusRegister().flags.c == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+}
+
+// BVS
+// branch if the overflow flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBVS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.o == 1)
     {
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
