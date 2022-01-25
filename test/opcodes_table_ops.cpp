@@ -3,6 +3,50 @@
 #include "../include/emulator/cpu.h"
 #include "../include/emulator/raw_memory_accessor.h"
 #include "../include/emulator/opcodes_table.h"
+TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
+{
+    Byte test_case[] = {0xf0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xf0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BEQ - Relative - No branch on zero cleared")
+{
+    Byte test_case[] = {0xf0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xf0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+
+
 
 TEST_CASE("OpCodes Table - Ops - STA - Absolute - Store Accumulator in Memory")
 {

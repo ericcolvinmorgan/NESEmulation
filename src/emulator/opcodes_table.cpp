@@ -16,6 +16,7 @@ OpCodesTable::OpCodesTable()
     for (int i = 0; i <= 0xFF; i++)
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
+    opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
@@ -462,4 +463,17 @@ void OpCodesTable::OpCLV(CPU *cpu, Byte opcode)
     cpu->ClearStatusRegisterFlag(kOverflowFlag);
 
     cpu->IncreaseCycleCount(2);
+}
+
+// BEQ
+// branch if the zero flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBEQ(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.z == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
 }
