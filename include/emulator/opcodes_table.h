@@ -76,4 +76,10 @@ public:
     void OpCLI(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpCLC(CPU *cpu, Byte opcode);
+
+
+    template <OpCodesTable::AddressMode A>
+    void OpJMP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpBIT(CPU *cpu, Byte opcode);
 };

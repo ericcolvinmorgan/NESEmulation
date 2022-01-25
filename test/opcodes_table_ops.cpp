@@ -866,3 +866,46 @@ TEST_CASE("OpCodes Table - Ops - CLV - Clear overflow flag ")
 
     REQUIRE(cpu.GetStatusRegister().flags.o == 0);
 }
+
+
+
+TEST_CASE("OpCodes Table - Ops - JMP - Absolute - jump to new address")
+{
+    Byte test_case[] = {0x4c, 0x34, 0x12};
+    Registers registers{.pc = 0x0100};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 3);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x4c);
+    REQUIRE(cpu.GetProgramCounter() == 0x1234);
+}
+
+
+TEST_CASE("OpCodes Table - Ops - JMP - Absolute Indirect - jump to new address")
+{
+    Byte test_case[] = {0x6c, 0x34, 0x12};
+    Byte test_address[] = {0xCD, 0xAB};
+    Registers registers{.pc = 0x0100};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 3);
+    memory.WriteMemory(0x1234, test_address, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x6c);
+    REQUIRE(cpu.GetProgramCounter() == 0xABCD);
+}

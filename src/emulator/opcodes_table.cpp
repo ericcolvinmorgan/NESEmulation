@@ -17,6 +17,10 @@ OpCodesTable::OpCodesTable()
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
+
+    opcodes_[0x4c] = &OpCodesTable::OpJMP<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x6c] = &OpCodesTable::OpJMP<&OpCodesTable::AddressingModeAbsoluteIndirect>;
+
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
@@ -463,3 +467,16 @@ void OpCodesTable::OpCLV(CPU *cpu, Byte opcode)
 
     cpu->IncreaseCycleCount(2);
 }
+
+
+// JMP
+// sets the program counter to the memory location specified by the operand
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpJMP(CPU *cpu, Byte opcode)
+{
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->SetProgramCounter(address_mode_val.value);
+
+    // absolute should be 3 cycles
+    // absolute indirect should be 5 cycles
+};
