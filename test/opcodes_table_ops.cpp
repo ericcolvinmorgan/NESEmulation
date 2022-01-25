@@ -719,3 +719,150 @@ TEST_CASE("OpCodes Table - Ops - STX - Zero Page Y - Store Index Register X In M
     REQUIRE(memory.ReadByte(0x00BF) == 0x45);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
+
+TEST_CASE("OpCodes Table - Ops - SED - Set decimal mode flag ")
+{
+    
+    Byte test_case[] = {0xF8, 0x12};
+    Registers registers{ .pc = 0x0100 };
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.d == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.d == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - CLD - Clear decimal mode flag ")
+{
+    
+    Byte test_case[] = {0xD8, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.d = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.d == 1);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.d == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - SEI - Set interrupt disable flag ")
+{
+    
+    Byte test_case[] = {0x78, 0x12};
+    Registers registers{ .pc = 0x0100 };
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.i == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.i == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - CLI - Clear interrupt disable flag ")
+{
+    Byte test_case[] = {0x58, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.i = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.i == 1);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.i == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - SEC - Set carry flag ")
+{
+    Byte test_case[] = {0x38, 0x12};
+    Registers registers{ .pc = 0x0100 };
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - CLC - Clear carry flag ")
+{
+    Byte test_case[] = {0x18, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CLV - Clear overflow flag ")
+{
+    Byte test_case[] = {0xb8, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.o = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.o == 1);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(cpu.GetStatusRegister().flags.o == 0);
+}

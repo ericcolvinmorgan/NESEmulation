@@ -18,12 +18,16 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x38] = &OpCodesTable::OpSEC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x58] = &OpCodesTable::OpCLI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x78] = &OpCodesTable::OpSEI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
@@ -38,9 +42,12 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xb1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
+    opcodes_[0xb8] = &OpCodesTable::OpCLV<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xf8] = &OpCodesTable::OpSED<&OpCodesTable::AddressingModeImplied>;
 }
 
 uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
@@ -386,3 +393,73 @@ void OpCodesTable::OpSTX(CPU *cpu, Byte opcode)
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->WriteMemory(address_mode_val.value, cpu->GetXIndex());
 };
+
+// SED
+// Set decimal mode in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSED(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kDecimalFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLD
+// Clears decimal mode in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLD(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kDecimalFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// SEI
+// Set interrupt disable flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSEI(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kInterruptFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLI
+// Clear interrupt disable flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLI(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kInterruptFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// SEC
+// Set carry flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpSEC(CPU *cpu, Byte opcode)
+{
+    cpu->SetStatusRegisterFlag(kCarryFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLC
+// Clear carry flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLC(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kCarryFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// CLV
+// Clear overflow flag in status register
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCLV(CPU *cpu, Byte opcode)
+{
+    cpu->ClearStatusRegisterFlag(kOverflowFlag);
+
+    cpu->IncreaseCycleCount(2);
+}
