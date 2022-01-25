@@ -18,6 +18,8 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
+    opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
+    opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
@@ -480,12 +482,38 @@ void OpCodesTable::OpBEQ(CPU *cpu, Byte opcode)
 }
 
 // BNE
-// branch if the zero flag NOT set
+// branch if the zero flag cleared
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpBNE(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     if (cpu->GetStatusRegister().flags.z == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+}
+
+// BCS
+// branch if the carry flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBCS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.c == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+}
+
+// BCC
+// branch if the carry flag is cleared
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBCC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.c == 0)
     {
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
