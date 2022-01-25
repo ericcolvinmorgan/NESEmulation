@@ -20,6 +20,8 @@ OpCodesTable::OpCodesTable()
 
     opcodes_[0x4c] = &OpCodesTable::OpJMP<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x6c] = &OpCodesTable::OpJMP<&OpCodesTable::AddressingModeAbsoluteIndirect>;
+    opcodes_[0x24] = &OpCodesTable::OpBIT<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x2C] = &OpCodesTable::OpBIT<&OpCodesTable::AddressingModeAbsolute>;
 
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
@@ -476,6 +478,57 @@ void OpCodesTable::OpJMP(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetProgramCounter(address_mode_val.value);
+
+    // absolute should be 3 cycles
+    // absolute indirect should be 5 cycles
+};
+
+// BIT
+// perform bitwise AND between accumulator and byte in operand
+// zero flag set if result of AND is zero, otherwise cleared
+// overflow flag updated to equal bit #6 of operand byte
+// negative flag updated to equal bit #7 of operand byte
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBIT(CPU *cpu, Byte opcode)
+{
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
+    address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+    auto result = cpu->GetAccumulator() & address_mode_val.value;
+
+    // set zero flag
+    if (!result)
+    {
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+    } 
+    else
+    {
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+    }
+
+    // set overflow flag
+    if ((address_mode_val.value & (1 << 6)) >> 6) 
+    {
+        cpu->SetStatusRegisterFlag(kOverflowFlag);
+    }
+    else
+    {
+        cpu->ClearStatusRegisterFlag(kOverflowFlag);
+    }
+
+    // set negative flag
+    if (address_mode_val.value >> 7)
+    {
+        cpu->SetStatusRegisterFlag(kNegativeFlag);
+    }
+    else
+    {
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+    }
+
+    
+    
+
+
 
     // absolute should be 3 cycles
     // absolute indirect should be 5 cycles

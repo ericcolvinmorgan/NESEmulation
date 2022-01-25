@@ -909,3 +909,51 @@ TEST_CASE("OpCodes Table - Ops - JMP - Absolute Indirect - jump to new address")
     REQUIRE(opcode == 0x6c);
     REQUIRE(cpu.GetProgramCounter() == 0xABCD);
 }
+
+TEST_CASE("OpCodes Table - Ops - BIT - Absolute - Test bits in memory with accumulator, non-zero result")
+{
+    Byte test_case[] = {0x2c, 0x34, 0x12};
+    Byte test_address[] = {0b11100000};
+    Registers registers{.a = 0b11000101, .pc = 0x0100};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 3);
+    memory.WriteMemory(0x1234, test_address, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x2c);
+    REQUIRE(cpu.GetAccumulator() == 0b11000101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.o == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - BIT - Absolute - Test bits in memory with accumulator, zero result")
+{
+    Byte test_case[] = {0x2c, 0x34, 0x12};
+    Byte test_address[] = {0x00};
+    Registers registers{.a = 0b11000101, .pc = 0x0100};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0100, test_case, 3);
+    memory.WriteMemory(0x1234, test_address, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x2c);
+    REQUIRE(cpu.GetAccumulator() == 0b11000101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.o == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+}
