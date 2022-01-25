@@ -30,7 +30,7 @@ struct Registers
     Byte x = 0;                                      // X Index
     Byte y = 0;                                      // Y Index
     Byte sp = 0;                                     // Stack Pointer
-    struct StatusRegister sr = {.data = 0b00000100}; // Status Register
+    struct StatusRegister sr = {.data = 0b00001100}; // Status Register
     Word pc = 0;                                     // Program Counter
 };
 

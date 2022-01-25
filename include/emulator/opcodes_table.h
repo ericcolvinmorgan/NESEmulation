@@ -15,6 +15,12 @@ private:
     typedef void (OpCodesTable::*OpCodeFunction)(CPU *, Byte);
     OpCodeFunction opcodes_[0xFF + 1] = {0};
 
+    //Helpers
+    inline void UpdateNegativeFlag(CPU *cpu, uint8_t result);
+    inline void UpdateZeroFlag(CPU *cpu, uint8_t result);
+    inline void UpdateCarryFlag(CPU *cpu, uint16_t result);
+    inline void UpdateOverflowFlag(CPU *cpu, Byte a, Byte m, Byte r);
+
 public:
     OpCodesTable();
     uint8_t RunOpCode(CPU *cpu, Byte opcode);

@@ -83,6 +83,43 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xfd] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteX>;
 }
 
+inline void OpCodesTable::UpdateNegativeFlag(CPU *cpu, uint8_t result)
+{
+    if (result >= 0b10000000)
+        cpu->SetStatusRegisterFlag(kNegativeFlag);
+    else
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+}
+
+inline void OpCodesTable::UpdateZeroFlag(CPU *cpu, uint8_t result)
+{
+    if (result == 0x00)
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+    else
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+}
+
+inline void OpCodesTable::UpdateCarryFlag(CPU *cpu, uint16_t result)
+{
+    if ((result & 0xFF00) > 0x0000)
+        cpu->SetStatusRegisterFlag(kCarryFlag);
+    else
+        cpu->ClearStatusRegisterFlag(kCarryFlag);
+}
+
+inline void OpCodesTable::UpdateOverflowFlag(CPU *cpu, Byte a, Byte m, Byte r)
+{
+    /*
+    Based off discussions below:
+    http://www.6502.org/tutorials/vflag.html
+    https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    */
+    if ((a ^ r) & (m ^ r) & 0x80)
+        cpu->SetStatusRegisterFlag(kOverflowFlag);
+    else
+        cpu->ClearStatusRegisterFlag(kOverflowFlag);
+}
+
 uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
 {
     ((*this).*(opcodes_[opcode]))(cpu, opcode);
@@ -233,10 +270,14 @@ void OpCodesTable::OpADC(CPU *cpu, Byte opcode)
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
-    Word result = cpu->GetAccumulator() + address_mode_val.value;
+    Byte accumulator = cpu->GetAccumulator();
+    Byte memory = address_mode_val.value;
+    Word result = accumulator + memory + cpu->GetStatusRegister().flags.c;
     cpu->SetAccumulator((Byte)(result & 0x00FF));
-    if ((result & 0xFF00) > 0x0000)
-        cpu->SetStatusRegisterFlag(kOverflowFlag | kCarryFlag);
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
+    UpdateCarryFlag(cpu, result);
+    UpdateOverflowFlag(cpu, accumulator, memory, result);
 };
 
 template <OpCodesTable::AddressMode A>
@@ -248,6 +289,8 @@ void OpCodesTable::OpAND(CPU *cpu, Byte opcode)
 
     Word result = cpu->GetAccumulator() & address_mode_val.value;
     cpu->SetAccumulator((Byte)(result & 0x00FF));
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
 };
 
 // BRK
@@ -417,7 +460,12 @@ void OpCodesTable::OpCMP(CPU *cpu, Byte opcode)
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
-    Word result = cpu->GetAccumulator() - address_mode_val.value;
+    Byte accumulator = cpu->GetAccumulator();
+    Byte memory = (address_mode_val.value ^ 0xFF);
+    Word result = accumulator + memory + 1;
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
+    UpdateCarryFlag(cpu, result);        
 };
 
 template <OpCodesTable::AddressMode A>
@@ -429,6 +477,8 @@ void OpCodesTable::OpEOR(CPU *cpu, Byte opcode)
 
     Word result = cpu->GetAccumulator() ^ address_mode_val.value;
     cpu->SetAccumulator((Byte)(result & 0x00FF));
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);    
 };
 
 template <OpCodesTable::AddressMode A>
@@ -439,6 +489,8 @@ void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
         address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
 
     cpu->SetAccumulator(address_mode_val.value);
+    UpdateNegativeFlag(cpu, address_mode_val.value);
+    UpdateZeroFlag(cpu, address_mode_val.value);    
 };
 
 template <OpCodesTable::AddressMode A>
@@ -450,6 +502,8 @@ void OpCodesTable::OpORA(CPU *cpu, Byte opcode)
 
     Word result = cpu->GetAccumulator() | address_mode_val.value;
     cpu->SetAccumulator((Byte)(result & 0x00FF));
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
 };
 
 template <OpCodesTable::AddressMode A>
@@ -459,8 +513,21 @@ void OpCodesTable::OpSBC(CPU *cpu, Byte opcode)
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
-    Word result = cpu->GetAccumulator() - address_mode_val.value;
+    /*
+    Based off discussions below for purposes of handling the various overflow and carry flags:
+    http://www.6502.org/tutorials/vflag.html
+    https://www.righto.com/2012/12/the-6502-overflow-flag-explained.html
+    result = accumulator - memory - ~borrow
+    result = accumulator + ~memory + borrow
+    */
+    Byte accumulator = cpu->GetAccumulator();
+    Byte memory = (address_mode_val.value ^ 0xFF);
+    Word result = accumulator + memory + cpu->GetStatusRegister().flags.c;
     cpu->SetAccumulator((Byte)(result & 0x00FF));
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
+    UpdateCarryFlag(cpu, result);
+    UpdateOverflowFlag(cpu, accumulator, memory, result);
 };
 
 template <OpCodesTable::AddressMode A>
