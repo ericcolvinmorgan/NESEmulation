@@ -16,6 +16,7 @@ OpCodesTable::OpCodesTable()
     for (int i = 0; i <= 0xFF; i++)
         opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 
+    opcodes_[0x30] = &OpCodesTable::OpBMI<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
@@ -543,6 +544,19 @@ void OpCodesTable::OpBVC(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     if (cpu->GetStatusRegister().flags.o == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+}
+
+// BMI
+// branch if the negative flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.n == 1)
     {
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
