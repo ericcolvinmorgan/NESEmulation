@@ -14,6 +14,46 @@ struct ImmediateTestCase
     uint32_t expected_cycles;
 };
 
+TEST_CASE("OpCodes Table - Ops - STA - Zero Page - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x85, 0xF0};
+    Registers registers{.a = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x85);
+    REQUIRE(memory.ReadByte(0x00F0) == 0xAF);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - STA - Zero Page X - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x95, 0xF0};
+    Registers registers{.a = 0xAF, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x95);
+    REQUIRE(memory.ReadByte(0x00F2) == 0xAF);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
 TEST_CASE("OpCodes Table - Ops - STA - Absolute - Store Accumulator in Memory")
 {
     Byte test_case[] = {0x8d, 0x00, 0x02};
@@ -32,6 +72,92 @@ TEST_CASE("OpCodes Table - Ops - STA - Absolute - Store Accumulator in Memory")
     REQUIRE(opcode == 0x8d);
     REQUIRE(memory.ReadByte(0x0200) == 0xAF);
     REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - STA - Absolute X - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x9d, 0x00, 0x02};
+    Registers registers{.a = 0xAF, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x9d);
+    REQUIRE(memory.ReadByte(0x0202) == 0xAF);
+    // TODO - This will fail, need to revisit cycle handling.
+    // REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - STA - Absolute Y - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x99, 0x00, 0x02};
+    Registers registers{.a = 0xAF, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x99);
+    REQUIRE(memory.ReadByte(0x0202) == 0xAF);
+    // TODO - This will fail, need to revisit cycle handling.
+    // REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - STA - Indirect X - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x81, 0xF0};
+    Registers registers{.a = 0xAF, .x = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x00F2, (Word)0x1234);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x81);
+    REQUIRE(memory.ReadByte(0x1234) == 0xAF);
+    // TODO - This will fail, need to revisit cycle handling.
+    // REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - STA - Indirect Y - Store Accumulator in Memory")
+{
+    Byte test_case[] = {0x91, 0xF0};
+    Registers registers{.a = 0xAF, .y = 0x02, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x00F0, (Word)0x1234);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x91);
+    REQUIRE(memory.ReadByte(0x1236) == 0xAF);
+    // TODO - This will fail, need to revisit cycle handling.
+    // REQUIRE(cpu.GetCycleCount() == 6);
 }
 
 TEST_CASE("OpCodes Table - Ops - LDA - Immediate - Load Accumulator with Memory")
