@@ -247,9 +247,9 @@ void OpCodesTable::OpPLA(CPU *cpu, Byte opcode){
 
     // set zero flag
     if (copied_value) {
-        cpu->SetStatusRegisterFlag(kZeroFlag);
-    } else {
         cpu->ClearStatusRegisterFlag(kZeroFlag);
+    } else {
+        cpu->SetStatusRegisterFlag(kZeroFlag);
     }
 
     // negative flag

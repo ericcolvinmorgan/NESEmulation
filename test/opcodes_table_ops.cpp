@@ -222,6 +222,8 @@ TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
     // pcl set to 0xFFFE, pch set to 0xFFFF
     REQUIRE(cpu.GetProgramCounter() == 0xEE55);
 
+    REQUIRE(cpu.GetStatusRegister().flags.b == 1);
+
     // cpu cycle count should increase by 7
     REQUIRE(cpu.GetCycleCount() == 7);
 }
@@ -284,6 +286,39 @@ TEST_CASE("OpCodes Table - Ops - PLA - Implied - Store top of stack in accumulat
 
     // cpu cycle count should increase by 4
     REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - PLA - Implied - Negative flag updates")
+{
+    RawMemoryAccessor memory;
+    Registers registers {.a = 0x4D, .sp = 0xFE}; // test data
+    CPU cpu(registers, &memory);
+    Byte new_accumulator = 0xFF;
+    // write test data to top of stack
+    cpu.WriteMemory(0x100 + (cpu.GetStackPointer() + 1), (Byte)new_accumulator);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x68);
+    
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+
+}
+
+TEST_CASE("OpCodes Table - Ops - PLA - Implied - Zero flag updates")
+{
+    RawMemoryAccessor memory;
+    Registers registers {.a = 0x4D, .sp = 0xFE}; // test data
+    CPU cpu(registers, &memory);
+    Byte new_accumulator = 0x00;
+    // write test data to top of stack
+    cpu.WriteMemory(0x100 + (cpu.GetStackPointer() + 1), (Byte)new_accumulator);
+    
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x68);
+
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
 }
 
 TEST_CASE("OpCodes Table - Ops - PLP - Implied - Store top of stack in status register")
