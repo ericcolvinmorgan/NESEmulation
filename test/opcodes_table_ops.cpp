@@ -2833,3 +2833,198 @@ TEST_CASE("OpCodes Table - Ops - TYA - Implied - Copy Y Register to Accumulator 
     REQUIRE(cpu.GetAccumulator() == 0xaf);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+}

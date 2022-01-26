@@ -116,10 +116,13 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xd9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xe0] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xe4] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe8] = &OpCodesTable::OpINX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xec] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
@@ -901,4 +904,41 @@ void OpCodesTable::OpTYA(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, cpu->GetAccumulator());
 
     cpu->IncreaseCycleCount(2);
+}
+
+// CPX
+// subtract byte specified at operand from value in X register
+// the result is not stored anywhere
+// carry flag is set if value in X register >= operand byte, otherwise cleared
+// zero flag set if value in X register == operand byte, otherwise cleared
+// negative flag set to 7th bit of result
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpCPX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (address_mode_val.is_address)
+    {
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+    }
+
+    if (cpu->GetXIndex() >= address_mode_val.value)
+    {
+        cpu->SetStatusRegisterFlag(kCarryFlag);
+    }
+    else
+    {
+        cpu->ClearStatusRegisterFlag(kCarryFlag);
+    }
+
+    Byte result = cpu->GetXIndex() - address_mode_val.value;
+    UpdateNegativeFlag(cpu, result);
+    UpdateZeroFlag(cpu, result);
+
+    cpu->SetYIndex(result);
+
+    // immmediate 2 cycles
+    // zero page 3 cycles
+    // absolute 4 cycles
+
+    // cpu->IncreaseCycleCount(2);
 }
