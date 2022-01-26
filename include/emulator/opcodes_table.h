@@ -94,4 +94,6 @@ public:
     void OpCLI(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpCLC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpASL(CPU *cpu, Byte opcode);
 };

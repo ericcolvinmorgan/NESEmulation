@@ -2143,3 +2143,117 @@ TEST_CASE("OpCodes Table - Ops - SBC - Indirect Y - Subtract Memory from Accumul
     REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
+
+TEST_CASE("OpCodes Table - Ops - ASL - Zero Page - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x06, 0x34};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x06);
+    REQUIRE(memory.ReadByte(0x0034) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Accumulator - Arithmetic Shift Left")
+{
+    Registers registers{.a = 0b10000000};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x0a);
+
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Absolute - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x0e, 0x34, 0xAF};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0xAF34, (Byte)0b00001110);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x0e);
+    REQUIRE(memory.ReadByte(0xAF34) == 0b00011100);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Zero Page X - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x16, 0x34};
+    Registers registers{.x = 0x32, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0066, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x16);
+    REQUIRE(memory.ReadByte(0x0066) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Absolute X - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x1e, 0x34, 0x12};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1235, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x1e);
+    REQUIRE(memory.ReadByte(0x1235) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}
