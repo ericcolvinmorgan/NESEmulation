@@ -15,6 +15,12 @@ private:
     typedef void (OpCodesTable::*OpCodeFunction)(CPU *, Byte);
     OpCodeFunction opcodes_[0xFF + 1] = {0};
 
+    //Helpers
+    inline void UpdateNegativeFlag(CPU *cpu, uint8_t result);
+    inline void UpdateZeroFlag(CPU *cpu, uint8_t result);
+    inline void UpdateCarryFlag(CPU *cpu, uint16_t result);
+    inline void UpdateOverflowFlag(CPU *cpu, Byte a, Byte m, Byte r);
+
 public:
     OpCodesTable();
     uint8_t RunOpCode(CPU *cpu, Byte opcode);
@@ -39,6 +45,10 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpNotImplemented(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpADC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpAND(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpBRK(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpPHP(CPU *cpu, Byte opcode);
@@ -55,7 +65,15 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpJSR(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpCMP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpEOR(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpLDA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpORA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSBC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpSTA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
