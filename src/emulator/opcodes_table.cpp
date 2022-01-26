@@ -34,14 +34,19 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x21] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x25] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x26] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x29] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x2a] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAccumulator>;
     opcodes_[0x2d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x2e] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x31] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0x35] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x36] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x38] = &OpCodesTable::OpSEC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x39] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0x3d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x3e] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x41] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x45] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPage>;
@@ -716,4 +721,29 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
     else
         cpu->SetAccumulator(rightShiftedValue);
+}
+
+// ROL
+// Shifts accumulator or the address memory location 1 bit to the left
+// Bit 0 takes the value of the carry flag and bit 7 moves to the carry flag
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    uint16_t address = 0;
+    if (address_mode_val.is_address)
+    {
+        address = address_mode_val.value;
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+    }
+
+    const uint16_t leftShiftedValue = (address_mode_val.value << 1) | cpu->GetStatusRegister().flags.c;
+
+    UpdateCarryFlag(cpu, leftShiftedValue);
+    UpdateZeroFlag(cpu, leftShiftedValue);
+    UpdateNegativeFlag(cpu, leftShiftedValue);
+    if(address_mode_val.is_address)
+        cpu->WriteMemory(address, (Byte)leftShiftedValue);
+    else
+        cpu->SetAccumulator(leftShiftedValue);
 }

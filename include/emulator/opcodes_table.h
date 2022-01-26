@@ -98,4 +98,6 @@ public:
     void OpASL(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLSR(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpROL(CPU *cpu, Byte opcode);
 };
