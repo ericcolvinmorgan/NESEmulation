@@ -100,4 +100,6 @@ public:
     void OpLSR(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpROL(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpROR(CPU *cpu, Byte opcode);
 };
