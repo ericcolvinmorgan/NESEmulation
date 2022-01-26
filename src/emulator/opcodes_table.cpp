@@ -45,14 +45,19 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x41] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x45] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x46] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x49] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x4a] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAccumulator>;
     opcodes_[0x4d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x4e] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x51] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0x55] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x56] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x58] = &OpCodesTable::OpCLI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x59] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0x5d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x5e] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x61] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x65] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPage>;
@@ -679,4 +684,36 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
     else
         cpu->SetAccumulator(leftShiftedValue);
+}
+
+// LSR
+// Shifts accumulator or the address memory location 1 bit to the right
+// Bit 7 is set to 0 and bit 0 moves to carry flag
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    uint16_t address = 0;
+    if (address_mode_val.is_address)
+    {
+        address = address_mode_val.value;
+        address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
+    }
+    if(address_mode_val.value & 1)
+    {
+        cpu->SetStatusRegisterFlag(kCarryFlag);
+    }
+    else
+    {
+        cpu->ClearStatusRegisterFlag(kCarryFlag);
+    }
+    const uint16_t rightShiftedValue = address_mode_val.value >> 1;
+
+    UpdateZeroFlag(cpu, rightShiftedValue);
+    cpu->ClearStatusRegisterFlag(kNegativeFlag);
+
+    if(address_mode_val.is_address)
+        cpu->WriteMemory(address, (Byte)rightShiftedValue);
+    else
+        cpu->SetAccumulator(rightShiftedValue);
 }
