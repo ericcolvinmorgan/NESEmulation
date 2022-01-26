@@ -105,6 +105,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xc8] = &OpCodesTable::OpINY<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
@@ -784,4 +785,32 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
     else
         cpu->SetAccumulator(rightShiftedValue);
+}
+
+
+
+// INY
+// increment value in Y register, wrap around 0xff to 0x00
+// zero flag set if new value is 0, otherwise cleared
+// negative flag updated to value of 7th bit
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpINY(CPU *cpu, Byte opcode)
+{
+    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+
+    if (cpu->GetYIndex() == 0xFF)
+    {
+        cpu->SetYIndex(0x00);
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+    }
+    else
+    {
+        Byte result = cpu->GetYIndex() + 1;
+        cpu->SetYIndex(result);
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+        UpdateNegativeFlag(cpu, result);
+    }
+
+    cpu->IncreaseCycleCount(2);
 }

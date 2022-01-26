@@ -2603,3 +2603,49 @@ TEST_CASE("OpCodes Table - Ops - ROR - Absolute X - Rotate Right")
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     //REQUIRE(cpu.GetCycleCount() == 7);
 }
+
+TEST_CASE("OpCodes Table - Ops - INY - Implied - Increment Y Index with Wrap Around")
+{
+    Byte test_case[] = {0xc8};
+    Registers registers{.y = 0xff, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetYIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - INY - Implied - Increment Y Index without Wrap Around")
+{
+    Byte test_case[] = {0xc8};
+    Registers registers{.y = 0xad, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetYIndex() == 0xae);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}

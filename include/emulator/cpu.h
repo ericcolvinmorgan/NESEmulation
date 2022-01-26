@@ -62,6 +62,7 @@ public:
     void ResetCycleCount() { cycle_count_ = 0; };
     void SetAccumulator(Byte value) { registers_.a = value; };
     void SetXIndex(Byte value) { registers_.x = value; };
+    void SetYIndex(Byte value) { registers_.y = value; };
     void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
     void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
     void SetStatusRegisterFlag(Byte bitmask) { registers_.sr.data |= bitmask; };

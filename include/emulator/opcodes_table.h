@@ -102,4 +102,19 @@ public:
     void OpROL(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpROR(CPU *cpu, Byte opcode);
+
+    template <OpCodesTable::AddressMode A>
+    void OpTAY(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTYA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpINY(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpINX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpDEY(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCPX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpCPY(CPU *cpu, Byte opcode);
 };
