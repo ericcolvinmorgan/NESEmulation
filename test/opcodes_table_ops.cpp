@@ -2144,6 +2144,466 @@ TEST_CASE("OpCodes Table - Ops - SBC - Indirect Y - Subtract Memory from Accumul
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
+TEST_CASE("OpCodes Table - Ops - ASL - Zero Page - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x06, 0x34};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x06);
+    REQUIRE(memory.ReadByte(0x0034) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Accumulator - Arithmetic Shift Left")
+{
+    Registers registers{.a = 0b10000000};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x0a);
+
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Absolute - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x0e, 0x34, 0xAF};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0xAF34, (Byte)0b00001110);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x0e);
+    REQUIRE(memory.ReadByte(0xAF34) == 0b00011100);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Zero Page X - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x16, 0x34};
+    Registers registers{.x = 0x32, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0066, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x16);
+    REQUIRE(memory.ReadByte(0x0066) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ASL - Absolute X - Arithmetic Shift Left")
+{
+    Byte test_case[] = {0x1e, 0x34, 0x12};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1235, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x1e);
+    REQUIRE(memory.ReadByte(0x1235) == 0b01010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}
+
+TEST_CASE("OpCodes Table - Ops - LSR - Zero Page - Logical Shift Right")
+{
+    Byte test_case[] = {0x46, 0x34};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x46);
+    REQUIRE(memory.ReadByte(0x0034) == 0b01010101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - LSR - Accumulator - Logical Shift Right")
+{
+    Registers registers{.a = 0b00000001};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x4a);
+
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - LSR - Absolute - Logical Shift Right")
+{
+    Byte test_case[] = {0x4e, 0x34, 0xAF};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0xAF34, (Byte)0b00001110);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x4e);
+    REQUIRE(memory.ReadByte(0xAF34) == 0b00000111);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - LSR - Zero Page X - Logical Shift Right")
+{
+    Byte test_case[] = {0x56, 0x34};
+    Registers registers{.x = 0x32, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0066, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x56);
+    REQUIRE(memory.ReadByte(0x0066) == 0b01010101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - LSR - Absolute X - Logical Shift Right")
+{
+    Byte test_case[] = {0x5e, 0x34, 0x12};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1235, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x5e);
+    REQUIRE(memory.ReadByte(0x1235) == 0b01010101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROL - Zero Page - Rotate Left")
+{
+    Byte test_case[] = {0x26, 0x34};
+    Registers registers{.pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x26);
+    REQUIRE(memory.ReadByte(0x0034) == 0b01010111);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROL - Accumulator - Rotate Left")
+{
+    Registers registers{.a = 0b10000000};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x2a);
+
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROL - Absolute - Rotate Left")
+{
+    Byte test_case[] = {0x2e, 0x34, 0xAF};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0xAF34, (Byte)0b00001110);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x2e);
+    REQUIRE(memory.ReadByte(0xAF34) == 0b00011100);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROL - Zero Page X - Rotate Left")
+{
+    Byte test_case[] = {0x36, 0x34};
+    Registers registers{.x = 0x32, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0066, (Byte)0b11101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x36);
+    REQUIRE(memory.ReadByte(0x0066) == 0b11010110);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROL - Absolute X - Rotate Left")
+{
+    Byte test_case[] = {0x3e, 0x34, 0x12};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1235, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x3e);
+    REQUIRE(memory.ReadByte(0x1235) == 0b01010111);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROR - Zero Page - Rotate Right")
+{
+    Byte test_case[] = {0x66, 0x34};
+    Registers registers{.pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0034, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x66);
+    REQUIRE(memory.ReadByte(0x0034) == 0b11010101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROR - Accumulator - Rotate Right")
+{
+    Registers registers{.a = 0b00000001};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x6a);
+
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROR - Absolute - Rotate Right")
+{
+    Byte test_case[] = {0x6e, 0x34, 0xAF};
+    Registers registers{.pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0xAF34, (Byte)0b00001110);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x6e);
+    REQUIRE(memory.ReadByte(0xAF34) == 0b00000111);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROR - Zero Page X - Rotate Right")
+{
+    Byte test_case[] = {0x76, 0x34};
+    Registers registers{.x = 0x32, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x0066, (Byte)0b11101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x76);
+    REQUIRE(memory.ReadByte(0x0066) == 0b01110101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - ROR - Absolute X - Rotate Right")
+{
+    Byte test_case[] = {0x7e, 0x34, 0x12};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1235, (Byte)0b10101011);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x7e);
+    REQUIRE(memory.ReadByte(0x1235) == 0b11010101);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}
+
 TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
 {
     Byte test_case[] = {0xf0, 0x12};

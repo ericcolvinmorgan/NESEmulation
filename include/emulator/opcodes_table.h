@@ -95,6 +95,14 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpCLC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpASL(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpLSR(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpROL(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpROR(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpBEQ(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpBNE(CPU *cpu, Byte opcode);
