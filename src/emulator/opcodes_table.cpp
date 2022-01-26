@@ -88,12 +88,14 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x91] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0x95] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
+    opcodes_[0x98] = &OpCodesTable::OpTYA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x99] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0x9d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xa8] = &OpCodesTable::OpTAY<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
@@ -865,6 +867,38 @@ void OpCodesTable::OpDEY(CPU *cpu, Byte opcode)
 
     UpdateNegativeFlag(cpu, result);
     UpdateZeroFlag(cpu, result);
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// TAY
+// copy value in Accumulator to Y register
+// zero flag set if copied value is 0, otherwise cleared
+// negative flag updated to value of 7th bit of copied value
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTAY(CPU *cpu, Byte opcode)
+{
+    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+   
+    cpu->SetYIndex(cpu->GetAccumulator());
+    UpdateNegativeFlag(cpu, cpu->GetYIndex());
+    UpdateZeroFlag(cpu, cpu->GetYIndex());
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// TYA
+// copy value in Y register to Accumulator
+// zero flag set if copied value is 0, otherwise cleared
+// negative flag updated to value of 7th bit of copied value
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTYA(CPU *cpu, Byte opcode)
+{
+    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+   
+    cpu->SetAccumulator(cpu->GetYIndex());
+    UpdateNegativeFlag(cpu, cpu->GetAccumulator());
+    UpdateZeroFlag(cpu, cpu->GetAccumulator());
 
     cpu->IncreaseCycleCount(2);
 }

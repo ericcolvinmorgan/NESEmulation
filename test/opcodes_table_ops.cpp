@@ -2737,3 +2737,99 @@ TEST_CASE("OpCodes Table - Ops - DEY - Implied - Decrement Y Index without Wrap 
     REQUIRE(cpu.GetYIndex() == 0x00);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
+
+TEST_CASE("OpCodes Table - Ops - TAY - Implied - Copy Accumulator to Y Register - zero flag")
+{
+    Byte test_case[] = {0xa8};
+    Registers registers{.a = 0x00, .y = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetYIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TAY - Implied - Copy Accumulator to Y Register - negative flag")
+{
+    Byte test_case[] = {0xa8};
+    Registers registers{.a = 0xaf, .y = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetYIndex() == 0xaf);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TYA - Implied - Copy Y Register to Accumulator - zero flag")
+{
+    Byte test_case[] = {0x98};
+    Registers registers{.a = 0xff, .y = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x98);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TYA - Implied - Copy Y Register to Accumulator - negative flag")
+{
+    Byte test_case[] = {0x98};
+    Registers registers{.a = 0x01, .y = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x98);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetAccumulator() == 0xaf);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
