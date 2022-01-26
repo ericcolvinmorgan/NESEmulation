@@ -115,6 +115,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xe8] = &OpCodesTable::OpINX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
@@ -808,6 +809,32 @@ void OpCodesTable::OpINY(CPU *cpu, Byte opcode)
     {
         Byte result = cpu->GetYIndex() + 1;
         cpu->SetYIndex(result);
+        cpu->ClearStatusRegisterFlag(kZeroFlag);
+        UpdateNegativeFlag(cpu, result);
+    }
+
+    cpu->IncreaseCycleCount(2);
+}
+
+// INX
+// increment value in X register, wrap around 0xff to 0x00
+// zero flag set if new value is 0, otherwise cleared
+// negative flag updated to value of 7th bit
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpINX(CPU *cpu, Byte opcode)
+{
+    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+
+    if (cpu->GetXIndex() == 0xFF)
+    {
+        cpu->SetXIndex(0x00);
+        cpu->SetStatusRegisterFlag(kZeroFlag);
+        cpu->ClearStatusRegisterFlag(kNegativeFlag);
+    }
+    else
+    {
+        Byte result = cpu->GetXIndex() + 1;
+        cpu->SetXIndex(result);
         cpu->ClearStatusRegisterFlag(kZeroFlag);
         UpdateNegativeFlag(cpu, result);
     }
