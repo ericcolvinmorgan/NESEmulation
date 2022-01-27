@@ -487,10 +487,10 @@ void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
     cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     // decrement pc to preserve last address before jump. pc will increment automatically with RTS
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 >> 8));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)((cpu->GetProgramCounter() - 1) >> 8));
     cpu->DecrementStackPointer();
 
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 & 0xFF));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)((cpu->GetProgramCounter() - 1) & 0xFF));
     cpu->DecrementStackPointer();
 
     cpu->SetProgramCounter(address_mode_val.value);
@@ -825,6 +825,7 @@ void OpCodesTable::OpBEQ(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BNE
@@ -838,6 +839,7 @@ void OpCodesTable::OpBNE(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BCS
@@ -851,6 +853,7 @@ void OpCodesTable::OpBCS(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BCC
@@ -864,6 +867,7 @@ void OpCodesTable::OpBCC(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BVS
@@ -877,6 +881,7 @@ void OpCodesTable::OpBVS(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BVC
@@ -890,6 +895,7 @@ void OpCodesTable::OpBVC(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BMI
@@ -903,4 +909,6 @@ void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
+
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
