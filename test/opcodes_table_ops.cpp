@@ -2600,6 +2600,644 @@ TEST_CASE("OpCodes Table - Ops - ROR - Absolute X - Rotate Right")
     REQUIRE(cpu.GetCycleCount() == 7);
 }
 
+TEST_CASE("OpCodes Table - Ops - INY - Implied - Increment Y Index with Wrap Around")
+{
+    Byte test_case[] = {0xc8};
+    Registers registers{.y = 0xff, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetYIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - INY - Implied - Increment Y Index without Wrap Around")
+{
+    Byte test_case[] = {0xc8};
+    Registers registers{.y = 0xad, .pc = 0x0600};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetYIndex() == 0xae);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - INX - Implied - Increment X Index with Wrap Around")
+{
+    Byte test_case[] = {0xe8};
+    Registers registers{.x = 0xff, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetXIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - INX - Implied - Increment X Index without Wrap Around")
+{
+    Byte test_case[] = {0xe8};
+    Registers registers{.x = 0xad, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetXIndex() == 0xae);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - DEY - Implied - Decrement Y Index with Wrap Around")
+{
+    Byte test_case[] = {0x88};
+    Registers registers{.y = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x88);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetYIndex() == 0xff);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - DEY - Implied - Decrement Y Index without Wrap Around")
+{
+    Byte test_case[] = {0x88};
+    Registers registers{.y = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x88);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetYIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TAY - Implied - Copy Accumulator to Y Register - zero flag")
+{
+    Byte test_case[] = {0xa8};
+    Registers registers{.a = 0x00, .y = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetYIndex() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TAY - Implied - Copy Accumulator to Y Register - negative flag")
+{
+    Byte test_case[] = {0xa8};
+    Registers registers{.a = 0xaf, .y = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xa8);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetYIndex() == 0xaf);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TYA - Implied - Copy Y Register to Accumulator - zero flag")
+{
+    Byte test_case[] = {0x98};
+    Registers registers{.a = 0xff, .y = 0x00, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x98);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TYA - Implied - Copy Y Register to Accumulator - negative flag")
+{
+    Byte test_case[] = {0x98};
+    Registers registers{.a = 0x01, .y = 0xaf, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 1);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0x98);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetAccumulator() == 0xaf);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xe0, 0xAF};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xec, 0x34, 0x12};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xec);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X >= M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X == M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X < M")
+{
+    Byte test_case[] = {0xe4, 0x34};
+    Registers registers{.x = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xe4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y >= M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y == M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y < M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y >= M")
+{
+    Byte test_case[] = {0xcc, 0x34, 0x12};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xcc);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y == M")
+{
+    Byte test_case[] = {0xcc, 0x34, 0x12};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xcc);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y < M")
+{
+    Byte test_case[] = {0xcc, 0x34, 0x12};
+    Registers registers{.y = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 3);
+    memory.WriteMemory(0x1234, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xcc);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 4);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y >= M")
+{
+    Byte test_case[] = {0xc4, 0x34};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y == M")
+{
+    Byte test_case[] = {0xc4, 0x34};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xB0);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y < M")
+{
+    Byte test_case[] = {0xc4, 0x34};
+    Registers registers{.y = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x34, (Byte)0xAF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc4);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 3);
+}
+
 TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
 {
     Byte test_case[] = {0xf0, 0x12};
