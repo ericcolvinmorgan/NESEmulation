@@ -2853,6 +2853,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X == M")
@@ -2874,6 +2875,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X < M")
@@ -2895,6 +2897,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Immediate - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X >= M")
@@ -2917,6 +2920,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X 
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X == M")
@@ -2939,6 +2943,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X 
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X < M")
@@ -2961,6 +2966,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Absolute - Compare Memory and X Index: X 
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X >= M")
@@ -2983,6 +2989,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X == M")
@@ -3005,6 +3012,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X < M")
@@ -3027,6 +3035,7 @@ TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y >= M")
@@ -3048,6 +3057,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y == M")
@@ -3069,6 +3079,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y < M")
@@ -3090,6 +3101,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y >= M")
@@ -3112,6 +3124,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y 
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y == M")
@@ -3134,6 +3147,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y 
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y < M")
@@ -3156,6 +3170,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Absolute - Compare Memory and Y Index: Y 
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 4);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y >= M")
@@ -3178,6 +3193,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y == M")
@@ -3200,6 +3216,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 1);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y < M")
@@ -3222,6 +3239,7 @@ TEST_CASE("OpCodes Table - Ops - CPY - Zero Page - Compare Memory and Y Index: Y
     REQUIRE(cpu.GetStatusRegister().flags.c == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")

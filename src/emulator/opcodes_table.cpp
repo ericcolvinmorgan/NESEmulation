@@ -965,13 +965,7 @@ void OpCodesTable::OpCPX(CPU *cpu, Byte opcode)
     UpdateNegativeFlag(cpu, result);
     UpdateZeroFlag(cpu, result);
 
-    cpu->SetYIndex(result);
-
-    // immmediate 2 cycles
-    // zero page 3 cycles
-    // absolute 4 cycles
-
-    // cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CPY
@@ -1002,11 +996,7 @@ void OpCodesTable::OpCPY(CPU *cpu, Byte opcode)
     UpdateNegativeFlag(cpu, result);
     UpdateZeroFlag(cpu, result);
 
-    // immmediate 2 cycles
-    // zero page 3 cycles
-    // absolute 4 cycles
-
-    // cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // BEQ
