@@ -168,36 +168,32 @@ uint8_t OpCodesTable::RunOpCode(CPU *cpu, Byte opcode)
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeImplied(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(2);
-    return {0, false};
+    return {0, false, 2};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAccumulator(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(2);
-    return {cpu->GetAccumulator(), false};
+    return {cpu->GetAccumulator(), false, 2};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeImmediate(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(2);
     auto immediate_val = cpu->GetCurrentOpCode();
     cpu->AdvanceProgramCounter();
-    return {immediate_val, false};
+    return {immediate_val, false, 2};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsolute(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(4);
     auto absolute_address = cpu->GetMemoryWord(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
-    return {absolute_address, true};
+    return {absolute_address, true, 4};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteX(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(4);
+    uint8_t cycles = 4;
     auto absolute_address = cpu->GetMemoryWord(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
@@ -205,14 +201,14 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteX(CPU *cpu)
 
     // Crossed page boundry increasing cycle count by 1.
     if ((indexed_address >> 8) > (absolute_address >> 8))
-        cpu->IncreaseCycleCount(1);
+        cycles++;
 
-    return {(uint16_t)(indexed_address & 0x0000FFFF), true};
+    return {(uint16_t)(indexed_address & 0x0000FFFF), true, cycles};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteY(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(4);
+    uint8_t cycles = 4;
     auto absolute_address = cpu->GetMemoryWord(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
@@ -220,86 +216,83 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteY(CPU *cpu)
 
     // Crossed page boundry increasing cycle count by 1.
     if ((indexed_address >> 8) > (absolute_address >> 8))
-        cpu->IncreaseCycleCount(1);
+        cycles++;
 
-    return {(uint16_t)(indexed_address & 0x0000FFFF), true};
+    return {(uint16_t)(indexed_address & 0x0000FFFF), true, cycles};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeZeroPage(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(3);
     auto zero_page_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
-    return {zero_page_addr, true};
+    return {zero_page_addr, true, 3};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeZeroPageX(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(4);
     Word zero_page_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     zero_page_addr = (zero_page_addr + cpu->GetXIndex()) & 0x00FF;
-    return {zero_page_addr, true};
+    return {zero_page_addr, true, 4};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeZeroPageY(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(4);
     Word zero_page_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     zero_page_addr = (zero_page_addr + cpu->GetYIndex()) & 0x00FF;
-    return {zero_page_addr, true};
+    return {zero_page_addr, true, 4};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeIndirectX(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(6);
     Byte indirect_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
     Word addr = cpu->GetMemoryWord((indirect_addr + cpu->GetXIndex()) & 0x00FF);
     cpu->AdvanceProgramCounter();
-    return {addr, true};
+    return {addr, true, 6};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeIndirectY(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(5);
+    uint8_t cycles = 5;
     Byte indirect_addr = cpu->GetMemoryByte(cpu->GetProgramCounter());
     Word dereferenced_addr = cpu->GetMemoryWord(indirect_addr);
     Word addr = dereferenced_addr + cpu->GetYIndex();
     cpu->AdvanceProgramCounter();
 
     if ((addr >> 8) > (dereferenced_addr >> 8))
-        cpu->IncreaseCycleCount(1);
+        cycles++;
 
-    return {addr, true};
+    return {addr, true, cycles};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteIndirect(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(5);
     Word indirect_addr = cpu->GetMemoryWord(cpu->GetProgramCounter());
     Word addr = cpu->GetMemoryWord(indirect_addr);
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
-    return {addr, true};
+    return {addr, true, 5};
 }
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeRelative(CPU *cpu)
 {
-    cpu->IncreaseCycleCount(2);
+    uint8_t cycles = 2;
     Byte offset = cpu->GetMemoryByte(cpu->GetProgramCounter());
     cpu->AdvanceProgramCounter();
     uint16_t program_counter = cpu->GetProgramCounter();
     uint16_t relative_address = program_counter + ((int8_t)offset);
     if (((program_counter ^ relative_address) & 0xFF00) != 0x0000)
-        cpu->IncreaseCycleCount(1);
-    return {relative_address, false};
+        cycles++;
+
+    return {relative_address, false, cycles};
 }
 
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
 {
     auto address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
     cpu->AdvanceProgramCounter();
 };
 
@@ -307,6 +300,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpADC(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -324,6 +319,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpAND(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -480,6 +477,7 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     // decrement pc to preserve last address before jump. pc will increment automatically with RTS
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 >> 8));
@@ -497,6 +495,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpCMP(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -512,6 +512,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpEOR(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -525,6 +527,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
 
@@ -537,6 +541,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpORA(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -550,6 +556,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSBC(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
 
@@ -574,6 +582,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSTA(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     cpu->WriteMemory(address_mode_val.value, cpu->GetAccumulator());
 };
 
@@ -584,6 +594,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLDX(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     if (address_mode_val.is_address)
         address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
 
@@ -598,6 +610,7 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSTX(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
     cpu->WriteMemory(address_mode_val.value, cpu->GetXIndex());
 };
 
@@ -678,6 +691,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     uint16_t address = 0;
     if (address_mode_val.is_address)
     {
@@ -690,7 +705,7 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
     UpdateCarryFlag(cpu, leftShiftedValue);
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
-    if(address_mode_val.is_address)
+    if (address_mode_val.is_address)
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
     else
         cpu->SetAccumulator(leftShiftedValue);
@@ -703,13 +718,15 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     uint16_t address = 0;
     if (address_mode_val.is_address)
     {
         address = address_mode_val.value;
         address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
     }
-    if(address_mode_val.value & 1)
+    if (address_mode_val.value & 1)
     {
         cpu->SetStatusRegisterFlag(kCarryFlag);
     }
@@ -722,7 +739,7 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, rightShiftedValue);
     cpu->ClearStatusRegisterFlag(kNegativeFlag);
 
-    if(address_mode_val.is_address)
+    if (address_mode_val.is_address)
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
     else
         cpu->SetAccumulator(rightShiftedValue);
@@ -735,6 +752,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     uint16_t address = 0;
     if (address_mode_val.is_address)
     {
@@ -747,7 +766,7 @@ void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
     UpdateCarryFlag(cpu, leftShiftedValue);
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
-    if(address_mode_val.is_address)
+    if (address_mode_val.is_address)
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
     else
         cpu->SetAccumulator(leftShiftedValue);
@@ -760,6 +779,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
     uint16_t address = 0;
     if (address_mode_val.is_address)
     {
@@ -768,7 +789,7 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     }
     const uint16_t rightShiftedValue = (address_mode_val.value >> 1) | (cpu->GetStatusRegister().flags.c << 7);
 
-    if(address_mode_val.value & 1)
+    if (address_mode_val.value & 1)
     {
         cpu->SetStatusRegisterFlag(kCarryFlag);
     }
@@ -780,7 +801,7 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, rightShiftedValue);
     UpdateNegativeFlag(cpu, rightShiftedValue);
 
-    if(address_mode_val.is_address)
+    if (address_mode_val.is_address)
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
     else
         cpu->SetAccumulator(rightShiftedValue);

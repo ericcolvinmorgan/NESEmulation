@@ -8,6 +8,7 @@ class OpCodesTable : public OpCodesInterface
     {
         uint16_t value;
         bool is_address;
+        uint8_t cycles;
     };
 
 private:
@@ -15,7 +16,7 @@ private:
     typedef void (OpCodesTable::*OpCodeFunction)(CPU *, Byte);
     OpCodeFunction opcodes_[0xFF + 1] = {0};
 
-    //Helpers
+    // Helpers
     inline void UpdateNegativeFlag(CPU *cpu, uint8_t result);
     inline void UpdateZeroFlag(CPU *cpu, uint8_t result);
     inline void UpdateCarryFlag(CPU *cpu, uint16_t result);
