@@ -110,14 +110,18 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xc6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xce] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xd5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xd6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xd9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xde] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPage>;
@@ -950,5 +954,21 @@ void OpCodesTable::OpINC(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, incrementedValue);
     UpdateNegativeFlag(cpu, incrementedValue);
     cpu->WriteMemory(address_mode_val.value, (Byte)incrementedValue);
+    cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
+}
+
+// DEC
+// Decrement the value in memory by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpDEC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte decrementedValue = cpu->GetMemoryByte(address_mode_val.value) - 1;
+
+    UpdateZeroFlag(cpu, decrementedValue);
+    UpdateNegativeFlag(cpu, decrementedValue);
+    cpu->WriteMemory(address_mode_val.value, (Byte)decrementedValue);
     cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
 }

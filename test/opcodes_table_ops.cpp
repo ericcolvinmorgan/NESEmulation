@@ -2992,3 +2992,97 @@ TEST_CASE("OpCodes Table - Ops - INC - Absolute X - Increment memory by one")
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     //REQUIRE(cpu.GetCycleCount() == 7);
 }
+
+TEST_CASE("OpCodes Table - Ops - DEC - Zero Page - Decrement memory by one")
+{
+    Byte test_case[] = {0xc6, 0x12};
+    Registers registers{.pc = 0x0600};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+    memory.WriteMemory(0x0012, (Byte)0x00);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc6);
+    REQUIRE(memory.ReadByte(0x0012) == 0xFF);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - DEC - Absolute - Decrement memory by one")
+{
+    Byte test_case[] = {0xce, 0x75, 0xDE};
+    Registers registers{.pc = 0x0600};
+    registers.sr.flags.n = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 3);
+    memory.WriteMemory(0xDE75, (Byte)0xFF);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xce);
+    REQUIRE(memory.ReadByte(0xDE75) == 0xFE);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - DEC - Zero Page X - Decrement memory by one")
+{
+    Byte test_case[] = {0xd6, 0x12};
+    Registers registers{.x = 0x72, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+    memory.WriteMemory(0x0084, (Byte) 0x01);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xd6);
+    REQUIRE(memory.ReadByte(0x0084) == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetCycleCount() == 6);
+}
+
+TEST_CASE("OpCodes Table - Ops - DEC - Absolute X - Decrement memory by one")
+{
+    Byte test_case[] = {0xde, 0x75, 0xDE};
+    Registers registers{.x = 0x01, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 3);
+    memory.WriteMemory(0xDE76, (Byte) 0x24);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xde);
+    REQUIRE(memory.ReadByte(0xDE76) == 0x23);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    //REQUIRE(cpu.GetCycleCount() == 7);
+}

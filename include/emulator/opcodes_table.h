@@ -119,4 +119,6 @@ public:
     void OpBVS(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpINC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpDEC(CPU *cpu, Byte opcode);
 };
