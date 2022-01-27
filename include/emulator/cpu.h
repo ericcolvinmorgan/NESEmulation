@@ -70,4 +70,5 @@ public:
     void IncrementStackPointer() { registers_.sp++; };
     void SetProgramCounter(Word new_pc) { registers_.pc = new_pc; };
     void SetStatusRegister(Byte new_data) { registers_.sr.data = new_data; };
+    void SetStackPointer(Byte new_sp) { registers_.sp = new_sp; };
 };

@@ -85,6 +85,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x81] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x85] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x8a] = &OpCodesTable::OpTXA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
@@ -92,12 +93,14 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x95] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0x99] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x9a] = &OpCodesTable::OpTXS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x9d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xaa] = &OpCodesTable::OpTAX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
@@ -106,28 +109,38 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0xb8] = &OpCodesTable::OpCLV<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xba] = &OpCodesTable::OpTSX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xc6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xca] = &OpCodesTable::OpDEX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xce] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xd5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xd6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xd9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xde] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xe6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xee] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xf6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xf8] = &OpCodesTable::OpSED<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xf9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xfd] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xfe] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsoluteX>;
 }
 
 inline void OpCodesTable::UpdateNegativeFlag(CPU *cpu, uint8_t result)
@@ -744,9 +757,18 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(leftShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // LSR
@@ -778,9 +800,18 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
     cpu->ClearStatusRegisterFlag(kNegativeFlag);
 
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(rightShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // ROL
@@ -805,9 +836,18 @@ void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(leftShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // ROR
@@ -840,9 +880,18 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     UpdateNegativeFlag(cpu, rightShiftedValue);
 
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(rightShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // BEQ
@@ -942,4 +991,118 @@ void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
     }
 
     cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// INC
+// Increment the value in memory by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpINC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte incrementedValue = cpu->GetMemoryByte(address_mode_val.value) + 1;
+
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
+
+    UpdateZeroFlag(cpu, incrementedValue);
+    UpdateNegativeFlag(cpu, incrementedValue);
+    cpu->WriteMemory(address_mode_val.value, (Byte)incrementedValue);
+    cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
+}
+
+// DEC
+// Decrement the value in memory by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpDEC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte decrementedValue = cpu->GetMemoryByte(address_mode_val.value) - 1;
+
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
+
+    UpdateZeroFlag(cpu, decrementedValue);
+    UpdateNegativeFlag(cpu, decrementedValue);
+    cpu->WriteMemory(address_mode_val.value, (Byte)decrementedValue);
+    cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
+}
+
+// DEX
+// Decrement the value in index register X by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpDEX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte decrementedValue = cpu->GetXIndex() - 1;
+
+    UpdateZeroFlag(cpu, decrementedValue);
+    UpdateNegativeFlag(cpu, decrementedValue);
+    cpu->SetXIndex(decrementedValue);
+}
+
+// TXA
+// Transfer index X to accumulator
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTXA(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetXIndex();
+    cpu->SetAccumulator(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
+}
+
+// TAX
+// Transfer accumulator to index X
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTAX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetAccumulator();
+    cpu->SetXIndex(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
+}
+
+// TXS
+// Transfer index X to stack pointer
+// Does not change status flags
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTXS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->SetStackPointer(cpu->GetXIndex());
+}
+
+// TSX
+// Transfer stack point to index X
+// Updates N and Z flags depending on value transferred into X
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTSX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetStackPointer();
+    cpu->SetXIndex(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
 }

@@ -117,4 +117,18 @@ public:
     void OpBMI(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpBVS(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpINC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpDEC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpDEX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTXA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTAX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTXS(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTSX(CPU *cpu, Byte opcode);
 };
