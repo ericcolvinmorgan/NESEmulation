@@ -85,6 +85,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x81] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0x85] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x8a] = &OpCodesTable::OpTXA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
@@ -98,6 +99,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xaa] = &OpCodesTable::OpTAX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
@@ -987,4 +989,34 @@ void OpCodesTable::OpDEX(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, decrementedValue);
     UpdateNegativeFlag(cpu, decrementedValue);
     cpu->SetXIndex(decrementedValue);
+}
+
+// TXA
+// Transfer index X to accumulator
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTXA(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetXIndex();
+    cpu->SetAccumulator(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
+}
+
+// TAX
+// Transfer accumulator to index X
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTAX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetAccumulator();
+    cpu->SetXIndex(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
 }

@@ -123,4 +123,8 @@ public:
     void OpDEC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpDEX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTXA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTAX(CPU *cpu, Byte opcode);
 };

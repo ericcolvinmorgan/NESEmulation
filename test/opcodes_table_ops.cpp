@@ -3104,3 +3104,41 @@ TEST_CASE("OpCodes Table - Ops - DEX - Implied - Decrement Index Register X by o
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
+
+TEST_CASE("OpCodes Table - Ops - TXA - Implied - Transfer Index X to Accumulator")
+{
+    Registers registers{.a = 0x82, .x = 0x00};
+    registers.sr.flags.n = 1;
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x8a);
+
+    REQUIRE(cpu.GetXIndex() == 0x00); // Index X shouldn't be affected
+    REQUIRE(cpu.GetAccumulator() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TAX - Implied - Transfer Accumulator to Index X")
+{
+    Registers registers{.a = 0x82, .x = 0x00};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0xaa);
+
+    REQUIRE(cpu.GetAccumulator() == 0x82); // Accumulator shouldn't be affected
+    REQUIRE(cpu.GetXIndex() == 0x82);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
