@@ -834,7 +834,7 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpINY(CPU *cpu, Byte opcode)
 {
-    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
 
     if (cpu->GetYIndex() == 0xFF)
     {
@@ -850,7 +850,7 @@ void OpCodesTable::OpINY(CPU *cpu, Byte opcode)
         UpdateNegativeFlag(cpu, result);
     }
 
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // INX
@@ -860,7 +860,7 @@ void OpCodesTable::OpINY(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpINX(CPU *cpu, Byte opcode)
 {
-    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
 
     if (cpu->GetXIndex() == 0xFF)
     {
@@ -876,7 +876,7 @@ void OpCodesTable::OpINX(CPU *cpu, Byte opcode)
         UpdateNegativeFlag(cpu, result);
     }
 
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // DEY
@@ -886,23 +886,20 @@ void OpCodesTable::OpINX(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpDEY(CPU *cpu, Byte opcode)
 {
-    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     Byte result;
     if (cpu->GetYIndex() == 0x00)
     {
         result = 0xff;
-        cpu->SetYIndex(result);
     }
     else
     {
         result = cpu->GetYIndex() - 1;
-        cpu->SetYIndex(result);
     }
-
+    cpu->SetYIndex(result);
     UpdateNegativeFlag(cpu, result);
     UpdateZeroFlag(cpu, result);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // TAY
@@ -912,13 +909,13 @@ void OpCodesTable::OpDEY(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpTAY(CPU *cpu, Byte opcode)
 {
-    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
    
     cpu->SetYIndex(cpu->GetAccumulator());
     UpdateNegativeFlag(cpu, cpu->GetYIndex());
     UpdateZeroFlag(cpu, cpu->GetYIndex());
 
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // TYA
@@ -928,13 +925,13 @@ void OpCodesTable::OpTAY(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpTYA(CPU *cpu, Byte opcode)
 {
-    // struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
    
     cpu->SetAccumulator(cpu->GetYIndex());
     UpdateNegativeFlag(cpu, cpu->GetAccumulator());
     UpdateZeroFlag(cpu, cpu->GetAccumulator());
 
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CPX
