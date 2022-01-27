@@ -589,7 +589,38 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSTA(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    
+    // Handling manually as cycle counts differ general pattern.
+    switch ((opcode & 0b00011100) >> 2)
+    {
+    case 0b000: // Indirect X
+        cpu->IncreaseCycleCount(6);
+        break;
+
+    case 0b001: // ZeroPage
+        cpu->IncreaseCycleCount(3);
+        break;
+
+    case 0b011: // Absolute
+        cpu->IncreaseCycleCount(4);
+        break;
+
+    case 0b100: // Indirect Y
+        cpu->IncreaseCycleCount(6);
+        break;
+
+    case 0b101: // ZeroPage X
+        cpu->IncreaseCycleCount(4);
+        break;
+
+    case 0b110: // Absolute Y
+        cpu->IncreaseCycleCount(5);
+        break;
+
+    case 0b111: // Absolute X
+        cpu->IncreaseCycleCount(5);
+        break;
+    }
 
     cpu->WriteMemory(address_mode_val.value, cpu->GetAccumulator());
 };
