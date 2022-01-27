@@ -3028,3 +3028,66 @@ TEST_CASE("OpCodes Table - Ops - CPX - Zero Page - Compare Memory and X Index: X
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
 }
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y >= M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xB0, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y == M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+}
+
+TEST_CASE("OpCodes Table - Ops - CPY - Immediate - Compare Memory and Y Index: Y < M")
+{
+    Byte test_case[] = {0xc0, 0xAF};
+    Registers registers{.y = 0xAB, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xc0);
+    REQUIRE(cpu.GetStatusRegister().flags.c == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+}
