@@ -2603,3 +2603,297 @@ TEST_CASE("OpCodes Table - Ops - ROR - Absolute X - Rotate Right")
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
     //REQUIRE(cpu.GetCycleCount() == 7);
 }
+
+TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
+{
+    Byte test_case[] = {0xf0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xf0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BEQ - Relative - No branch on zero cleared")
+{
+    Byte test_case[] = {0xf0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xf0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BNE - Relative - Branch on zero NOT set")
+{
+    Byte test_case[] = {0xd0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xd0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BNE - Relative - No branch on zero set")
+{
+    Byte test_case[] = {0xd0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xd0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BCS - Relative - Branch on carry flag set")
+{
+    Byte test_case[] = {0xb0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xb0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BCS - Relative - No branch on carry cleared")
+{
+    Byte test_case[] = {0xb0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.c = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xb0);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BCC - Relative - Branch on carry flag cleared")
+{
+    Byte test_case[] = {0x90, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.c = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x90);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BCC - Relative - No branch on carry set")
+{
+    Byte test_case[] = {0x90, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.c = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x90);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BVS - Relative - Branch on overflow flag set")
+{
+    Byte test_case[] = {0x70, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.o = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x70);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BVS - Relative - No branch on overflow cleared")
+{
+    Byte test_case[] = {0x70, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.o = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x70);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BVC - Relative - Branch on overflow flag cleared")
+{
+    Byte test_case[] = {0x50, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.o = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x50);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BVC - Relative - No branch on overflow set")
+{
+    Byte test_case[] = {0x50, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.o = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x50);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}
+
+TEST_CASE("OpCodes Table - Ops - BMI - Relative - Branch on negative flag set")
+{
+    Byte test_case[] = {0x30, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.n = 1;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x30);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
+    REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BMI - Relative - No branch on negative cleared")
+{
+    Byte test_case[] = {0x30, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.flags.n = 0;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0x30);
+    REQUIRE(cpu.GetProgramCounter() == 0x0102);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode
+}

@@ -37,6 +37,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x26] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x29] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x30] = &OpCodesTable::OpBMI<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x2a] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAccumulator>;
     opcodes_[0x2d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x2e] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAbsolute>;
@@ -53,6 +54,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x46] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x49] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x50] = &OpCodesTable::OpBVC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x4a] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAccumulator>;
     opcodes_[0x4d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x4e] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAbsolute>;
@@ -71,6 +73,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x69] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0x6a] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeAccumulator>;
     opcodes_[0x6d] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x70] = &OpCodesTable::OpBVS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x6e] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x71] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0x75] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPageX>;
@@ -84,6 +87,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x91] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0x95] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
@@ -96,6 +100,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xb1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
@@ -107,6 +112,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xd5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
@@ -116,6 +122,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xf8] = &OpCodesTable::OpSED<&OpCodesTable::AddressingModeImplied>;
@@ -480,10 +487,10 @@ void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
     cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     // decrement pc to preserve last address before jump. pc will increment automatically with RTS
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 >> 8));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)((cpu->GetProgramCounter() - 1) >> 8));
     cpu->DecrementStackPointer();
 
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)(cpu->GetProgramCounter() - 1 & 0xFF));
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)((cpu->GetProgramCounter() - 1) & 0xFF));
     cpu->DecrementStackPointer();
 
     cpu->SetProgramCounter(address_mode_val.value);
@@ -805,4 +812,103 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
     else
         cpu->SetAccumulator(rightShiftedValue);
+}
+
+// BEQ
+// branch if the zero flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBEQ(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.z == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BNE
+// branch if the zero flag cleared
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBNE(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.z == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BCS
+// branch if the carry flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBCS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.c == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BCC
+// branch if the carry flag is cleared
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBCC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.c == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BVS
+// branch if the overflow flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBVS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.o == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BVC
+// branch if the overflow flag is cleared
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBVC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.o == 0)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// BMI
+// branch if the negative flag is set
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    if (cpu->GetStatusRegister().flags.n == 1)
+    {
+        cpu->SetProgramCounter(address_mode_val.value);
+        cpu->IncreaseCycleCount(1);
+    }
+
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
