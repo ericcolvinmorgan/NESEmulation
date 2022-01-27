@@ -93,6 +93,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0x95] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0x99] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x9a] = &OpCodesTable::OpTXS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x9d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
@@ -108,6 +109,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
     opcodes_[0xb8] = &OpCodesTable::OpCLV<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xba] = &OpCodesTable::OpTSX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
@@ -1015,6 +1017,33 @@ void OpCodesTable::OpTAX(CPU *cpu, Byte opcode)
     cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     const Byte value = cpu->GetAccumulator();
+    cpu->SetXIndex(value);
+
+    UpdateZeroFlag(cpu, value);
+    UpdateNegativeFlag(cpu, value);
+}
+
+// TXS
+// Transfer index X to stack pointer
+// Does not change status flags
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTXS(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->SetStackPointer(cpu->GetXIndex());
+}
+
+// TSX
+// Transfer stack point to index X
+// Updates N and Z flags depending on value transferred into X
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpTSX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte value = cpu->GetStackPointer();
     cpu->SetXIndex(value);
 
     UpdateZeroFlag(cpu, value);

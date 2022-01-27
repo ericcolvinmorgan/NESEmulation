@@ -3142,3 +3142,40 @@ TEST_CASE("OpCodes Table - Ops - TAX - Implied - Transfer Accumulator to Index X
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
+
+TEST_CASE("OpCodes Table - Ops - TXS- Implied - Transfer Index X to Stack Pointer")
+{
+    Registers registers{.x = 0x00, .sp = 0xFF};
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0x9a);
+
+    REQUIRE(cpu.GetXIndex() == 0x00); // Index X shouldn't be affected
+    REQUIRE(cpu.GetStackPointer() == 0x00);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 0);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0); // TXS doesn't affect flags
+    REQUIRE(cpu.GetCycleCount() == 2);
+}
+
+TEST_CASE("OpCodes Table - Ops - TSX- Implied - Transfer Stack Pointer to Index X")
+{
+    Registers registers{.x = 0x00, .sp = 0xFF};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0xba);
+
+    REQUIRE(cpu.GetStackPointer() == 0xFF); // Stack Pointer shouldn't be affected
+    REQUIRE(cpu.GetXIndex() == 0xFF);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}

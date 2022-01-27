@@ -127,4 +127,8 @@ public:
     void OpTXA(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpTAX(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTXS(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpTSX(CPU *cpu, Byte opcode);
 };
