@@ -117,4 +117,6 @@ public:
     void OpBMI(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpBVS(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpINC(CPU *cpu, Byte opcode);
 };

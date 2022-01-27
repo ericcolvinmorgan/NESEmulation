@@ -120,14 +120,18 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xe6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xee] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
     opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xf6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xf8] = &OpCodesTable::OpSED<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xf9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xfd] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xfe] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsoluteX>;
 }
 
 inline void OpCodesTable::UpdateNegativeFlag(CPU *cpu, uint8_t result)
@@ -713,9 +717,14 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(leftShiftedValue);
+    }
 }
 
 // LSR
@@ -747,9 +756,14 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
     cpu->ClearStatusRegisterFlag(kNegativeFlag);
 
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(rightShiftedValue);
+    }
 }
 
 // ROL
@@ -774,9 +788,14 @@ void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
     UpdateZeroFlag(cpu, leftShiftedValue);
     UpdateNegativeFlag(cpu, leftShiftedValue);
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)leftShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(leftShiftedValue);
+    }
 }
 
 // ROR
@@ -809,9 +828,14 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     UpdateNegativeFlag(cpu, rightShiftedValue);
 
     if (address_mode_val.is_address)
+    {
         cpu->WriteMemory(address, (Byte)rightShiftedValue);
+        cpu->IncreaseCycleCount(2);
+    }
     else
+    {
         cpu->SetAccumulator(rightShiftedValue);
+    }
 }
 
 // BEQ
@@ -911,4 +935,20 @@ void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
     }
 
     cpu->IncreaseCycleCount(address_mode_val.cycles);
+}
+
+// INC
+// Increment the value in memory by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpINC(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte incrementedValue = cpu->GetMemoryByte(address_mode_val.value) + 1;
+
+    UpdateZeroFlag(cpu, incrementedValue);
+    UpdateNegativeFlag(cpu, incrementedValue);
+    cpu->WriteMemory(address_mode_val.value, (Byte)incrementedValue);
+    cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
 }
