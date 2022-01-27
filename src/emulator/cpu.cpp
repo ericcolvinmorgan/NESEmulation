@@ -11,7 +11,8 @@ CPU::CPU(Registers registers, MemoryAccessorInterface *memory)
 
 void CPU::AdvanceProgramCounter()
 {
-    registers_.pc++;
+    if(registers_.pc < 0xFFFF)
+        registers_.pc++;
 }
 
 void CPU::Reset()

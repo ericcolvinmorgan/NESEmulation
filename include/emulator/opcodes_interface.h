@@ -5,5 +5,6 @@
 class OpCodesInterface
 {
 public:
+    virtual ~OpCodesInterface() {};
     virtual uint8_t RunOpCode(CPU *cpu, Byte opcode) = 0;
 };
