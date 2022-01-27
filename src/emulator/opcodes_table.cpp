@@ -734,6 +734,10 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(leftShiftedValue);
     }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // LSR
@@ -773,6 +777,10 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(rightShiftedValue);
     }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 }
 
 // ROL
@@ -804,6 +812,10 @@ void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
     else
     {
         cpu->SetAccumulator(leftShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
     }
 }
 
@@ -844,6 +856,10 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     else
     {
         cpu->SetAccumulator(rightShiftedValue);
+    }
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
     }
 }
 
@@ -956,6 +972,11 @@ void OpCodesTable::OpINC(CPU *cpu, Byte opcode)
 
     const Byte incrementedValue = cpu->GetMemoryByte(address_mode_val.value) + 1;
 
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
+
     UpdateZeroFlag(cpu, incrementedValue);
     UpdateNegativeFlag(cpu, incrementedValue);
     cpu->WriteMemory(address_mode_val.value, (Byte)incrementedValue);
@@ -971,6 +992,11 @@ void OpCodesTable::OpDEC(CPU *cpu, Byte opcode)
     cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     const Byte decrementedValue = cpu->GetMemoryByte(address_mode_val.value) - 1;
+
+    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    {
+        cpu->IncreaseCycleCount(1);
+    }
 
     UpdateZeroFlag(cpu, decrementedValue);
     UpdateNegativeFlag(cpu, decrementedValue);

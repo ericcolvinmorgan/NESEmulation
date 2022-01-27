@@ -2255,7 +2255,7 @@ TEST_CASE("OpCodes Table - Ops - ASL - Absolute X - Arithmetic Shift Left")
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - LSR - Zero Page - Logical Shift Right")
@@ -2369,7 +2369,7 @@ TEST_CASE("OpCodes Table - Ops - LSR - Absolute X - Logical Shift Right")
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - ROL - Zero Page - Rotate Left")
@@ -2485,7 +2485,7 @@ TEST_CASE("OpCodes Table - Ops - ROL - Absolute X - Rotate Left")
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - ROR - Zero Page - Rotate Right")
@@ -2601,7 +2601,7 @@ TEST_CASE("OpCodes Table - Ops - ROR - Absolute X - Rotate Right")
     REQUIRE(cpu.GetStatusRegister().flags.n == 1);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     REQUIRE(cpu.GetStatusRegister().flags.c == 1);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
@@ -2990,7 +2990,7 @@ TEST_CASE("OpCodes Table - Ops - INC - Absolute X - Increment memory by one")
     REQUIRE(memory.ReadByte(0xDE76) == 0x25);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - DEC - Zero Page - Decrement memory by one")
@@ -3084,7 +3084,7 @@ TEST_CASE("OpCodes Table - Ops - DEC - Absolute X - Decrement memory by one")
     REQUIRE(memory.ReadByte(0xDE76) == 0x23);
     REQUIRE(cpu.GetStatusRegister().flags.n == 0);
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
-    //REQUIRE(cpu.GetCycleCount() == 7);
+    REQUIRE(cpu.GetCycleCount() == 7);
 }
 
 TEST_CASE("OpCodes Table - Ops - DEX - Implied - Decrement Index Register X by one")
