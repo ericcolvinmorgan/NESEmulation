@@ -3086,3 +3086,21 @@ TEST_CASE("OpCodes Table - Ops - DEC - Absolute X - Decrement memory by one")
     REQUIRE(cpu.GetStatusRegister().flags.z == 0);
     //REQUIRE(cpu.GetCycleCount() == 7);
 }
+
+TEST_CASE("OpCodes Table - Ops - DEX - Implied - Decrement Index Register X by one")
+{
+    Registers registers{.x = 0x00};
+    registers.sr.flags.z = 1;
+
+    RawMemoryAccessor memory;
+
+    CPU cpu(registers, &memory);
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, 0xca);
+
+    REQUIRE(cpu.GetXIndex() == 0xFF);
+    REQUIRE(cpu.GetStatusRegister().flags.n == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 2);
+}

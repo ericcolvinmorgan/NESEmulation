@@ -121,4 +121,6 @@ public:
     void OpINC(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpDEC(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpDEX(CPU *cpu, Byte opcode);
 };

@@ -112,6 +112,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xca] = &OpCodesTable::OpDEX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xce] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
@@ -971,4 +972,19 @@ void OpCodesTable::OpDEC(CPU *cpu, Byte opcode)
     UpdateNegativeFlag(cpu, decrementedValue);
     cpu->WriteMemory(address_mode_val.value, (Byte)decrementedValue);
     cpu->IncreaseCycleCount(2); // 2 cycles to write back to memory
+}
+
+// DEX
+// Decrement the value in index register X by 1
+template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpDEX(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+
+    const Byte decrementedValue = cpu->GetXIndex() - 1;
+
+    UpdateZeroFlag(cpu, decrementedValue);
+    UpdateNegativeFlag(cpu, decrementedValue);
+    cpu->SetXIndex(decrementedValue);
 }
