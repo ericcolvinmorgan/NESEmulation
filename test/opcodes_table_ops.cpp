@@ -14,6 +14,23 @@ struct ImmediateTestCase
     uint32_t expected_cycles;
 };
 
+TEST_CASE("OpCodes Table - Ops - Throws Exception on Not Implemented")
+{
+    Byte test_case[] = {0xFF, 0xF0};
+    Registers registers{.a = 0xAF, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    REQUIRE(opcode == 0xFF);
+
+    cpu.AdvanceProgramCounter();
+    OpCodesTable opcodes;
+    REQUIRE_THROWS(opcodes.RunOpCode(&cpu, opcode));
+}
+
 TEST_CASE("OpCodes Table - Ops - STA - Zero Page - Store Accumulator in Memory")
 {
     Byte test_case[] = {0x85, 0xF0};
