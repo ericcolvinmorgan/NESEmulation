@@ -489,6 +489,7 @@ void OpCodesTable::OpAND(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetStatusRegisterFlag(kBreakFlag);
 
     Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
@@ -506,7 +507,7 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
     Word new_pc = cpu->GetMemoryWord(0xFFFE);
     cpu->SetProgramCounter(new_pc);
 
-    cpu->IncreaseCycleCount(7);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 5); // 7 cycles total
 }
 
 // PHP
@@ -514,9 +515,10 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPHP(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
     cpu->DecrementStackPointer();
-    cpu->IncreaseCycleCount(3);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 1); // 3 cycles total
 }
 
 // PHA
@@ -524,9 +526,10 @@ void OpCodesTable::OpPHP(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPHA(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetAccumulator());
     cpu->DecrementStackPointer();
-    cpu->IncreaseCycleCount(3);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 1); // 3 cycles total
 }
 
 // PLA
@@ -536,31 +539,18 @@ void OpCodesTable::OpPHA(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPLA(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetAccumulator(copied_value);
 
     // set zero flag
-    if (copied_value)
-    {
-        cpu->ClearStatusRegisterFlag(kZeroFlag);
-    }
-    else
-    {
-        cpu->SetStatusRegisterFlag(kZeroFlag);
-    }
-
+    UpdateZeroFlag(cpu, copied_value);
+    
     // negative flag
-    if (copied_value >> 7 == 1)
-    {
-        cpu->SetStatusRegisterFlag(kNegativeFlag);
-    }
-    else
-    {
-        cpu->ClearStatusRegisterFlag(kNegativeFlag);
-    }
+    UpdateNegativeFlag(cpu, copied_value);
 
-    cpu->IncreaseCycleCount(4);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 2); // 4 cycles total
 }
 
 // PLP
@@ -568,10 +558,11 @@ void OpCodesTable::OpPLA(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPLP(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetStatusRegister(copied_value);
-    cpu->IncreaseCycleCount(4);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 2); // 4 cycles total
 }
 
 // RTI
@@ -581,6 +572,7 @@ void OpCodesTable::OpPLP(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
 {
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
     Byte new_sr = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     cpu->SetStatusRegister(new_sr);
@@ -593,7 +585,7 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
 
     cpu->SetProgramCounter((pc_h << 8) | pc_l);
 
-    cpu->IncreaseCycleCount(6);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 4); // 6 cycles total
 }
 
 // RTS
@@ -603,7 +595,7 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpRTS(CPU *cpu, Byte opcode)
 {
-
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
     Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
 
@@ -613,7 +605,7 @@ void OpCodesTable::OpRTS(CPU *cpu, Byte opcode)
     cpu->SetProgramCounter((pc_h << 8) | pc_l);
     cpu->AdvanceProgramCounter();
 
-    cpu->IncreaseCycleCount(6);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 4); // 6 cycles total
 }
 
 // JSR
@@ -625,7 +617,6 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
 
     // decrement pc to preserve last address before jump. pc will increment automatically with RTS
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), (Byte)((cpu->GetProgramCounter() - 1) >> 8));
@@ -635,8 +626,7 @@ void OpCodesTable::OpJSR(CPU *cpu, Byte opcode)
     cpu->DecrementStackPointer();
 
     cpu->SetProgramCounter(address_mode_val.value);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles + 2); // 6 cycles total
 }
 
 template <OpCodesTable::AddressMode A>
@@ -805,9 +795,9 @@ void OpCodesTable::OpSTX(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSED(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetStatusRegisterFlag(kDecimalFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CLD
@@ -815,9 +805,9 @@ void OpCodesTable::OpSED(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpCLD(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->ClearStatusRegisterFlag(kDecimalFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // SEI
@@ -825,9 +815,9 @@ void OpCodesTable::OpCLD(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSEI(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetStatusRegisterFlag(kInterruptFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CLI
@@ -835,9 +825,9 @@ void OpCodesTable::OpSEI(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpCLI(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->ClearStatusRegisterFlag(kInterruptFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // SEC
@@ -845,9 +835,9 @@ void OpCodesTable::OpCLI(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSEC(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetStatusRegisterFlag(kCarryFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CLC
@@ -855,9 +845,9 @@ void OpCodesTable::OpSEC(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpCLC(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->ClearStatusRegisterFlag(kCarryFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // CLV
@@ -865,9 +855,9 @@ void OpCodesTable::OpCLC(CPU *cpu, Byte opcode)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpCLV(CPU *cpu, Byte opcode)
 {
+    struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->ClearStatusRegisterFlag(kOverflowFlag);
-
-    cpu->IncreaseCycleCount(2);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
 }
 
 // ASL
@@ -1433,7 +1423,16 @@ void OpCodesTable::OpJMP(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->SetProgramCounter(address_mode_val.value);
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    
+    if(address_mode_val.cycles == 4) // Absolute
+    {
+        // JMP uses 3 cycles for Absolute
+        cpu->IncreaseCycleCount(3);
+    }
+    else // Absolute Indirect
+    {
+        cpu->IncreaseCycleCount(address_mode_val.cycles);
+    } 
 };
 
 // BIT
