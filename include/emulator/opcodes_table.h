@@ -62,6 +62,8 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpBNE(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpBPL(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpBRK(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpBVC(CPU *cpu, Byte opcode);
@@ -146,5 +148,13 @@ public:
     template <OpCodesTable::AddressMode A>
     void OpTXS(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
+    void OpJMP(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpBIT(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
     void OpTYA(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpSTY(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpLDY(CPU *cpu, Byte opcode);
 };
