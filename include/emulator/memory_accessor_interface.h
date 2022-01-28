@@ -4,6 +4,7 @@
 class MemoryAccessorInterface
 {
 public:
+    virtual ~MemoryAccessorInterface() {};
     virtual Byte ReadByte(uint16_t location) = 0;
     virtual Word ReadWord(uint16_t location) = 0;
     

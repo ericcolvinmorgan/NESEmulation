@@ -12,6 +12,8 @@
         "chrono": "cpp",
         "type_traits": "cpp",
         "variant": "cpp",
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "functional": "cpp",
+        "random": "cpp"
     }
 }

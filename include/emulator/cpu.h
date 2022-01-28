@@ -30,7 +30,7 @@ struct Registers
     Byte x = 0;                                      // X Index
     Byte y = 0;                                      // Y Index
     Byte sp = 0;                                     // Stack Pointer
-    struct StatusRegister sr = {.data = 0b00000100}; // Status Register
+    struct StatusRegister sr = {.data = 0b00001100}; // Status Register
     Word pc = 0;                                     // Program Counter
 };
 
@@ -62,6 +62,7 @@ public:
     void ResetCycleCount() { cycle_count_ = 0; };
     void SetAccumulator(Byte value) { registers_.a = value; };
     void SetXIndex(Byte value) { registers_.x = value; };
+    void SetYIndex(Byte value) { registers_.y = value; };
     void WriteMemory(uint16_t location, Byte data) { memory_->WriteMemory(location, data); };
     void WriteMemory(uint16_t location, Word data) { memory_->WriteMemory(location, data); };
     void SetStatusRegisterFlag(Byte bitmask) { registers_.sr.data |= bitmask; };
@@ -70,4 +71,5 @@ public:
     void IncrementStackPointer() { registers_.sp++; };
     void SetProgramCounter(Word new_pc) { registers_.pc = new_pc; };
     void SetStatusRegister(Byte new_data) { registers_.sr.data = new_data; };
+    void SetStackPointer(Byte new_sp) { registers_.sp = new_sp; };
 };

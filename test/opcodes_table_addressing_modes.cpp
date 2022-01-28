@@ -23,7 +23,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Implied")
 
     auto address_value = opcodes.AddressingModeImplied(&cpu);
     REQUIRE(address_value.value == 0);
-    REQUIRE(cpu.GetCycleCount() == 2);
+    REQUIRE(address_value.cycles == 2);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Accumulator")
@@ -35,7 +35,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Accumulator")
 
     auto address_value = opcodes.AddressingModeAccumulator(&cpu);
     REQUIRE(address_value.value == 0x00AF);
-    REQUIRE(cpu.GetCycleCount() == 2);
+    REQUIRE(address_value.cycles == 2);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Immediate")
@@ -48,7 +48,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Immediate")
 
     auto address_value = opcodes.AddressingModeImmediate(&cpu);
     REQUIRE(address_value.value == 0x00AF);
-    REQUIRE(cpu.GetCycleCount() == 2);
+    REQUIRE(address_value.cycles == 2);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute")
@@ -61,7 +61,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute")
 
     auto address_value = opcodes.AddressingModeAbsolute(&cpu);
     REQUIRE(address_value.value == 0xFFF0);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, No Page Crossing")
@@ -74,7 +74,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, No Page Cross
 
     auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
     REQUIRE(address_value.value == 0xFFF5);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, Page Crossing")
@@ -87,7 +87,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - No Wrap, Page Crossing
 
     auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
     REQUIRE(address_value.value == 0x0AF9);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - With Wrap")
@@ -100,7 +100,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute X - With Wrap")
 
     auto address_value = opcodes.AddressingModeAbsoluteX(&cpu);
     REQUIRE(address_value.value == 0x00EF);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, No Page Crossing")
@@ -113,7 +113,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, No Page Cross
 
     auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
     REQUIRE(address_value.value == 0xFFF5);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, Page Crossing")
@@ -126,7 +126,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - No Wrap, Page Crossing
 
     auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
     REQUIRE(address_value.value == 0x0AF9);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - With Wrap")
@@ -139,7 +139,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Absolute Y - With Wrap")
 
     auto address_value = opcodes.AddressingModeAbsoluteY(&cpu);
     REQUIRE(address_value.value == 0x00EF);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Zero Page")
@@ -152,7 +152,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Zero Page")
 
     auto address_value = opcodes.AddressingModeZeroPage(&cpu);
     REQUIRE(address_value.value == 0xAF);
-    REQUIRE(cpu.GetCycleCount() == 3);
+    REQUIRE(address_value.cycles == 3);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - Wrap No Carry")
@@ -165,7 +165,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - Wrap No Carry")
 
     auto address_value = opcodes.AddressingModeZeroPageX(&cpu);
     REQUIRE(address_value.value == 0x12);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - No Wrap")
@@ -178,7 +178,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Zero Page X - No Wrap")
 
     auto address_value = opcodes.AddressingModeZeroPageX(&cpu);
     REQUIRE(address_value.value == 0x01);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - Wrap No Carry")
@@ -191,7 +191,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - Wrap No Carry")
 
     auto address_value = opcodes.AddressingModeZeroPageY(&cpu);
     REQUIRE(address_value.value == 0x12);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - No Wrap")
@@ -204,7 +204,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Zero Page Y - No Wrap")
 
     auto address_value = opcodes.AddressingModeZeroPageY(&cpu);
     REQUIRE(address_value.value == 0x01);
-    REQUIRE(cpu.GetCycleCount() == 4);
+    REQUIRE(address_value.cycles == 4);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset")
@@ -217,7 +217,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset")
 
     auto address_value = opcodes.AddressingModeRelative(&cpu);
     REQUIRE(address_value.value == 0x0100);
-    REQUIRE(cpu.GetCycleCount() == 2);
+    REQUIRE(address_value.cycles == 2);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset - Cross Page")
@@ -230,7 +230,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Relative - Negative Offset - Cross 
 
     auto address_value = opcodes.AddressingModeRelative(&cpu);
     REQUIRE(address_value.value == 0x00A6);
-    REQUIRE(cpu.GetCycleCount() == 3);
+    REQUIRE(address_value.cycles == 3);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset")
@@ -243,7 +243,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset")
 
     auto address_value = opcodes.AddressingModeRelative(&cpu);
     REQUIRE(address_value.value == 0x0108);
-    REQUIRE(cpu.GetCycleCount() == 2);
+    REQUIRE(address_value.cycles == 2);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset - Cross Page")
@@ -256,7 +256,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Relative - Positive Offset - Cross 
 
     auto address_value = opcodes.AddressingModeRelative(&cpu);
     REQUIRE(address_value.value == 0x0252);
-    REQUIRE(cpu.GetCycleCount() == 3);
+    REQUIRE(address_value.cycles == 3);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Indirect")
@@ -270,7 +270,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Indirect")
 
     auto address_value = opcodes.AddressingModeAbsoluteIndirect(&cpu);
     REQUIRE(address_value.value == 0xCC01);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - Wrap No Carry")
@@ -284,7 +284,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - Wrap No Carry")
 
     auto address_value = opcodes.AddressingModeIndirectX(&cpu);
     REQUIRE(address_value.value == 0x0705);
-    REQUIRE(cpu.GetCycleCount() == 6);
+    REQUIRE(address_value.cycles == 6);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - No Carry")
@@ -298,7 +298,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Indirect X - No Carry")
 
     auto address_value = opcodes.AddressingModeIndirectX(&cpu);
     REQUIRE(address_value.value == 0x0705);
-    REQUIRE(cpu.GetCycleCount() == 6);
+    REQUIRE(address_value.cycles == 6);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - Cross Page")
@@ -312,7 +312,7 @@ TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - Cross Page")
 
     auto address_value = opcodes.AddressingModeIndirectY(&cpu);
     REQUIRE(address_value.value == 0x0802);
-    REQUIRE(cpu.GetCycleCount() == 6);
+    REQUIRE(address_value.cycles == 6);
 }
 
 TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - No Carry")
@@ -326,5 +326,5 @@ TEST_CASE("OpCodes Table - Addressing Mode - Indirect Y - No Carry")
 
     auto address_value = opcodes.AddressingModeIndirectY(&cpu);
     REQUIRE(address_value.value == 0x0704);
-    REQUIRE(cpu.GetCycleCount() == 5);
+    REQUIRE(address_value.cycles == 5);
 }
