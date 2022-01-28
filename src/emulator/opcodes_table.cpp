@@ -1,4 +1,7 @@
+
+#include <stdexcept>
 #include "../../include/emulator/opcodes_table.h"
+
 /*
 TODO - OPEN ITEMS:
 
@@ -12,146 +15,262 @@ to extend past FFFF and not wrap.
 
 OpCodesTable::OpCodesTable()
 {
-    for (int i = 0; i <= 0xFF; i++)
-        opcodes_[i] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
-
     opcodes_[0x00] = &OpCodesTable::OpBRK<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x01] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x02] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x03] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x04] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x05] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x06] = &OpCodesTable::OpASL<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x07] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x08] = &OpCodesTable::OpPHP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x09] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0x0a] = &OpCodesTable::OpASL<&OpCodesTable::AddressingModeAccumulator>;
+    opcodes_[0x0b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x0c] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x0d] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x0e] = &OpCodesTable::OpASL<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x0f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x10] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x11] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x12] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x13] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x14] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x15] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x16] = &OpCodesTable::OpASL<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x17] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x18] = &OpCodesTable::OpCLC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x19] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x1a] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x1b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x1c] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x1d] = &OpCodesTable::OpORA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x1e] = &OpCodesTable::OpASL<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x1f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x20] = &OpCodesTable::OpJSR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x21] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x22] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x23] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x24] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x25] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x26] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x27] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x28] = &OpCodesTable::OpPLP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x29] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeImmediate>;
-    opcodes_[0x30] = &OpCodesTable::OpBMI<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x2a] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAccumulator>;
+    opcodes_[0x2b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x2c] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x2d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x2e] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x2f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x30] = &OpCodesTable::OpBMI<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x31] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x32] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x33] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x34] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x35] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x36] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x37] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x38] = &OpCodesTable::OpSEC<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x39] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x3a] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x3b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x3c] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x3d] = &OpCodesTable::OpAND<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x3e] = &OpCodesTable::OpROL<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x3f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x40] = &OpCodesTable::OpRTI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x41] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x42] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x43] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x44] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x45] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x46] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x47] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x48] = &OpCodesTable::OpPHA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x49] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeImmediate>;
-    opcodes_[0x50] = &OpCodesTable::OpBVC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x4a] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAccumulator>;
+    opcodes_[0x4b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x4c] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x4d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x4e] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x4f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x50] = &OpCodesTable::OpBVC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x51] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x52] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x53] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x54] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x55] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x56] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x57] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x58] = &OpCodesTable::OpCLI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x59] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x5a] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x5b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x5c] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x5d] = &OpCodesTable::OpEOR<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x5e] = &OpCodesTable::OpLSR<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x5f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x60] = &OpCodesTable::OpRTS<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x61] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x62] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x63] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x64] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x65] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x66] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x67] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x68] = &OpCodesTable::OpPLA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x69] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0x6a] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeAccumulator>;
+    opcodes_[0x6b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x6c] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x6d] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsolute>;
-    opcodes_[0x70] = &OpCodesTable::OpBVS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x6e] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x6f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x70] = &OpCodesTable::OpBVS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x71] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x72] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x73] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x74] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x75] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x76] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0x77] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x78] = &OpCodesTable::OpSEI<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x79] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0x7a] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x7b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x7c] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x7d] = &OpCodesTable::OpADC<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0x7e] = &OpCodesTable::OpROR<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x7f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x80] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0x81] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0x82] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0x83] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x84] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x85] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0x86] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0x87] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x88] = &OpCodesTable::OpDEY<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x89] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0x8a] = &OpCodesTable::OpTXA<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x8b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x8c] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x8d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0x8e] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0x8f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x90] = &OpCodesTable::OpBCC<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0x91] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0x92] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x93] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x94] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x95] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0x96] = &OpCodesTable::OpSTX<&OpCodesTable::AddressingModeZeroPageY>;
+    opcodes_[0x97] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x98] = &OpCodesTable::OpTYA<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0x99] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0x9a] = &OpCodesTable::OpTXS<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0x9b] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x9c] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0x9d] = &OpCodesTable::OpSTA<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0x9e] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0x9f] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xa0] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xa1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectX>;
     opcodes_[0xa2] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xa3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xa4] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xa5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xa6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xa7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xa8] = &OpCodesTable::OpTAY<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xa9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xaa] = &OpCodesTable::OpTAX<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xab] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xac] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xad] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xae] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xaf] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xb0] = &OpCodesTable::OpBCS<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xb1] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xb2] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xb3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xb4] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xb5] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xb6] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeZeroPageY>;
+    opcodes_[0xb7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xb8] = &OpCodesTable::OpCLV<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xb9] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteY>;
     opcodes_[0xba] = &OpCodesTable::OpTSX<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xbb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xbc] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xbd] = &OpCodesTable::OpLDA<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xbe] = &OpCodesTable::OpLDX<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xbf] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xc0] = &OpCodesTable::OpCPY<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xc1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xc2] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xc3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xc4] = &OpCodesTable::OpCPY<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xc6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xc7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xc8] = &OpCodesTable::OpINY<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xc9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xca] = &OpCodesTable::OpDEX<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xcb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xcc] = &OpCodesTable::OpCPY<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xcd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xce] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xcf] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xd0] = &OpCodesTable::OpBNE<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xd1] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xd2] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xd3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xd4] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xd5] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xd6] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xd7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xd8] = &OpCodesTable::OpCLD<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xd9] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xda] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xdb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xdc] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xdd] = &OpCodesTable::OpCMP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xde] = &OpCodesTable::OpDEC<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xdf] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xe0] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeImmediate>;
     opcodes_[0xe1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectX>;
+    opcodes_[0xe2] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xe3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xe4] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPage>;
     opcodes_[0xe6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPage>;
+    opcodes_[0xe7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xe8] = &OpCodesTable::OpINX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
+    opcodes_[0xea] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xeb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xec] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xee] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsolute>;
+    opcodes_[0xef] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xf0] = &OpCodesTable::OpBEQ<&OpCodesTable::AddressingModeRelative>;
     opcodes_[0xf1] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeIndirectY>;
+    opcodes_[0xf2] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xf3] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xf4] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xf5] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeZeroPageX>;
     opcodes_[0xf6] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeZeroPageX>;
+    opcodes_[0xf7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xf8] = &OpCodesTable::OpSED<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xf9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteY>;
+    opcodes_[0xfa] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
+    opcodes_[0xfb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xfc] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xfd] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsoluteX>;
     opcodes_[0xfe] = &OpCodesTable::OpINC<&OpCodesTable::AddressingModeAbsoluteX>;
+    opcodes_[0xff] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
 }
 
 inline void OpCodesTable::UpdateNegativeFlag(CPU *cpu, uint8_t result)
@@ -322,9 +441,7 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeRelative(CPU *cpu)
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpNotImplemented(CPU *cpu, Byte opcode)
 {
-    auto address_mode_val = ((*this).*A)(cpu);
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
-    cpu->AdvanceProgramCounter();
+    throw std::runtime_error("OpCode Not Implemented");
 };
 
 template <OpCodesTable::AddressMode A>
@@ -569,6 +686,13 @@ void OpCodesTable::OpLDA(CPU *cpu, Byte opcode)
 };
 
 template <OpCodesTable::AddressMode A>
+void OpCodesTable::OpNOP(CPU *cpu, Byte opcode)
+{
+    struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
+    cpu->IncreaseCycleCount(address_mode_val.cycles);
+};
+
+template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpORA(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
@@ -613,7 +737,7 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpSTA(CPU *cpu, Byte opcode)
 {
     struct AddressingVal address_mode_val = ((*this).*A)(cpu);
-    
+
     // Handling manually as cycle counts differ general pattern.
     switch ((opcode & 0b00011100) >> 2)
     {
@@ -776,7 +900,7 @@ void OpCodesTable::OpASL(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(leftShiftedValue);
     }
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
@@ -819,7 +943,7 @@ void OpCodesTable::OpLSR(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(rightShiftedValue);
     }
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
@@ -855,7 +979,7 @@ void OpCodesTable::OpROL(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(leftShiftedValue);
     }
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
@@ -899,13 +1023,11 @@ void OpCodesTable::OpROR(CPU *cpu, Byte opcode)
     {
         cpu->SetAccumulator(rightShiftedValue);
     }
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
 }
-
-
 
 // INY
 // increment value in Y register, wrap around 0xff to 0x00
@@ -990,7 +1112,7 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpTAY(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-   
+
     cpu->SetYIndex(cpu->GetAccumulator());
     UpdateNegativeFlag(cpu, cpu->GetYIndex());
     UpdateZeroFlag(cpu, cpu->GetYIndex());
@@ -1006,7 +1128,7 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpTYA(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-   
+
     cpu->SetAccumulator(cpu->GetYIndex());
     UpdateNegativeFlag(cpu, cpu->GetAccumulator());
     UpdateZeroFlag(cpu, cpu->GetAccumulator());
@@ -1185,7 +1307,7 @@ void OpCodesTable::OpINC(CPU *cpu, Byte opcode)
 
     const Byte incrementedValue = cpu->GetMemoryByte(address_mode_val.value) + 1;
 
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
@@ -1206,7 +1328,7 @@ void OpCodesTable::OpDEC(CPU *cpu, Byte opcode)
 
     const Byte decrementedValue = cpu->GetMemoryByte(address_mode_val.value) - 1;
 
-    if(((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
+    if (((opcode & 0b00011100) >> 2) == 0b111) // Absolute X needs an extra clock cycle
     {
         cpu->IncreaseCycleCount(1);
     }
