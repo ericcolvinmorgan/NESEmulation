@@ -3891,7 +3891,7 @@ TEST_CASE("OpCodes Table - Ops - JMP - Absolute - jump to new address")
 
     REQUIRE(opcode == 0x4c);
     REQUIRE(cpu.GetProgramCounter() == 0x1234);
-    // REQUIRE(cpu.GetCycleCount() == 3);
+    REQUIRE(cpu.GetCycleCount() == 3);
 }
 
 
