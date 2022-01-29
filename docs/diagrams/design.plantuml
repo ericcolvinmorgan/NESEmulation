@@ -1,0 +1,35 @@
+@startuml design
+skinparam linetype ortho
+Interface IController
+Class Keyboard
+IController -d-> Keyboard : "Implemented By"
+Interface IAudio
+Class SDL2Audio
+IAudio -d-> SDL2Audio : "Implemented By"
+Interface IScreen
+Class SDL2Screen
+IScreen -d-> SDL2Screen : "Implemented By"
+
+Class Emulator {
+}
+
+SDL2Screen <-d- Emulator : "Reads From" 
+SDL2Audio <-d- Emulator : "Reads From"
+Keyboard -d-> Emulator : "Attaches To"
+
+Class CPU
+Class APU
+Class PPU
+Class Bus
+Class APUMixer
+Class MemoryAccessor
+
+Emulator <-d-> CPU : Coordinates
+Emulator <-d-> APU : Coordinates
+Emulator <-d-> APUMixer : Coordinates
+APU -> APUMixer
+Emulator <-d-> PPU : Coordinates
+Emulator <-d-> Bus : Coordinates
+Emulator <-d-> MemoryAccessor : Coordiantes
+
+@enduml

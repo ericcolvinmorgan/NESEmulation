@@ -1,0 +1,26 @@
+# https://vector-of-bool.github.io/docs/vscode-cmake-tools/variants.html
+buildType:
+  default: debug
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize generated code
+      buildType: Release
+
+withCoverage:
+  default: withoutCoverage
+  choices:
+    withCoverage:
+      short: with Coverage
+      long: Include coverage in build
+      settings:
+        CMAKE_CXX_FLAGS: "--coverage"
+        CMAKE_C_FLAGS: "--coverage"
+        CMAKE_EXE_LINKER_FLAGS: "--coverage"
+    withoutCoverage:
+      short: without Coverage
+      long: Do not include coverage in build

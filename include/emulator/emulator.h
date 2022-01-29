@@ -1,11 +1,23 @@
+#pragma once
+
+#include "cpu.h"
+#include "opcodes_interface.h"
+
 class Emulator
 {
 private:
-    int _frame = 0;
+    const int cpu_cycles_per_frame_ = 1;
+    CPU *cpu_;
+    OpCodesInterface *cpu_opcodes_;
+    int frame_ = 0;
 
 public:
-    Emulator(){};
+    Emulator(CPU *cpu, OpCodesInterface *opcodes)
+    {
+        cpu_ = cpu;
+        cpu_opcodes_ = opcodes;
+    };
     ~Emulator(){};
-    int getFrame() { return _frame; };
-    void advanceFrame();
+    int GetFrame() { return frame_; };
+    void AdvanceFrame();
 };
