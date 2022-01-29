@@ -249,7 +249,7 @@ OpCodesTable::OpCodesTable()
     opcodes_[0xe7] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xe8] = &OpCodesTable::OpINX<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xe9] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeImmediate>;
-    opcodes_[0xea] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
+    opcodes_[0xea] = &OpCodesTable::OpNOP<&OpCodesTable::AddressingModeImplied>;
     opcodes_[0xeb] = &OpCodesTable::OpNotImplemented<&OpCodesTable::AddressingModeNone>;
     opcodes_[0xec] = &OpCodesTable::OpCPX<&OpCodesTable::AddressingModeAbsolute>;
     opcodes_[0xed] = &OpCodesTable::OpSBC<&OpCodesTable::AddressingModeAbsolute>;
