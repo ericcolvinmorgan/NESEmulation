@@ -1,10 +1,13 @@
 // FROM https://developer.mozilla.org/en-US/docs/WebAssembly/C_to_wasm
 // AND https://emscripten.org/docs/getting_started/Tutorial.html
 
-#include <stdio.h>
-#include <SDL2/SDL.h>
+#ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
+#endif
+
+#include <stdio.h>
 #include <random>
+#include <SDL2/SDL.h>
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/emulator.h"
 #include "../../include/emulator/opcodes_table.h"
@@ -21,8 +24,18 @@ Emulator *emulator = nullptr;
 MemoryAccessorInterface *memory = nullptr;
 VideoInterface *content_screen = nullptr;
 ControllerInterface *controller = nullptr;
+bool request_exit = false;
 
-void RenderContent()
+static int SDLCALL HandleExit(void *userdata, SDL_Event * event)
+{
+    if (event->type == SDL_QUIT) {
+        bool *exit = (bool*) userdata;
+        *exit = true;
+    }
+    return 1;  // let all events be added to the queue since we always return 1.
+}
+
+void RenderFrame()
 {
     // Set Random Number
     std::uniform_int_distribution<uint8_t> uniform_dist(1, 255);
@@ -31,6 +44,30 @@ void RenderContent()
     emulator->AdvanceFrame();
     content_screen->RenderFrame();
 }
+
+#ifdef __EMSCRIPTEN__
+void RunEmulator()
+{
+    emscripten_set_main_loop(RenderFrame, kFPS, 1);
+}
+#else
+void RunEmulator()
+{
+    SDL_SetEventFilter(HandleExit, &request_exit);
+    while (!request_exit)
+	{
+        Uint64 start = SDL_GetPerformanceCounter();
+		RenderFrame();
+        Uint64 end = SDL_GetPerformanceCounter();
+        float elapsed_milliseconds = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000.f;
+
+        //Cap FPS to kFPS
+        float delay = floor((1000.f / kFPS) - elapsed_milliseconds);
+        if(delay > 0.f)
+            SDL_Delay(delay);
+	}
+}
+#endif
 
 int main()
 {
@@ -75,7 +112,7 @@ int main()
                                0x01, 0x60, 0xe6, 0x11, 0xa9, 0x06, 0xc5, 0x11, 0xf0, 0x0c, 0x60, 0xc6, 0x10, 0xa5, 0x10, 0x29,
                                0x1f, 0xc9, 0x1f, 0xf0, 0x01, 0x60, 0x4c, 0x35, 0x07, 0xa0, 0x00, 0xa5, 0xfe, 0x91, 0x00, 0x60,
                                0xa6, 0x03, 0xa9, 0x00, 0x81, 0x10, 0xa2, 0x00, 0xa9, 0x01, 0x81, 0x10, 0x60, 0xa2, 0x00, 0xea,
-                               0xea, 0xca, 0xd0, 0xfb, 0x60};
+                               0xea, 0xca, 0xd0, 0xfb, 0x60, 0xea, 0x4c, 0x35, 0x07};
 
     memory->WriteMemory(0x0600, snake_game, 309);
     memory->WriteMemory(kReset, (Word)0x0600);
@@ -91,7 +128,7 @@ int main()
     cpu->Reset();
     emulator = new Emulator(cpu, cpu_opcodes);
 
-    emscripten_set_main_loop(RenderContent, kFPS, 1);
+    RunEmulator();
     
     delete controller;
     controller = nullptr;
