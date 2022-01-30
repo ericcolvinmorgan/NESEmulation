@@ -12,7 +12,7 @@
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/emulator.h"
 #include "../../include/emulator/opcodes_table.h"
-#include "../../include/emulator/raw_memory_accessor.h"
+#include "../../include/emulator/nes_cpu_memory_accessor.h"
 #include "../../include/interface/demo_controller.h"
 #include "../../include/interface/sdl_video.h"
 
@@ -30,13 +30,14 @@ VideoInterface *content_screen = nullptr;
 ControllerInterface *controller = nullptr;
 bool request_exit = false;
 
-static int SDLCALL HandleExit(void *userdata, SDL_Event * event)
+static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
 {
-    if (event->type == SDL_QUIT) {
-        bool *exit = (bool*) userdata;
+    if (event->type == SDL_QUIT)
+    {
+        bool *exit = (bool *)userdata;
         *exit = true;
     }
-    return 1;  // let all events be added to the queue since we always return 1.
+    return 1; // let all events be added to the queue since we always return 1.
 }
 
 void RenderFrame()
@@ -59,61 +60,74 @@ void RunEmulator()
 {
     SDL_SetEventFilter(HandleExit, &request_exit);
     while (!request_exit)
-	{
+    {
         Uint64 start = SDL_GetPerformanceCounter();
-		RenderFrame();
+        RenderFrame();
         Uint64 end = SDL_GetPerformanceCounter();
         float elapsed_milliseconds = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000.f;
 
-        //Cap FPS to kFPS
+        // Cap FPS to kFPS
         float delay = floor((1000.f / kFPS) - elapsed_milliseconds);
-        if(delay > 0.f)
+        if (delay > 0.f)
             SDL_Delay(delay);
-	}
+    }
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    if(argc != 2)
+    if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
         return 0;
     }
-    
+
     std::ifstream inputFile(argv[1], std::ios::binary);
-    
+    if (!inputFile.is_open())
+    {
+        std::cout << "The provided file is not accessible.\n";
+        return 0;
+    }
+
     // Determine the file length
     inputFile.seekg(0, std::ios_base::end);
     std::size_t rom_size = inputFile.tellg();
     inputFile.seekg(0, std::ios_base::beg);
 
-    //Read contents to memory and close file.
+    // Read contents to memory and close file.
     Byte *rom_data = new Byte[rom_size];
     inputFile.read((char *)rom_data, rom_size);
     inputFile.close();
 
+    // Attempt to read NES file format header.
+    if (rom_data[0] != 'N' || rom_data[1] != 'E' || rom_data[2] != 'S' || rom_data[3] != 0x1a)
+    {
+        std::cout << "The provided file is not a valid NES ROM.\n";
+        delete[] rom_data;
+        return 0;
+    }
+
     // Initialize
-    memory = new RawMemoryAccessor();
+    memory = new NESCPUMemoryAccessor();
 
     memory->WriteMemory(0x0600, rom_data, rom_size);
     delete[] rom_data;
 
     memory->WriteMemory(kReset, (Word)0x0600);
-    
+
     content_screen = new SDLVideo(memory);
     content_screen->InitVideo();
 
     controller = new DemoController(memory);
     controller->InitController();
-    
+
     cpu = new CPU({.sp = 0xFF}, memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
     emulator = new Emulator(cpu, cpu_opcodes);
 
     RunEmulator();
-    
+
     delete controller;
     controller = nullptr;
 
@@ -131,7 +145,6 @@ int main(int argc, char** argv)
 
     delete memory;
     memory = nullptr;
-
 
     return 0;
 }
