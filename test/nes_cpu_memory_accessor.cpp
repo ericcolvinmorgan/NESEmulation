@@ -1,6 +1,27 @@
 #include <catch2/catch_test_macros.hpp>
 #include "../include/emulator/nes_cpu_memory_accessor.h"
 
+TEST_CASE("NESCPUMemoryAccessor - Successfully mirrors internal RAM")
+{
+  NESCPUMemoryAccessor memory;
+  memory.WriteMemory(0x0001, (Byte)0xaf);
+  REQUIRE(memory.ReadByte(0x0001) == 0xaf);
+  REQUIRE(memory.ReadByte(0x1001) == 0xaf);
+  REQUIRE(memory.ReadByte(0x1001) == 0xaf);
+  REQUIRE(memory.ReadByte(0x1801) == 0xaf);
+}
+
+TEST_CASE("NESCPUMemoryAccessor - Successfully mirrors PPU registers")
+{
+  NESCPUMemoryAccessor memory;
+  memory.WriteMemory(0x2001, (Byte)0xaf);
+  REQUIRE(memory.ReadByte(0x2009) == 0xaf);
+  REQUIRE(memory.ReadByte(0x2309) == 0xaf);
+  REQUIRE(memory.ReadByte(0x3221) == 0xaf);
+  REQUIRE(memory.ReadByte(0x3ff1) == 0xaf);
+  REQUIRE(memory.ReadByte(0x3ff9) == 0xaf);
+}
+
 TEST_CASE("NESCPUMemoryAccessor - Successfully updates BYTE data")
 {
   NESCPUMemoryAccessor memory;
@@ -13,7 +34,7 @@ TEST_CASE("NESCPUMemoryAccessor - Successfully updates BYTE data")
 
 TEST_CASE("NESCPUMemoryAccessor - Successfully updates WORD data")
 {
-  Byte bytes[] = {0x2c,	0x01};
+  Byte bytes[] = {0x2c, 0x01};
   Word word = 300;
   NESCPUMemoryAccessor memory;
   memory.WriteMemory(0x0100, word);
@@ -27,7 +48,7 @@ TEST_CASE("NESCPUMemoryAccessor - Successfully updates WORD data")
 
 TEST_CASE("NESCPUMemoryAccessor - Successfully reads WORD data")
 {
-  Byte bytes[] = {0x2c,	0x01,	0x90,	0x01,	0xf4,	0x01};
+  Byte bytes[] = {0x2c, 0x01, 0x90, 0x01, 0xf4, 0x01};
   Word words[] = {300, 400, 500};
   NESCPUMemoryAccessor memory;
   memory.WriteMemory(0x0100, bytes, 6);
