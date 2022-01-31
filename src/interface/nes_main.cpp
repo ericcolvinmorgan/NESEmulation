@@ -43,9 +43,6 @@ static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
 void RenderFrame()
 {
     // Set Random Number
-    std::uniform_int_distribution<uint8_t> uniform_dist(1, 255);
-    memory->WriteMemory(0x00fe, uniform_dist(generator));
-    controller->WriteInput(0x00ff);
     emulator->AdvanceFrame();
     content_screen->RenderFrame();
 }
@@ -82,22 +79,22 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::ifstream inputFile(argv[1], std::ios::binary);
-    if (!inputFile.is_open())
+    std::ifstream input_file(argv[1], std::ios::binary);
+    if (!input_file.is_open())
     {
         std::cout << "The provided file is not accessible.\n";
         return 0;
     }
 
     // Determine the file length
-    inputFile.seekg(0, std::ios_base::end);
-    std::size_t rom_size = inputFile.tellg();
-    inputFile.seekg(0, std::ios_base::beg);
+    input_file.seekg(0, std::ios_base::end);
+    std::size_t rom_size = input_file.tellg();
+    input_file.seekg(0, std::ios_base::beg);
 
     // Read contents to memory and close file.
     Byte *rom_data = new Byte[rom_size];
-    inputFile.read((char *)rom_data, rom_size);
-    inputFile.close();
+    input_file.read((char *)rom_data, rom_size);
+    input_file.close();
 
     // Attempt to read NES file format header.
     if (rom_data[0] != 'N' || rom_data[1] != 'E' || rom_data[2] != 'S' || rom_data[3] != 0x1a)
@@ -110,10 +107,9 @@ int main(int argc, char **argv)
     // Initialize
     memory = new NESCPUMemoryAccessor();
 
-    memory->WriteMemory(0x0600, rom_data, rom_size);
+    memory->WriteMemory(0x8000, rom_data + 16, 16384);
+    memory->WriteMemory(0xc000, rom_data + 16, 16384);
     delete[] rom_data;
-
-    memory->WriteMemory(kReset, (Word)0x0600);
 
     content_screen = new SDLVideo(memory);
     content_screen->InitVideo();
@@ -121,7 +117,7 @@ int main(int argc, char **argv)
     controller = new DemoController(memory);
     controller->InitController();
 
-    cpu = new CPU({.sp = 0xFF}, memory);
+    cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
     emulator = new Emulator(cpu, cpu_opcodes);

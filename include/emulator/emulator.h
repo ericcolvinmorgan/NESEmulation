@@ -6,7 +6,7 @@
 class Emulator
 {
 private:
-    const int cpu_cycles_per_frame_ = 200;
+    const int cpu_cycles_per_frame_ = 29780;
     CPU *cpu_;
     OpCodesInterface *cpu_opcodes_;
     int frame_ = 0;

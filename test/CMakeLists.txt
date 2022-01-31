@@ -26,6 +26,10 @@ if(NOT DEFINED EMSCRIPTEN)
     target_link_libraries(memory_tests LINK_PUBLIC emulator)
     target_link_libraries(memory_tests PRIVATE Catch2::Catch2WithMain)
 
+    add_executable(rom_tests rom_tests.cpp)
+    target_link_libraries(rom_tests LINK_PUBLIC emulator)
+    target_link_libraries(rom_tests PRIVATE Catch2::Catch2WithMain)
+
     list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
     catch_discover_tests(emulator_tests)
     catch_discover_tests(cpu_tests)
