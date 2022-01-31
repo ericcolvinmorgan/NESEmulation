@@ -4,7 +4,7 @@
         "${workspaceFolder}/cmake/kits/setup_cmake-kits.json"
     ],
     //"testMate.cpp.test.executables": "{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
-    "testMate.cpp.test.executables": "build/test/test",
+    "testMate.cpp.test.executables": "build/test/*_tests",
     "coverage-gutters.coverageReportFileName": "**/build/coverage/**/index.html",
     "coverage-gutters.coverageFileNames": ["output_filtered.info"],
     "files.associations": {
@@ -29,6 +29,7 @@
         "system_error": "cpp",
         "unordered_map": "cpp",
         "utility": "cpp",
-        "vector": "cpp"
+        "vector": "cpp",
+        "iosfwd": "cpp"
     }
 }

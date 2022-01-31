@@ -3,6 +3,7 @@ build
 cmake/kits/setup_cmake-kits.json
 **/node_modules/
 out
+roms/nes/
 
 # Prerequisites
 *.d
