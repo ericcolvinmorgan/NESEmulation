@@ -32,6 +32,7 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     case 0x4018 ... 0x401F:
     // Cartridge space: PRG ROM, PRG RAM, and mapper registers
     case 0x4020 ... 0xFFFF:
+    default:
     {
         return memory_[location];
     }

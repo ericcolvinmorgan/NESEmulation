@@ -75,13 +75,18 @@ void RunEmulator()
 
 int main(int argc, char** argv)
 {
+    #ifdef __EMSCRIPTEN__
+        const char* file_path = "snake.bin";
+    #else
     if(argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
         return 0;
     }
-    
-    std::ifstream inputFile(argv[1], std::ios::binary);
+    const char* file_path = argv[1];
+    #endif
+
+    std::ifstream inputFile(file_path, std::ios::binary);
     if(!inputFile.is_open())
     {
         std::cout << "The provided file is not accessible.\n";
@@ -115,7 +120,7 @@ int main(int argc, char** argv)
     cpu = new CPU({.sp = 0xFF}, memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
-    emulator = new Emulator(cpu, cpu_opcodes);
+    emulator = new Emulator(cpu, cpu_opcodes, 300);
 
     RunEmulator();
     
