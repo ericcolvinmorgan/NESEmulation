@@ -190,7 +190,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Immediate - Load Accumulator with Memory"
 
     REQUIRE(opcode == 0xa9);
     REQUIRE(cpu.GetAccumulator() == 0xAF);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -212,7 +212,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Zero Page - Load Accumulator with Memory"
 
     REQUIRE(opcode == 0xa5);
     REQUIRE(cpu.GetAccumulator() == 0xA7);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -234,7 +234,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Zero Page X - Load Accumulator with Memor
 
     REQUIRE(opcode == 0xB5);
     REQUIRE(cpu.GetAccumulator() == 0xA7);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -256,7 +256,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute - Load Accumulator with Memory")
 
     REQUIRE(opcode == 0xAD);
     REQUIRE(cpu.GetAccumulator() == 0xA0);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -278,7 +278,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute X - Load Accumulator with Memory
 
     REQUIRE(opcode == 0xBD);
     REQUIRE(cpu.GetAccumulator() == 0xA1);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -300,7 +300,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute X - Load Accumulator with Memory
 
     REQUIRE(opcode == 0xBD);
     REQUIRE(cpu.GetAccumulator() == 0xA2);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -322,7 +322,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute Y - Load Accumulator with Memory
 
     REQUIRE(opcode == 0xB9);
     REQUIRE(cpu.GetAccumulator() == 0xA1);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -344,7 +344,7 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute Y - Load Accumulator with Memory
 
     REQUIRE(opcode == 0xB9);
     REQUIRE(cpu.GetAccumulator() == 0xA2);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -640,7 +640,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Immediate - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x09);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -662,7 +662,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Zero Page - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x05);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -684,7 +684,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Zero Page X - OR Memory with Accumulator"
 
     REQUIRE(opcode == 0x15);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -706,7 +706,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Absolute - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x0d);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -728,7 +728,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Absolute X - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x1d);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -750,7 +750,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Absolute Y - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x19);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -773,7 +773,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Indirect X - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x01);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -796,7 +796,7 @@ TEST_CASE("OpCodes Table - Ops - ORA - Indirect Y - OR Memory with Accumulator")
 
     REQUIRE(opcode == 0x11);
     REQUIRE(cpu.GetAccumulator() == 0xff);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -1215,7 +1215,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Immediate - AND Memory with Accumulator")
 
     REQUIRE(opcode == 0x29);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -1237,7 +1237,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Zero Page - AND Memory with Accumulator")
 
     REQUIRE(opcode == 0x25);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -1259,7 +1259,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Zero Page X - AND Memory with Accumulator
 
     REQUIRE(opcode == 0x35);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1281,7 +1281,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Absolute - AND Memory with Accumulator")
 
     REQUIRE(opcode == 0x2d);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1303,7 +1303,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Absolute X - AND Memory with Accumulator"
 
     REQUIRE(opcode == 0x3d);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1325,7 +1325,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Absolute Y - AND Memory with Accumulator"
 
     REQUIRE(opcode == 0x39);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1348,7 +1348,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Indirect X - AND Memory with Accumulator"
 
     REQUIRE(opcode == 0x21);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -1371,7 +1371,7 @@ TEST_CASE("OpCodes Table - Ops - AND - Indirect Y - AND Memory with Accumulator"
 
     REQUIRE(opcode == 0x31);
     REQUIRE(cpu.GetAccumulator() == 0x81);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001101);
+    REQUIRE(cpu.GetStatusRegister().data == 0b10110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -1392,7 +1392,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Immediate - EOR Memory with Accumulator")
 
     REQUIRE(opcode == 0x49);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
@@ -1414,7 +1414,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Zero Page - EOR Memory with Accumulator")
 
     REQUIRE(opcode == 0x45);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -1436,7 +1436,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Zero Page X - EOR Memory with Accumulator
 
     REQUIRE(opcode == 0x55);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1458,7 +1458,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Absolute - EOR Memory with Accumulator")
 
     REQUIRE(opcode == 0x4d);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1480,7 +1480,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Absolute X - EOR Memory with Accumulator"
 
     REQUIRE(opcode == 0x5d);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1502,7 +1502,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Absolute Y - EOR Memory with Accumulator"
 
     REQUIRE(opcode == 0x59);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1525,7 +1525,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Indirect X - EOR Memory with Accumulator"
 
     REQUIRE(opcode == 0x41);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -1548,7 +1548,7 @@ TEST_CASE("OpCodes Table - Ops - EOR - Indirect Y - EOR Memory with Accumulator"
 
     REQUIRE(opcode == 0x51);
     REQUIRE(cpu.GetAccumulator() == 0x3e);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -1569,17 +1569,17 @@ TEST_CASE("OpCodes Table - Ops - ADC - Immediate - Add Memory to Accumulator wit
 
     REQUIRE(opcode == 0x69);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - ADC - Immediate - Various Test Cases")
 {
     // Examples per http://www.6502.org/tutorials/vflag.html
-    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0x69, 0x01}, .registers = {.a = 0x01, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x02, 0b00001100, 2}},
-                                                               {{.test_case = {0x69, 0xff}, .registers = {.a = 0x01, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x00, 0b11001100, 2}},
-                                                               {{.test_case = {0x69, 0x01}, .registers = {.a = 0x7f, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x80, 0b00001111, 2}},
-                                                               {{.test_case = {0x69, 0xff}, .registers = {.a = 0x80, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x7f, 0b10001110, 2}}}));
+    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0x69, 0x01}, .registers = {.a = 0x01, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x02, 0b00110000, 2}},
+                                                               {{.test_case = {0x69, 0xff}, .registers = {.a = 0x01, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x00, 0b00110011, 2}},
+                                                               {{.test_case = {0x69, 0x01}, .registers = {.a = 0x7f, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x80, 0b11110000, 2}},
+                                                               {{.test_case = {0x69, 0xff}, .registers = {.a = 0x80, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x7f, 0b01110001, 2}}}));
 
     auto test_case = std::get<0>(test_data);
 
@@ -1616,7 +1616,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Zero Page - Add Memory to Accumulator wit
 
     REQUIRE(opcode == 0x65);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -1638,7 +1638,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Zero Page X - Add Memory to Accumulator w
 
     REQUIRE(opcode == 0x75);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1660,7 +1660,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Absolute - Add Memory to Accumulator with
 
     REQUIRE(opcode == 0x6d);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1682,7 +1682,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Absolute X - Add Memory to Accumulator wi
 
     REQUIRE(opcode == 0x7d);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1704,7 +1704,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Absolute Y - Add Memory to Accumulator wi
 
     REQUIRE(opcode == 0x79);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1727,7 +1727,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Indirect X - Add Memory to Accumulator wi
 
     REQUIRE(opcode == 0x61);
     REQUIRE(cpu.GetAccumulator() == 0x40);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001110);
+    REQUIRE(cpu.GetStatusRegister().data == 0b01110001);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -1750,7 +1750,7 @@ TEST_CASE("OpCodes Table - Ops - ADC - Indirect Y - Add Memory to Accumulator wi
 
     REQUIRE(opcode == 0x71);
     REQUIRE(cpu.GetAccumulator() == 0x22);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110000);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -1771,17 +1771,17 @@ TEST_CASE("OpCodes Table - Ops - CMP - Immediate - Compare Memory with Accumulat
 
     REQUIRE(opcode == 0xc9);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - CMP - Immediate - Various Test Cases")
 {
     // Examples per http://www.6502.org/tutorials/vflag.html
-    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0xc9, 0x01}, .registers = {.a = 0x00, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x00, 0b00001101, 2}},
-                                                               {{.test_case = {0xc9, 0x01}, .registers = {.a = 0x80, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x80, 0b10001100, 2}},
-                                                               {{.test_case = {0xc9, 0x70}, .registers = {.a = 0x70, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x70, 0b11001100, 2}},
-                                                               {{.test_case = {0xc9, 0xff}, .registers = {.a = 0x7f, .sr = {.data = 0b00001100}, .pc = 0x0600}, 0x7f, 0b00001101, 2}}}));
+    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0xc9, 0x01}, .registers = {.a = 0x00, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x00, 0b10110000, 2}},
+                                                               {{.test_case = {0xc9, 0x01}, .registers = {.a = 0x80, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x80, 0b00110001, 2}},
+                                                               {{.test_case = {0xc9, 0x70}, .registers = {.a = 0x70, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x70, 0b00110011, 2}},
+                                                               {{.test_case = {0xc9, 0xff}, .registers = {.a = 0x7f, .sr = {.data = 0b00110000}, .pc = 0x0600}, 0x7f, 0b10110000, 2}}}));
 
     auto test_case = std::get<0>(test_data);
 
@@ -1818,7 +1818,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Zero Page - Compare Memory with Accumulat
 
     REQUIRE(opcode == 0xc5);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -1840,7 +1840,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Zero Page X - Compare Memory with Accumul
 
     REQUIRE(opcode == 0xd5);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1862,7 +1862,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Absolute - Compare Memory with Accumulato
 
     REQUIRE(opcode == 0xcd);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1884,7 +1884,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Absolute X - Compare Memory with Accumula
 
     REQUIRE(opcode == 0xdd);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1906,7 +1906,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Absolute Y - Compare Memory with Accumula
 
     REQUIRE(opcode == 0xd9);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -1929,7 +1929,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Indirect X - Compare Memory with Accumula
 
     REQUIRE(opcode == 0xc1);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -1952,7 +1952,7 @@ TEST_CASE("OpCodes Table - Ops - CMP - Indirect Y - Compare Memory with Accumula
 
     REQUIRE(opcode == 0xd1);
     REQUIRE(cpu.GetAccumulator() == 0xaf);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 
@@ -1973,16 +1973,16 @@ TEST_CASE("OpCodes Table - Ops - SBC - Immediate - Subtract Memory from Accumula
 
     REQUIRE(opcode == 0xe9);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 2);
 }
 
 TEST_CASE("OpCodes Table - Ops - SBC - Immediate - Various Test Cases")
 {
     // Examples per http://www.6502.org/tutorials/vflag.html
-    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0xe9, 0x01}, .registers = {.a = 0x00, .sr = {.data = 0b10001100}, .pc = 0x0600}, 0xff, 0b00001101, 2}},
-                                                               {{.test_case = {0xe9, 0x01}, .registers = {.a = 0x80, .sr = {.data = 0b10001100}, .pc = 0x0600}, 0x7f, 0b10001110, 2}},
-                                                               {{.test_case = {0xe9, 0xff}, .registers = {.a = 0x7f, .sr = {.data = 0b10001100}, .pc = 0x0600}, 0x80, 0b00001111, 2}}}));
+    auto test_data = GENERATE(table<struct ImmediateTestCase>({{{.test_case = {0xe9, 0x01}, .registers = {.a = 0x00, .sr = {.data = 0b00110001}, .pc = 0x0600}, 0xff, 0b10110000, 2}},
+                                                               {{.test_case = {0xe9, 0x01}, .registers = {.a = 0x80, .sr = {.data = 0b00110001}, .pc = 0x0600}, 0x7f, 0b01110001, 2}},
+                                                               {{.test_case = {0xe9, 0xff}, .registers = {.a = 0x7f, .sr = {.data = 0b00110001}, .pc = 0x0600}, 0x80, 0b11110000, 2}}}));
 
     auto test_case = std::get<0>(test_data);
 
@@ -2019,7 +2019,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Zero Page - Subtract Memory from Accumula
 
     REQUIRE(opcode == 0xe5);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 3);
 }
 
@@ -2041,7 +2041,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Zero Page X - Subtract Memory from Accumu
 
     REQUIRE(opcode == 0xf5);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -2063,7 +2063,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Absolute - Subtract Memory from Accumulat
 
     REQUIRE(opcode == 0xed);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -2085,7 +2085,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Absolute X - Subtract Memory from Accumul
 
     REQUIRE(opcode == 0xfd);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -2107,7 +2107,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Absolute Y - Subtract Memory from Accumul
 
     REQUIRE(opcode == 0xf9);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 4);
 }
 
@@ -2130,7 +2130,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Indirect X - Subtract Memory from Accumul
 
     REQUIRE(opcode == 0xe1);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 6);
 }
 
@@ -2153,7 +2153,7 @@ TEST_CASE("OpCodes Table - Ops - SBC - Indirect Y - Subtract Memory from Accumul
 
     REQUIRE(opcode == 0xf1);
     REQUIRE(cpu.GetAccumulator() == 0x1d);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10001100);
+    REQUIRE(cpu.GetStatusRegister().data == 0b00110001);
     REQUIRE(cpu.GetCycleCount() == 5);
 }
 

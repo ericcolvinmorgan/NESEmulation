@@ -34,7 +34,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/interface/nes",
-            "args": ["./roms/nes/test.nes"],
+            "args": ["./roms/nes-test/nestest.nes"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "environment": [],
