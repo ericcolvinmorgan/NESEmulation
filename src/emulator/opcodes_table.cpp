@@ -420,6 +420,12 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteIndirect(CPU *cp
 {
     Word indirect_addr = cpu->GetMemoryWord(cpu->GetProgramCounter());
     Word addr = cpu->GetMemoryWord(indirect_addr);
+    if (indirect_addr & 0x00FF == 0xFF){
+        Byte lsb = cpu->GetMemoryByte(indirect_addr);
+        Byte msb = cpu->GetMemoryByte(indirect_addr & 0xFF00);
+        addr = (msb << 8) | lsb;
+    }
+    
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
     return {addr, true, 5};
