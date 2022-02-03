@@ -5,14 +5,14 @@
 
 struct Flags
 {
-    Byte n : 1; // Negative Flag
-    Byte o : 1; // Overflow Flag
-    Byte : 1;   // Unused - Documentation indicates this seems to always be set to 1.
-    Byte b : 1; // Break Flag
-    Byte d : 1; // Decimal Mode Flag
-    Byte i : 1; // Interrupt Disable Flag
-    Byte z : 1; // Zero Flag
     Byte c : 1; // Carry Flag
+    Byte z : 1; // Zero Flag
+    Byte i : 1; // Interrupt Disable Flag
+    Byte d : 1; // Decimal Mode Flag
+    Byte b : 1; // Break Flag
+    Byte : 1;   // Unused - Documentation indicates this seems to always be set to 1.
+    Byte o : 1; // Overflow Flag
+    Byte n : 1; // Negative Flag
 };
 
 struct StatusRegister
@@ -29,8 +29,8 @@ struct Registers
     Byte a = 0;                                      // Accumulator
     Byte x = 0;                                      // X Index
     Byte y = 0;                                      // Y Index
-    Byte sp = 0;                                     // Stack Pointer
-    struct StatusRegister sr = {.data = 0b00001100}; // Status Register
+    Byte sp = 0xfd;                                     // Stack Pointer
+    struct StatusRegister sr = {.data = 0b00100000}; // Status Register
     Word pc = 0;                                     // Program Counter
 };
 

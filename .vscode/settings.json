@@ -4,7 +4,7 @@
         "${workspaceFolder}/cmake/kits/setup_cmake-kits.json"
     ],
     //"testMate.cpp.test.executables": "{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
-    "testMate.cpp.test.executables": "build/test/test",
+    "testMate.cpp.test.executables": "build/test/*_tests",
     "coverage-gutters.coverageReportFileName": "**/build/coverage/**/index.html",
     "coverage-gutters.coverageFileNames": ["output_filtered.info"],
     "files.associations": {
@@ -14,6 +14,22 @@
         "variant": "cpp",
         "tuple": "cpp",
         "functional": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "__functional_03": "cpp",
+        "__functional_base": "cpp",
+        "__hash_table": "cpp",
+        "__threading_support": "cpp",
+        "algorithm": "cpp",
+        "atomic": "cpp",
+        "bitset": "cpp",
+        "memory": "cpp",
+        "numeric": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "system_error": "cpp",
+        "unordered_map": "cpp",
+        "utility": "cpp",
+        "vector": "cpp",
+        "iosfwd": "cpp"
     }
 }
