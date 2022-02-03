@@ -1,29 +1,30 @@
 #pragma once
 
 #include "constants.h"
+#include "nes_ppu_memory_accessor.h"
 
 class PPU {
     private:
-        Byte pattern_table_[8 * 1024]; // static ch-rom
-        Byte name_table_[4 * 1024]; // dynamic vram
-        Byte palette_[32]; // color palette
-        Byte oam_[64]; // object attribute memory
+        Byte pattern_table_[8 * 1024] = {0}; // static ch-rom
+        Byte name_table_[4 * 1024]= {0}; // dynamic vram
+        Byte palette_[32]= {0}; // color palette
+        Byte oam_[64]= {0}; // object attribute memory
 
-    
         struct PPUCtrl
         {
             union
             {
                 Byte data; // 0bVPHBSINN
                 struct {
-                    Byte N0 : 1; //
-                    Byte N1 : 1; // ^ base nametable address
-                    Byte I  : 1; // vram increment per cpu read/write of PPUDATA
-                    Byte S  : 1; // sprite pattern table address
-                    Byte B  : 1; // background pattern table address
-                    Byte H  : 1; // sprite size
-                    Byte P  : 1; // PPU master/slave select
-                    Byte V  : 1; // generate NMI at start of vblank
+                    Byte nametable0 : 1; //
+                    Byte nametable1 : 1; // ^ base nametable address
+                    Byte increment : 1; // vram increment per cpu read/write of PPUDATA
+                                        // if 0, increment 1 else increment 32
+                    Byte sprite_addr : 1; // sprite pattern table address
+                    Byte background_addr : 1; // background pattern table address
+                    Byte sprite_size : 1; // sprite size
+                    Byte master_slave_select : 1; // PPU master/slave select
+                    Byte vblank : 1; // generate NMI at start of vblank
                 } flags;
             };
         } reg_ctrl_; // PPUCTRL $2000 > Write
@@ -34,14 +35,14 @@ class PPU {
             {
                 Byte data; // 0bBGRsBMmG
                 struct {
-                    Byte G : 1; // produce greyscale display
-                    Byte bg_left : 1; // show background in leftmost 8 pixels of screen
-                    Byte spr_left  : 1; // show sprites in leftmost 8 pixels of screen
-                    Byte bg  : 1; // show background
-                    Byte spr  : 1; // show sprite
-                    Byte R  : 1; // emphasize red
-                    Byte G  : 1; // emphasize green
-                    Byte B  : 1; // emphasize blue
+                    Byte greyscale : 1; // produce greyscale display
+                    Byte background_left : 1; // show background in leftmost 8 pixels of screen
+                    Byte sprite_left : 1; // show sprites in leftmost 8 pixels of screen
+                    Byte background : 1; // show background
+                    Byte sprite : 1; // show sprite
+                    Byte red : 1; // emphasize red
+                    Byte green : 1; // emphasize green
+                    Byte blue : 1; // emphasize blue
                 } flags;
             };
         } reg_mask_; // PPUMASK $2001 > Write
@@ -53,23 +54,24 @@ class PPU {
                 Byte data; // 0bVSO-----
                 struct {
                     Byte : 5; // not used
-                    Byte overflow : 1; // sprite overflow
-                    Byte S  : 1; // sprite 0 hit
-                    Byte V  : 1; // vblank has started
+                    Byte overflow :1; // sprite overflow
+                    Byte sprite_hit : 1; // sprite 0 hit
+                    Byte vblank_started : 1; // vblank has started
                 } flags;
             };
         } reg_status_; // PPUMASK $2001 > Write
 
-        Byte reg_oamaddr_;
-        Byte reg_oamdata_;
-        Byte reg_scroll_;
-        Byte reg_addr_;
-        Byte reg_data_;
-
-
-
+        Word temp_address_ = 0; // used with ppuaddr
+        Word vram_address_ = 0;
+        Byte latch_ = 0; // indicates firts or second write in ppuaddr
+        Byte interal_buffer_ = 0; // holds discarded value on first read from ppudata
+        NESPPUMemoryAccessor *memory_;
 
 
     public:
-        PPU();
+        PPU(NESPPUMemoryAccessor *memory);
+        PPU(NESPPUMemoryAccessor *memory, Byte ctrl_data);
+        void WriteToAddrReg(Byte data);
+        Byte ReadFromDataReg();
+        Word getVram() { return vram_address_; };
 };
