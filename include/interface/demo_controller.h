@@ -7,6 +7,6 @@ public:
     DemoController(MemoryAccessorInterface *memory) : ControllerInterface(memory) {}
 
     void InitController(){};
-    void WriteInput(Byte address);
-    void ReadOutput(Byte address){};
+    void WriteInput(uint16_t address);
+    Byte ReadOutput(uint16_t address){ return 0; };
 };

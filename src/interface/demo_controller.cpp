@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include "../../include/interface/demo_controller.h"
 
-void DemoController::WriteInput(Byte address)
+void DemoController::WriteInput(uint16_t address)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))

@@ -25,9 +25,10 @@ private:
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;
+    MemoryAccessorInterface *memory_ = nullptr;
 
 public:
-    SDLVideo(MemoryAccessorInterface *memory) : VideoInterface(memory) {}
+    SDLVideo(MemoryAccessorInterface *memory) : VideoInterface() { memory_ = memory; }
     ~SDLVideo();
     void InitVideo();
     void RenderFrame();

@@ -13,8 +13,9 @@
 #include "../../include/emulator/emulator.h"
 #include "../../include/emulator/opcodes_table.h"
 #include "../../include/emulator/nes_cpu_memory_accessor.h"
+#include "../../include/emulator/nes_ppu_memory_accessor.h"
 #include "../../include/interface/demo_controller.h"
-#include "../../include/interface/sdl_video.h"
+#include "../../include/interface/nes_sdl_video.h"
 
 #include <fstream>
 #include <ios>
@@ -25,7 +26,8 @@ std::default_random_engine generator(r());
 CPU *cpu = nullptr;
 OpCodesInterface *cpu_opcodes = nullptr;
 Emulator *emulator = nullptr;
-MemoryAccessorInterface *memory = nullptr;
+MemoryAccessorInterface *cpu_memory = nullptr;
+MemoryAccessorInterface *ppu_memory = nullptr;
 VideoInterface *content_screen = nullptr;
 ControllerInterface *controller = nullptr;
 bool request_exit = false;
@@ -43,7 +45,8 @@ static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
 void RenderFrame()
 {
     // Set Random Number
-    emulator->AdvanceFrame();
+    // emulator->AdvanceFrame();
+    controller->WriteInput(0x4016);
     content_screen->RenderFrame();
 }
 
@@ -105,19 +108,21 @@ int main(int argc, char **argv)
     }
 
     // Initialize
-    memory = new NESCPUMemoryAccessor();
+    cpu_memory = new NESCPUMemoryAccessor();
+    cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+    cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
 
-    memory->WriteMemory(0x8000, rom_data + 16, 16384);
-    memory->WriteMemory(0xc000, rom_data + 16, 16384);
+    ppu_memory = new NESPPUMemoryAccessor();
+    ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
     delete[] rom_data;
 
-    content_screen = new SDLVideo(memory);
+    content_screen = new NESSDLVideo(cpu_memory, ppu_memory);
     content_screen->InitVideo();
 
-    controller = new DemoController(memory);
+    controller = new DemoController(cpu_memory);
     controller->InitController();
 
-    cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, memory);
+    cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
     emulator = new Emulator(cpu, cpu_opcodes);
@@ -139,8 +144,11 @@ int main(int argc, char **argv)
     delete cpu;
     cpu = nullptr;
 
-    delete memory;
-    memory = nullptr;
+    delete cpu_memory;
+    cpu_memory = nullptr;
+
+    delete ppu_memory;
+    ppu_memory = nullptr;
 
     return 0;
 }

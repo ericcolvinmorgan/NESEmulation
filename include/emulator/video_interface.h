@@ -3,11 +3,8 @@
 
 class VideoInterface
 {
-protected:
-    MemoryAccessorInterface* memory_;
-
 public:
-    VideoInterface(MemoryAccessorInterface* memory) { memory_ = memory; };
+    VideoInterface() {};
     virtual ~VideoInterface() {};
     virtual void InitVideo() = 0;
     virtual void RenderFrame() = 0;
