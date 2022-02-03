@@ -49,15 +49,15 @@ TEST_CASE("CPU - Succesfully sets appropriate flag on status register")
     CPU cpu(registers, &memory);
     // set 7th bit (Negative flag)
     cpu.SetStatusRegisterFlag(0b00000001);
-    REQUIRE(cpu.GetStatusRegister().data == 0b00110001 );
+    REQUIRE(cpu.GetStatusRegister().data == 0b00100001 );
 
     // set 1st bit (Carry flag)
     cpu.SetStatusRegisterFlag(0b10000000);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10110001 );
+    REQUIRE(cpu.GetStatusRegister().data == 0b10100001 );
 
     // set already set bit
     cpu.SetStatusRegisterFlag(0b10000000);
-    REQUIRE(cpu.GetStatusRegister().data == 0b10110001 );
+    REQUIRE(cpu.GetStatusRegister().data == 0b10100001 );
 }
 
 TEST_CASE("CPU - Succesfully clears appropriate flag on status register")
