@@ -512,11 +512,14 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 
 // PHP
 // Push status register on stack, decrement stack pointer
+// set status bits 4 and 5
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPHP(CPU *cpu, Byte opcode)
 {
+    StatusRegister copied_sr = cpu->GetStatusRegister();
+    copied_sr.flags.b = 1;
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), copied_sr.data);
     cpu->DecrementStackPointer();
     cpu->IncreaseCycleCount(address_mode_val.cycles + 1); // 3 cycles total
 }
@@ -555,13 +558,20 @@ void OpCodesTable::OpPLA(CPU *cpu, Byte opcode)
 
 // PLP
 // increment stack pointer, pull top of stack and store in status register
+// set bit 5 to 1
+// set bit 4 to 0
 template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpPLP(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
-    cpu->SetStatusRegister(copied_value);
+
+    copied_value |= 0b00100000;
+    StatusRegister new_sr = {.data = copied_value };
+    new_sr.flags.b = 0;
+
+    cpu->SetStatusRegister(new_sr.data);
     cpu->IncreaseCycleCount(address_mode_val.cycles + 2); // 4 cycles total
 }
 
@@ -574,8 +584,11 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
     cpu->IncrementStackPointer();
-    Byte new_sr = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
-    cpu->SetStatusRegister(new_sr);
+    Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
+    copied_value |= 0b00100000;
+    StatusRegister new_sr = {.data = copied_value };
+    new_sr.flags.b = 0;
+    cpu->SetStatusRegister(new_sr.data);
 
     cpu->IncrementStackPointer();
     Byte pc_l = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
@@ -1447,7 +1460,7 @@ void OpCodesTable::OpBIT(CPU *cpu, Byte opcode)
     address_mode_val.value = cpu->GetMemoryByte(address_mode_val.value);
     auto result = cpu->GetAccumulator() & address_mode_val.value;
 
-    UpdateNegativeFlag(cpu, result);
+    UpdateNegativeFlag(cpu, address_mode_val.value);
     UpdateZeroFlag(cpu, result);
 
     // set overflow flag
