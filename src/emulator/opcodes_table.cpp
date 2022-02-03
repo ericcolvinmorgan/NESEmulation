@@ -430,6 +430,12 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAbsoluteIndirect(CPU *cp
 {
     Word indirect_addr = cpu->GetMemoryWord(cpu->GetProgramCounter());
     Word addr = cpu->GetMemoryWord(indirect_addr);
+    if (indirect_addr & 0x00FF == 0xFF){
+        Byte lsb = cpu->GetMemoryByte(indirect_addr);
+        Byte msb = cpu->GetMemoryByte(indirect_addr & 0xFF00);
+        addr = (msb << 8) | lsb;
+    }
+    
     cpu->AdvanceProgramCounter();
     cpu->AdvanceProgramCounter();
     return {addr, true, 5};
@@ -1507,25 +1513,9 @@ void OpCodesTable::OpLDY(CPU *cpu, Byte opcode)
         address_mode_val.value = cpu->GetMemoryWord(address_mode_val.value);
 
     const auto loaded_value = address_mode_val.value;
-    // set zero flag
-    if (loaded_value)
-    {
-        cpu->ClearStatusRegisterFlag(kZeroFlag);
-    }
-    else
-    {
-        cpu->SetStatusRegisterFlag(kZeroFlag);
-    }
 
-    // negative flag
-    if (loaded_value >> 7 == 1)
-    {
-        cpu->SetStatusRegisterFlag(kNegativeFlag);
-    }
-    else
-    {
-        cpu->ClearStatusRegisterFlag(kNegativeFlag);
-    }
+    UpdateZeroFlag(cpu, loaded_value);
+    UpdateNegativeFlag(cpu, loaded_value);
 
     cpu->SetYIndex(loaded_value);
     cpu->IncreaseCycleCount(address_mode_val.cycles);
