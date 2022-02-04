@@ -15,6 +15,7 @@
 #include "../../include/emulator/nes_cpu_memory_accessor.h"
 #include "../../include/emulator/nes_ppu_memory_accessor.h"
 #include "../../include/interface/demo_controller.h"
+#include "../../include/interface/nes_controller.h"
 #include "../../include/interface/nes_sdl_video.h"
 
 #include <fstream>
@@ -26,10 +27,10 @@ std::default_random_engine generator(r());
 CPU *cpu = nullptr;
 OpCodesInterface *cpu_opcodes = nullptr;
 Emulator *emulator = nullptr;
-MemoryAccessorInterface *cpu_memory = nullptr;
+NESCPUMemoryAccessor *cpu_memory = nullptr;
 MemoryAccessorInterface *ppu_memory = nullptr;
 VideoInterface *content_screen = nullptr;
-ControllerInterface *controller = nullptr;
+NESController *controller = nullptr;
 bool request_exit = false;
 
 static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
@@ -46,7 +47,7 @@ void RenderFrame()
 {
     // Set Random Number
     // emulator->AdvanceFrame();
-    controller->WriteInput(0x4016);
+    controller->PollInputIfStrobing();
     content_screen->RenderFrame();
 }
 
@@ -119,8 +120,14 @@ int main(int argc, char **argv)
     content_screen = new NESSDLVideo(cpu_memory, ppu_memory);
     content_screen->InitVideo();
 
-    controller = new DemoController(cpu_memory);
-    controller->InitController();
+    controller = new NESController(cpu_memory);
+    const auto OnPlayerOneRead = [](){
+        controller->OnRead();
+    };
+    const auto OnPlayerOneWrite = [](uint8_t valueWritten){
+        controller->OnWrite(valueWritten);
+    };
+    cpu_memory->SetPlayerOneCallbacks(OnPlayerOneRead, OnPlayerOneWrite);
 
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
