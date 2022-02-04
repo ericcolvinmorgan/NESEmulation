@@ -6,8 +6,8 @@ class NESCPUMemoryAccessor : public MemoryAccessorInterface
 {
 private:
     Byte memory_[0xffff + 1] = {0};
-    std::function<void(void)> OnPlayerOneRead_ = [](){};
-    std::function<void(Byte)> OnPlayerOneWrite_ = [](Byte data){};
+    std::function<void(void)> AfterPlayerOneRead_ = [](){};
+    std::function<void(Byte)> AfterPlayerOneWrite_ = [](Byte data){};
 
 public:
     NESCPUMemoryAccessor() {}
@@ -20,5 +20,5 @@ public:
     // Allows a controller to write to memory without triggering its own callback
     // Everything else should use the normal WriteMemory so the controller can be properly notified
     void WritePlayerOneMemory(Byte data);
-    void SetPlayerOneCallbacks(std::function<void(void)> onRead, std::function<void(Byte)> onWrite);
+    void SetPlayerOneCallbacks(std::function<void(void)> afterRead, std::function<void(Byte)> afterWrite);
 };

@@ -121,13 +121,13 @@ int main(int argc, char **argv)
     content_screen->InitVideo();
 
     controller = new NESController(cpu_memory);
-    const auto OnPlayerOneRead = [](){
-        controller->OnRead();
+    const auto AfterPlayerOneRead = [](){
+        controller->AfterRead();
     };
-    const auto OnPlayerOneWrite = [](uint8_t valueWritten){
-        controller->OnWrite(valueWritten);
+    const auto AfterPlayerOneWrite = [](uint8_t valueWritten){
+        controller->AfterWrite(valueWritten);
     };
-    cpu_memory->SetPlayerOneCallbacks(OnPlayerOneRead, OnPlayerOneWrite);
+    cpu_memory->SetPlayerOneCallbacks(AfterPlayerOneRead, AfterPlayerOneWrite);
 
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();

@@ -1,6 +1,6 @@
 #include "../../include/interface/nes_controller.h"
 
-void NESController::OnWrite(Byte data)
+void NESController::AfterWrite(Byte data)
 {
     if(data & 1){
         strobing_ = true;
@@ -11,7 +11,7 @@ void NESController::OnWrite(Byte data)
     memory_->WritePlayerOneMemory(lastInputState_ & 1);
 }
 
-void NESController::OnRead()
+void NESController::AfterRead()
 {
     if(!strobing_){
         lastInputState_ = lastInputState_ >> 1;

@@ -30,8 +30,9 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     case 0x4000 ... 0x4015:
     case 0x4016:
     {
-        OnPlayerOneRead_();
-        return memory_[0x4016];
+        const Byte value = memory_[0x4016];
+        AfterPlayerOneRead_();
+        return value;
     }
         break;
     case 0x4017:
@@ -78,8 +79,10 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     // NES APU and I/O registers
     case 0x4000 ... 0x4015:
     case 0x4016:
+    {
         WritePlayerOneMemory(data);
-        OnPlayerOneWrite_(data);
+        AfterPlayerOneWrite_(data);
+    }
         break;
     case 0x4017:
     // APU and I/O functionality that is normally disabled
@@ -109,8 +112,8 @@ void NESCPUMemoryAccessor::WritePlayerOneMemory(Byte data)
     memory_[0x4016] = data;
 }
 
-void NESCPUMemoryAccessor::SetPlayerOneCallbacks(std::function<void(void)> onRead, std::function<void(Byte)> onWrite)
+void NESCPUMemoryAccessor::SetPlayerOneCallbacks(std::function<void(void)> afterRead, std::function<void(Byte)> afterWrite)
 {
-    OnPlayerOneRead_ = std::move(onRead);
-    OnPlayerOneWrite_ = std::move(onWrite);
+    AfterPlayerOneRead_ = std::move(afterRead);
+    AfterPlayerOneWrite_ = std::move(afterWrite);
 }

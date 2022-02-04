@@ -14,8 +14,8 @@ class NESController
 
     public:
         NESController(NESCPUMemoryAccessor *memory): memory_(memory) {};
-        void OnWrite(Byte data);
-        void OnRead();
+        void AfterWrite(Byte data);
+        void AfterRead();
         void PollInputIfStrobing();
         void SetInput(InputInterface *input){inputInterface_ = input;}
 };
