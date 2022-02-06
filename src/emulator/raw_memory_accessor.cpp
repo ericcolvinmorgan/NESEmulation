@@ -16,11 +16,13 @@ Word RawMemoryAccessor::ReadWord(uint16_t location)
 void RawMemoryAccessor::WriteMemory(uint16_t location, Byte data)
 {
     memory_[location] = data;
+    OnMemoryWrite(location);
 }
 
 void RawMemoryAccessor::WriteMemory(uint16_t location, Word data)
 {
-    *((Word*)(memory_ + location)) = data;
+    *((Word *)(memory_ + location)) = data;
+    OnMemoryWrite(location);
 }
 
 void RawMemoryAccessor::WriteMemory(uint16_t location, const Byte *data, uint16_t length)

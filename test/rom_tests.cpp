@@ -32,12 +32,24 @@ TEST_CASE("Rom Tests - nestest.nes")
     Emulator emu(&cpu, &cpu_opcodes);
     bool next = true;
 
+    Byte zz = memory.ReadByte(0x00);
+
     while (next)
     {
         auto opcode = cpu.GetCurrentOpCode();
 
         // Write To Log
         output_file << std::hex << cpu.GetProgramCounter() << "," << (short)opcode << "," << (short)memory.ReadByte(cpu.GetProgramCounter() + 1) << "," << (short)memory.ReadByte(cpu.GetProgramCounter() + 2) << std::dec << "," << (short)cpu.GetAccumulator() << "," << (short)cpu.GetXIndex() << "," << (short)cpu.GetYIndex() << "," << (short)(cpu.GetStatusRegister().data) << "," << std::hex << (short)cpu.GetStackPointer() << "," << std::dec << cpu.GetCycleCount() << "\n";
+
+        if (zz != memory.ReadByte(0x00))
+        {
+            zz = memory.ReadByte(0x00);
+        }
+
+        if (opcode == 0xa1 && cpu.GetAccumulator() == 0x5c)
+        {
+            int i = 0;
+        }
 
         cpu.AdvanceProgramCounter();
 

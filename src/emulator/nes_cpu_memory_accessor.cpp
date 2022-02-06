@@ -79,6 +79,8 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
     break;
     }
+
+    OnMemoryWrite(location);
 }
 
 void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data)

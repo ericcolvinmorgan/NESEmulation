@@ -8,6 +8,7 @@ private:
 
 public:
     RawMemoryAccessor() {}
+    ~RawMemoryAccessor() {}
 
     Byte ReadByte(uint16_t location);
     Word ReadWord(uint16_t location);

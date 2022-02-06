@@ -1,2 +1,2 @@
-add_library(emulator emulator.cpp cpu.cpp nes_ppu_memory_accessor.cpp nes_cpu_memory_accessor.cpp raw_memory_accessor.cpp opcodes_table.cpp ppu.cpp)
+add_library(emulator emulator.cpp cpu.cpp memory_accessor_interface.cpp nes_ppu_memory_accessor.cpp nes_cpu_memory_accessor.cpp raw_memory_accessor.cpp opcodes_table.cpp ppu.cpp)
 target_include_directories (emulator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

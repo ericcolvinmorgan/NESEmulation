@@ -1,20 +1,20 @@
 #include "../../include/emulator/ppu.h"
 #include "../../include/emulator/constants.h"
 
-PPU::PPU(NESPPUMemoryAccessor *memory)
+PPU::PPU(NESPPUMemoryAccessor *ppu_memory, NESCPUMemoryAccessor *cpu_memory)
 {
-    memory_ = memory;
-    reg_ctrl_.data = 0;
+    ppu_memory_ = ppu_memory;
+    cpu_memory_ = cpu_memory;
+
+    std::function<void(void *)> f = [this](void *address)
+    { this->HandleAddressRegisterWrite(address); };
+    on_address_register_write_ = new MemoryEventHandler(f);
+    cpu_memory_->SubscribeMemoryChange(0x2006, on_address_register_write_);
 }
 
-PPU::PPU(NESPPUMemoryAccessor *memory, Byte ctrl_flags)
+void PPU::HandleAddressRegisterWrite(void *address)
 {
-    memory_ = memory;
-    reg_ctrl_.data = ctrl_flags;
-}
-
-void PPU::WriteToAddrReg(Byte data)
-{
+    Byte data = cpu_memory_->ReadByte(0x2006);
     if (latch_ == 0) // first write in 2-write sequence
     {
         temp_address_ = (data << 8);
@@ -31,13 +31,13 @@ void PPU::WriteToAddrReg(Byte data)
 Byte PPU::ReadFromDataReg()
 {
     Byte data = interal_buffer_;
-    interal_buffer_ = memory_->ReadByte(vram_address_);
+    interal_buffer_ = ppu_memory_->ReadByte(vram_address_);
 
     if (vram_address_ >= 0x3f00) // palette memory is not delayed
-    { 
-        data = memory_->ReadByte(vram_address_);
+    {
+        data = ppu_memory_->ReadByte(vram_address_);
     }
-    
+
     if (reg_ctrl_.flags.increment)
     {
         vram_address_ += 32;

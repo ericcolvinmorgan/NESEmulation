@@ -8,6 +8,7 @@ private:
 
 public:
     NESPPUMemoryAccessor() {}
+    ~NESPPUMemoryAccessor() {}
 
     Byte ReadByte(uint16_t location);
     Word ReadWord(uint16_t location);
