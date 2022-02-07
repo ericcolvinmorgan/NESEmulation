@@ -29,14 +29,29 @@ MemoryAccessorInterface *memory = nullptr;
 VideoInterface *content_screen = nullptr;
 ControllerInterface *controller = nullptr;
 bool request_exit = false;
+bool toggle_logging = false;
 
-static int SDLCALL HandleExit(void *userdata, SDL_Event * event)
+static int SDLCALL HandleLogging(void *userdata, SDL_Event *event)
 {
-    if (event->type == SDL_QUIT) {
-        bool *exit = (bool*) userdata;
+    if ((event->type == SDL_KEYDOWN || event->type == SDL_KEYUP) && event->key.keysym.sym == SDLK_f)
+    {
+        bool *log = (bool *)userdata;
+        *log = !*log;
+
+        if (emulator != nullptr)
+            emulator->EnableLogging(*log);
+    }
+    return 1; // let all events be added to the queue since we always return 1.
+}
+
+static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
+{
+    if (event->type == SDL_QUIT)
+    {
+        bool *exit = (bool *)userdata;
         *exit = true;
     }
-    return 1;  // let all events be added to the queue since we always return 1.
+    return 1; // let all events be added to the queue since we always return 1.
 }
 
 void RenderFrame()
@@ -52,42 +67,44 @@ void RenderFrame()
 #ifdef __EMSCRIPTEN__
 void RunEmulator()
 {
+    SDL_SetEventFilter(HandleLogging, &toggle_logging);
     emscripten_set_main_loop(RenderFrame, kFPS, 1);
 }
 #else
 void RunEmulator()
 {
     SDL_SetEventFilter(HandleExit, &request_exit);
+    SDL_SetEventFilter(HandleLogging, &toggle_logging);
     while (!request_exit)
-	{
+    {
         Uint64 start = SDL_GetPerformanceCounter();
-		RenderFrame();
+        RenderFrame();
         Uint64 end = SDL_GetPerformanceCounter();
         float elapsed_milliseconds = (end - start) / (float)SDL_GetPerformanceFrequency() * 1000.f;
 
-        //Cap FPS to kFPS
+        // Cap FPS to kFPS
         float delay = floor((1000.f / kFPS) - elapsed_milliseconds);
-        if(delay > 0.f)
+        if (delay > 0.f)
             SDL_Delay(delay);
-	}
+    }
 }
 #endif
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    #ifdef __EMSCRIPTEN__
-        const char* file_path = "snake.bin";
-    #else
-    if(argc != 2)
+#ifdef __EMSCRIPTEN__
+    const char *file_path = "snake.bin";
+#else
+    if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
         return 0;
     }
-    const char* file_path = argv[1];
-    #endif
+    const char *file_path = argv[1];
+#endif
 
     std::ifstream inputFile(file_path, std::ios::binary);
-    if(!inputFile.is_open())
+    if (!inputFile.is_open())
     {
         std::cout << "The provided file is not accessible.\n";
         return 0;
@@ -98,7 +115,7 @@ int main(int argc, char** argv)
     std::size_t rom_size = inputFile.tellg();
     inputFile.seekg(0, std::ios_base::beg);
 
-    //Read contents to memory and close file.
+    // Read contents to memory and close file.
     Byte *rom_data = new Byte[rom_size];
     inputFile.read((char *)rom_data, rom_size);
     inputFile.close();
@@ -110,20 +127,20 @@ int main(int argc, char** argv)
     delete[] rom_data;
 
     memory->WriteMemory(kReset, (Word)0x0600);
-    
+
     content_screen = new SDLVideo(memory);
     content_screen->InitVideo();
 
     controller = new DemoController(memory);
     controller->InitController();
-    
+
     cpu = new CPU({.sp = 0xFF}, memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
     emulator = new Emulator(cpu, cpu_opcodes, 300);
 
     RunEmulator();
-    
+
     delete controller;
     controller = nullptr;
 
@@ -141,7 +158,6 @@ int main(int argc, char** argv)
 
     delete memory;
     memory = nullptr;
-
 
     return 0;
 }
