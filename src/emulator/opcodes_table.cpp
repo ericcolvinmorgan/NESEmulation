@@ -585,7 +585,8 @@ void OpCodesTable::OpPLP(CPU *cpu, Byte opcode)
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
 
     copied_value |= 0b00100000;
-    StatusRegister new_sr{copied_value};
+    StatusRegister new_sr;
+    new_sr.data = copied_value;
     new_sr.flags.b = 0;
 
     cpu->SetStatusRegister(new_sr.data);
@@ -603,7 +604,8 @@ void OpCodesTable::OpRTI(CPU *cpu, Byte opcode)
     cpu->IncrementStackPointer();
     Byte copied_value = cpu->GetMemoryByte(0x100 + cpu->GetStackPointer());
     copied_value |= 0b00100000;
-    StatusRegister new_sr{copied_value};
+    StatusRegister new_sr;
+    new_sr.data = copied_value;
     new_sr.flags.b = 0;
     cpu->SetStatusRegister(new_sr.data);
 
