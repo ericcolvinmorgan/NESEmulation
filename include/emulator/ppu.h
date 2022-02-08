@@ -71,13 +71,14 @@ private:
     Word vram_address_ = 0;
     Byte latch_ = 0;          // indicates firts or second write in ppuaddr
     Byte interal_buffer_ = 0; // holds discarded value on first read from ppudata
-    NESPPUMemoryAccessor *ppu_memory_;
-    NESCPUMemoryAccessor *cpu_memory_;
+    MemoryAccessorInterface *ppu_memory_;
+    MemoryAccessorInterface *cpu_memory_;
     MemoryEventHandler *on_address_register_write_ = nullptr;
     void HandleAddressRegisterWrite(void *address);
 
 public:
-    PPU(NESPPUMemoryAccessor *ppu_memory, NESCPUMemoryAccessor *cpu_memory);
+    PPU() {};
+    PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
 
     Byte ReadFromDataReg();
     Word getVram() { return vram_address_; };

@@ -10,7 +10,7 @@
 #include <random>
 #include <SDL2/SDL.h>
 #include "../../include/emulator/cpu.h"
-#include "../../include/emulator/emulator.h"
+#include "../../include/emulator/6502/emulator.h"
 #include "../../include/emulator/opcodes_table.h"
 #include "../../include/emulator/raw_memory_accessor.h"
 #include "../../include/interface/demo_controller.h"

@@ -1,10 +1,13 @@
 #include "../../include/emulator/ppu.h"
 #include "../../include/emulator/constants.h"
 
-PPU::PPU(NESPPUMemoryAccessor *ppu_memory, NESCPUMemoryAccessor *cpu_memory)
+PPU::PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory)
 {
     ppu_memory_ = ppu_memory;
     cpu_memory_ = cpu_memory;
+
+    // Set VBlank to true - this shouldn't actually be done, but is being done so we can trigger CPU to start populating nametables.
+    cpu_memory_->WriteMemory(0x2002, (Byte)0b10000000);
 
     std::function<void(void *)> f = [this](void *address)
     { this->HandleAddressRegisterWrite(address); };
