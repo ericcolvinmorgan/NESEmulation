@@ -16,60 +16,70 @@ TEST_CASE("PPU - Write to PPUADDR")
     REQUIRE(ppu.getVram() == 0x0600);
 }
 
-// TEST_CASE("PPU - Write to PPUADDR with mirroring down if address is over 3fff")
-// {
-//     NESPPUMemoryAccessor *memory;
-//     PPU ppu(memory);
-//     ppu.WriteToAddrReg(0x4f);
-//     ppu.WriteToAddrReg(0xff);
+TEST_CASE("PPU - Write to PPUADDR with mirroring down if address is over 3fff")
+{
+    NESPPUMemoryAccessor ppu_memory;
+    NESCPUMemoryAccessor cpu_memory;
+    PPU ppu(&ppu_memory, &cpu_memory);
 
-//     REQUIRE(ppu.getVram() == 0x0fff);
-// }
+    cpu_memory.WriteMemory(0x2006, (Byte)0x4f);
+    cpu_memory.WriteMemory(0x2006, (Byte)0xff);
 
-// TEST_CASE("PPU - Write to PPUADDR, carry over vram until both writes completed")
-// {
-//     NESPPUMemoryAccessor *memory;
-//     PPU ppu(memory);
-//     ppu.WriteToAddrReg(0x4f);
-//     ppu.WriteToAddrReg(0xff);
+    REQUIRE(ppu.getVram() == 0x0fff);
+}
 
-//     REQUIRE(ppu.getVram() == 0x0fff);
+TEST_CASE("PPU - Write to PPUADDR, carry over vram until both writes completed")
+{
+    NESPPUMemoryAccessor ppu_memory;
+    NESCPUMemoryAccessor cpu_memory;
+    PPU ppu(&ppu_memory, &cpu_memory);
 
-//     ppu.WriteToAddrReg(0x12);
+    cpu_memory.WriteMemory(0x2006, (Byte)0x4f);
+    cpu_memory.WriteMemory(0x2006, (Byte)0xff);
 
-//     REQUIRE(ppu.getVram() == 0x0fff); // vram should not be updated yet
+    REQUIRE(ppu.getVram() == 0x0fff);
 
-//     ppu.WriteToAddrReg(0x34);
+    cpu_memory.WriteMemory(0x2006, (Byte)0x12);
 
-//     REQUIRE(ppu.getVram() == 0x1234); // vram should now be oupdated
-// }
+    REQUIRE(ppu.getVram() == 0x0fff); // vram should not be updated yet
 
-// TEST_CASE("PPU - 2 cycles of Write to PPUADDR and Read from PPUDATA")
-// {
-//     NESPPUMemoryAccessor memory;
-//     Byte ctrl_flags = 0;
-//     memory.WriteMemory((Word)0x0fff, (Byte)0xab);
-//     memory.WriteMemory((Word)0x1234, (Byte)0xcd);
-//     PPU ppu(&memory, ctrl_flags);
+    cpu_memory.WriteMemory(0x2006, (Byte)0x34);
 
-//     // 2 writes to ppuaddr to load vram
-//     ppu.WriteToAddrReg(0x4f);
-//     ppu.WriteToAddrReg(0xff);
-//     REQUIRE(ppu.getVram() == 0x0fff);
+    REQUIRE(ppu.getVram() == 0x1234); // vram should now be oupdated
+}
 
-//     // 2 reads from ppudata, first is discarded
-//     ppu.ReadFromDataReg(); // dummy read
-//     // vram gets incremented every read/write to ppudata
-//     REQUIRE(ppu.getVram() == 0x0fff + 1);
-//     // actual data read
-//     REQUIRE(ppu.ReadFromDataReg() == 0xab);
+TEST_CASE("PPU - Read from PPUDATA - Bit 2 of PPUCTRL Set")
+{
+    NESPPUMemoryAccessor ppu_memory;
+    NESCPUMemoryAccessor cpu_memory;
+    ppu_memory.WriteMemory(0xfff, (Byte)0x33);
+    PPU ppu(&ppu_memory, &cpu_memory);
 
-//     // cpu writes to ppuaddr again
-//     ppu.WriteToAddrReg(0x12);
-//     ppu.WriteToAddrReg(0x34);
+    cpu_memory.WriteMemory(0x2006, (Byte)0x4f);
+    cpu_memory.WriteMemory(0x2006, (Byte)0xff);
 
-//     REQUIRE(ppu.getVram() == 0x1234);
-//     ppu.ReadFromDataReg(); // dummy read increments vram
-//     REQUIRE(ppu.getVram() == 0x1234 + 1);
-//     REQUIRE(ppu.ReadFromDataReg() == 0xcd);
-// }
+    ppu.HandlePPUDATARead(); // dummy read, vram++
+
+    REQUIRE(ppu.getVram() == 0x0fff + 1);
+    REQUIRE(ppu.HandlePPUDATARead() == 0x33); // data read, vram++
+    REQUIRE(ppu.getVram() == 0x0fff + 2);
+}
+
+TEST_CASE("PPU - Read from PPUDATA - Bit 2 of PPUCTRL Cleared")
+{
+    NESPPUMemoryAccessor ppu_memory;
+    NESCPUMemoryAccessor cpu_memory;
+    ppu_memory.WriteMemory(0xfff, (Byte)0x33);
+    PPU ppu(&ppu_memory, &cpu_memory);
+
+    ppu.setPPUCTRLData(0b00000100);
+    
+    cpu_memory.WriteMemory(0x2006, (Byte)0x4f);
+    cpu_memory.WriteMemory(0x2006, (Byte)0xff);
+
+    ppu.HandlePPUDATARead(); // dummy read, vram++
+
+    REQUIRE(ppu.getVram() == 0x0fff + 32);
+    REQUIRE(ppu.HandlePPUDATARead() == 0x33); // data read, vram++
+    REQUIRE(ppu.getVram() == 0x0fff + 64);
+}

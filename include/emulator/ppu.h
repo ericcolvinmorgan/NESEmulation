@@ -14,24 +14,24 @@ private:
     Byte oam_[64] = {0};                 // object attribute memory
 
     struct PPUCtrl
-    {
-        union
         {
-            Byte data; // 0bVPHBSINN
-            struct
+            union
             {
-                Byte nametable0 : 1;          //
-                Byte nametable1 : 1;          // ^ base nametable address
-                Byte increment : 1;           // vram increment per cpu read/write of PPUDATA
-                                              // if 0, increment 1 else increment 32
-                Byte sprite_addr : 1;         // sprite pattern table address
-                Byte background_addr : 1;     // background pattern table address
-                Byte sprite_size : 1;         // sprite size
-                Byte master_slave_select : 1; // PPU master/slave select
-                Byte vblank : 1;              // generate NMI at start of vblank
-            } flags;
-        };
-    } reg_ctrl_; // PPUCTRL $2000 > Write
+                Byte data; // 0bVPHBSINN
+                struct
+                {
+                    Byte nametable0 : 1;          //
+                    Byte nametable1 : 1;          // ^ base nametable address
+                    Byte increment : 1;           // vram increment per cpu read/write of PPUDATA
+                                                // if 0, increment 1 else increment 32
+                    Byte sprite_addr : 1;         // sprite pattern table address
+                    Byte background_addr : 1;     // background pattern table address
+                    Byte sprite_size : 1;         // sprite size
+                    Byte master_slave_select : 1; // PPU master/slave select
+                    Byte vblank : 1;              // generate NMI at start of vblank
+                } flags;
+            };
+        } reg_ctrl_; // PPUCTRL $2000 > Write
 
     struct PPUMask
     {
@@ -92,9 +92,13 @@ private:
     void HandlePPUDATAWrite(void *address);
 
 public:
+
     PPU(){};
     PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
 
-    Byte ReadFromDataReg();
+    Byte HandlePPUDATARead();
+
+    // for testing
     Word getVram() { return vram_address_; };
+    void setPPUCTRLData(Byte data) { reg_ctrl_.data = data;}
 };

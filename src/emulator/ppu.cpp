@@ -41,6 +41,7 @@ PPU::PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memor
 void PPU::HandlePPUCTRLWrite(void *address)
 {
     Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+    reg_ctrl_.data = data;
 }
 
 void PPU::HandlePPUMASKWrite(void *address)
@@ -84,7 +85,8 @@ void PPU::HandlePPUDATAWrite(void *address)
     Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
 }
 
-Byte PPU::ReadFromDataReg()
+// still need to implement as handler
+Byte PPU::HandlePPUDATARead()
 {
     Byte data = interal_buffer_;
     interal_buffer_ = ppu_memory_->ReadByte(vram_address_);
