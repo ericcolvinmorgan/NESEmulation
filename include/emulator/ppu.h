@@ -73,11 +73,26 @@ private:
     Byte interal_buffer_ = 0; // holds discarded value on first read from ppudata
     MemoryAccessorInterface *ppu_memory_;
     MemoryAccessorInterface *cpu_memory_;
-    MemoryEventHandler *on_address_register_write_ = nullptr;
-    void HandleAddressRegisterWrite(void *address);
+
+    MemoryEventHandler *on_ppuctrl_write_ = nullptr;
+    MemoryEventHandler *on_ppumask_write_ = nullptr;
+    MemoryEventHandler *on_oamaddr_write_ = nullptr;
+    MemoryEventHandler *on_oamdata_write_ = nullptr;
+    MemoryEventHandler *on_ppuscroll_write_ = nullptr;
+    MemoryEventHandler *on_ppuaddr_write_ = nullptr;
+    MemoryEventHandler *on_ppudata_write_ = nullptr;
+
+    // PPU Register Write Events
+    void HandlePPUCTRLWrite(void *address);
+    void HandlePPUMASKWrite(void *address);
+    void HandleOAMADDRWrite(void *address);
+    void HandleOAMDATAWrite(void *address);
+    void HandlePPUSCROLLWrite(void *address);
+    void HandlePPUADDRWrite(void *address);
+    void HandlePPUDATAWrite(void *address);
 
 public:
-    PPU() {};
+    PPU(){};
     PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
 
     Byte ReadFromDataReg();

@@ -9,13 +9,61 @@ PPU::PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memor
     // Set VBlank to true - this shouldn't actually be done, but is being done so we can trigger CPU to start populating nametables.
     cpu_memory_->WriteMemory(0x2002, (Byte)0b10000000);
 
-    std::function<void(void *)> f = [this](void *address)
-    { this->HandleAddressRegisterWrite(address); };
-    on_address_register_write_ = new MemoryEventHandler(f);
-    cpu_memory_->SubscribeMemoryChange(0x2006, on_address_register_write_);
+    on_ppuctrl_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandlePPUCTRLWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2000, on_ppuctrl_write_);
+
+    on_ppumask_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandlePPUMASKWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2001, on_ppumask_write_);
+
+    on_oamaddr_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandleOAMADDRWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2003, on_oamaddr_write_);
+
+    on_oamdata_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandleOAMDATAWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2004, on_oamdata_write_);
+
+    on_ppuscroll_write_ = new MemoryEventHandler([this](void *address)
+                                                 { this->HandlePPUSCROLLWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2005, on_ppuscroll_write_);
+
+    on_ppuaddr_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandlePPUADDRWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2006, on_ppuaddr_write_);
+
+    on_ppudata_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandlePPUDATAWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(0x2007, on_ppudata_write_);
 }
 
-void PPU::HandleAddressRegisterWrite(void *address)
+void PPU::HandlePPUCTRLWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+}
+
+void PPU::HandlePPUMASKWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+}
+
+void PPU::HandleOAMADDRWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+}
+
+void PPU::HandleOAMDATAWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+}
+
+void PPU::HandlePPUSCROLLWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+}
+
+void PPU::HandlePPUADDRWrite(void *address)
 {
     Byte data = cpu_memory_->ReadByte(0x2006);
     if (latch_ == 0) // first write in 2-write sequence
@@ -29,6 +77,11 @@ void PPU::HandleAddressRegisterWrite(void *address)
         vram_address_ = temp_address_ & 0x3fff; // mirror down if addr > 3fff
         latch_ = 0;
     }
+}
+
+void PPU::HandlePPUDATAWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
 }
 
 Byte PPU::ReadFromDataReg()
