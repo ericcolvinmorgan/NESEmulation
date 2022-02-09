@@ -8,30 +8,39 @@
 class PPU
 {
 private:
+    const uint16_t kPPUCTRL = 0x2000;
+    const uint16_t kPPUMASK = 0x2001;
+    const uint16_t kPPUSTATUS = 0x2002;
+    const uint16_t kOAMADDR = 0x2003;
+    const uint16_t kOAMDATA = 0x2004;
+    const uint16_t kPPUSCROLL = 0x2005;
+    const uint16_t kPPUADDR = 0x2006;
+    const uint16_t kPPUDATA = 0x2007;
+
     Byte pattern_table_[8 * 1024] = {0}; // static ch-rom
     Byte name_table_[4 * 1024] = {0};    // dynamic vram
     Byte palette_[32] = {0};             // color palette
     Byte oam_[64] = {0};                 // object attribute memory
 
     struct PPUCtrl
+    {
+        union
         {
-            union
+            Byte data; // 0bVPHBSINN
+            struct
             {
-                Byte data; // 0bVPHBSINN
-                struct
-                {
-                    Byte nametable0 : 1;          //
-                    Byte nametable1 : 1;          // ^ base nametable address
-                    Byte increment : 1;           // vram increment per cpu read/write of PPUDATA
-                                                // if 0, increment 1 else increment 32
-                    Byte sprite_addr : 1;         // sprite pattern table address
-                    Byte background_addr : 1;     // background pattern table address
-                    Byte sprite_size : 1;         // sprite size
-                    Byte master_slave_select : 1; // PPU master/slave select
-                    Byte vblank : 1;              // generate NMI at start of vblank
-                } flags;
-            };
-        } reg_ctrl_; // PPUCTRL $2000 > Write
+                Byte nametable0 : 1;          //
+                Byte nametable1 : 1;          // ^ base nametable address
+                Byte increment : 1;           // vram increment per cpu read/write of PPUDATA
+                                              // if 0, increment 1 else increment 32
+                Byte sprite_addr : 1;         // sprite pattern table address
+                Byte background_addr : 1;     // background pattern table address
+                Byte sprite_size : 1;         // sprite size
+                Byte master_slave_select : 1; // PPU master/slave select
+                Byte vblank : 1;              // generate NMI at start of vblank
+            } flags;
+        };
+    } reg_ctrl_; // PPUCTRL $2000 > Write
 
     struct PPUMask
     {
@@ -71,6 +80,10 @@ private:
     Word vram_address_ = 0;
     Byte latch_ = 0;          // indicates firts or second write in ppuaddr
     Byte interal_buffer_ = 0; // holds discarded value on first read from ppudata
+
+    int16_t cycle_pixel_ = 0;
+    int16_t cycle_scanline_ = 0;
+
     MemoryAccessorInterface *ppu_memory_;
     MemoryAccessorInterface *cpu_memory_;
 
@@ -90,9 +103,9 @@ private:
     void HandlePPUSCROLLWrite(void *address);
     void HandlePPUADDRWrite(void *address);
     void HandlePPUDATAWrite(void *address);
+    void RunEvents();
 
 public:
-
     PPU(){};
     PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
 
@@ -100,5 +113,6 @@ public:
 
     // for testing
     Word getVram() { return vram_address_; };
-    void setPPUCTRLData(Byte data) { reg_ctrl_.data = data;}
+    void setPPUCTRLData(Byte data) { reg_ctrl_.data = data; }
+    void RunCycle();
 };
