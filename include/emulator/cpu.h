@@ -59,6 +59,7 @@ public:
     const struct Registers *GetRegistersSnapshot() { return &registers_; };
     void IncreaseCycleCount(uint32_t cycles) { cycle_count_ += cycles; };
     void Reset();
+    void Interrupt();
     void ResetCycleCount() { cycle_count_ = 0; };
     void SetAccumulator(Byte value) { registers_.a = value; };
     void SetXIndex(Byte value) { registers_.x = value; };

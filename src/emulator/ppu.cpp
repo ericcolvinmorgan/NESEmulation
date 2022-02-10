@@ -121,13 +121,15 @@ void PPU::RunEvents()
             {
                 Byte status = cpu_memory_->ReadByte(kPPUSTATUS);
                 cpu_memory_->WriteMemory(kPPUSTATUS, (Byte)(status | 0b10000000), true);
+                if(reg_ctrl_.flags.nmi)
+                    nmi_requested_ = true;
             }
         }
         break;
 
         case 261: //Pre-Render Frame Line
         {
-            //Set VBlank
+            //End VBlank
             if(cycle_pixel_ == 1)
             {
                 Byte status = cpu_memory_->ReadByte(kPPUSTATUS);

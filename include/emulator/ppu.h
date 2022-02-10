@@ -37,7 +37,7 @@ private:
                 Byte background_addr : 1;     // background pattern table address
                 Byte sprite_size : 1;         // sprite size
                 Byte master_slave_select : 1; // PPU master/slave select
-                Byte vblank : 1;              // generate NMI at start of vblank
+                Byte nmi : 1;                 // generate NMI at start of vblank
             } flags;
         };
     } reg_ctrl_; // PPUCTRL $2000 > Write
@@ -83,6 +83,7 @@ private:
 
     int16_t cycle_pixel_ = 0;
     int16_t cycle_scanline_ = 0;
+    bool nmi_requested_ = false;
 
     MemoryAccessorInterface *ppu_memory_;
     MemoryAccessorInterface *cpu_memory_;
@@ -115,4 +116,7 @@ public:
     Word getVram() { return vram_address_; };
     void setPPUCTRLData(Byte data) { reg_ctrl_.data = data; }
     void RunCycle();
+
+    bool NMIRequested() { return nmi_requested_; };
+    void ClearNMIRequest() { nmi_requested_ = false; };
 };

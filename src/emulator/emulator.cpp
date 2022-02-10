@@ -31,9 +31,15 @@ void Emulator::AdvanceFrame()
 
         while(run_cycles > 0)
         {
-            ppu_->RunCycle();
-            ppu_->RunCycle();
-            ppu_->RunCycle();
+            for(int c = 0; c < 3; c++)
+            {
+                ppu_->RunCycle();
+                if(ppu_->NMIRequested())
+                {
+                    cpu_->Interrupt();
+                    ppu_->ClearNMIRequest();
+                }
+            }
             run_cycles--;
         }
 
