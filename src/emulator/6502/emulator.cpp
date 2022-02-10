@@ -1,12 +1,11 @@
 #include <iostream>
-#include "../../include/emulator/emulator.h"
+#include "../../include/emulator/6502/emulator.h"
 
 void Emulator::AdvanceFrame()
 {
     // Advance CPU
     while (cpu_->GetCycleCount() < cpu_cycles_per_frame_)
     {
-        int start_cycles = cpu_->GetCycleCount();
         auto opcode = cpu_->GetCurrentOpCode();
 
         if (enable_logging_)
@@ -27,16 +26,6 @@ void Emulator::AdvanceFrame()
 
         cpu_->AdvanceProgramCounter();
         cpu_opcodes_->RunOpCode(cpu_, opcode);
-        int run_cycles = cpu_->GetCycleCount() - start_cycles;
-
-        while(run_cycles > 0)
-        {
-            ppu_->RunCycle();
-            ppu_->RunCycle();
-            ppu_->RunCycle();
-            run_cycles--;
-        }
-
     }
     cpu_->ResetCycleCount();
 }
