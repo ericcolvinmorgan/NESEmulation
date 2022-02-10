@@ -11,9 +11,10 @@
 #include <SDL2/SDL.h>
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/emulator.h"
-#include "../../include/emulator/opcodes_table.h"
 #include "../../include/emulator/nes_cpu_memory_accessor.h"
 #include "../../include/emulator/nes_ppu_memory_accessor.h"
+#include "../../include/emulator/opcodes_table.h"
+#include "../../include/emulator/ppu.h"
 #include "../../include/interface/demo_controller.h"
 #include "../../include/interface/nes_controller.h"
 #include "../../include/interface/nes_sdl_video.h"
@@ -25,6 +26,7 @@ const int kFPS = 60;
 std::random_device r;
 std::default_random_engine generator(r());
 CPU *cpu = nullptr;
+PPU *ppu = nullptr;
 OpCodesInterface *cpu_opcodes = nullptr;
 Emulator *emulator = nullptr;
 NESCPUMemoryAccessor *cpu_memory = nullptr;
@@ -45,8 +47,7 @@ static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
 
 void RenderFrame()
 {
-    // Set Random Number
-    // emulator->AdvanceFrame();
+    emulator->AdvanceFrame();
     controller->PollInputIfStrobing();
     content_screen->RenderFrame();
 }
@@ -132,7 +133,10 @@ int main(int argc, char **argv)
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
-    emulator = new Emulator(cpu, cpu_opcodes);
+
+    ppu = new PPU(ppu_memory, cpu_memory);
+
+    emulator = new Emulator(ppu, cpu, cpu_opcodes);
 
     RunEmulator();
 
