@@ -45,7 +45,7 @@ Word NESCPUMemoryAccessor::ReadWord(uint16_t location)
     return ReadByte(location) | (ReadByte(location + 1) << 8);
 }
 
-void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
+void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/CPU_memory_map
     switch (location)
@@ -79,12 +79,15 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
     break;
     }
+
+    if(!suppress_event)
+        OnMemoryWrite(location);
 }
 
-void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data)
+void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data, bool suppress_event)
 {
-    WriteMemory(location, (Byte)data);
-    WriteMemory(location + 1, (Byte)(data >> 8));
+    WriteMemory(location, (Byte)data, suppress_event);
+    WriteMemory(location + 1, (Byte)(data >> 8), true);
 }
 
 void NESCPUMemoryAccessor::WriteMemory(uint16_t location, const Byte *data, uint16_t length)

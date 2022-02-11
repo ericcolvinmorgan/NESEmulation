@@ -56,7 +56,7 @@ Word NESPPUMemoryAccessor::ReadWord(uint16_t location)
     return ReadByte(location) | (ReadByte(location + 1) << 8);
 }
 
-void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
+void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/PPU_memory_map
     switch (location)
@@ -103,7 +103,7 @@ void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
 }
 
-void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Word data)
+void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Word data, bool suppress_event)
 {
     WriteMemory(location, (Byte)data);
     WriteMemory(location + 1, (Byte)(data >> 8));
