@@ -24,8 +24,6 @@ void CPU::Reset()
 void CPU::Interrupt()
 {
     // TODO - This is just copied from the opcode BRK implementation.  Can we just reuse or does anything change?  Open for further investiation.
-    SetStatusRegisterFlag(kBreakFlag);
-
     Byte pc_h = (GetProgramCounter() & 0xFF00) >> 8;
     Byte pc_l = GetProgramCounter() & 0xFF;
 
