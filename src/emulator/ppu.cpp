@@ -215,28 +215,27 @@ void PPU::FillScreenBuffer()
         base_nametable = 0x2800;
     else if (reg_ctrl_.flags.nametable == 3)
         base_nametable = 0x2c00;
-    
+
     for (int w = 0; w < 32; w++)
     {
         for (int h = 0; h < 30; h++)
         {
             // Fetch Nametable Tile
             Byte nt_tile = ppu_memory_->ReadByte(base_nametable + ((h * 32) + w));
+            int16_t nt_index = nt_tile << 4;
 
             // Each tile represents an 8X8 tile of pixels
-            for(int p_w = 0; p_w < 8; p_w++)
+            for (int p_h = 0; p_h < 8; p_h++)
             {
-                for(int p_h = 0; p_h < 8; p_h++)
+                // Get Nametable Bytes
+                Byte top_byte = ppu_memory_->ReadByte(nt_index + p_h + (0x1000 * reg_ctrl_.flags.background_addr));
+                Byte bottom_byte = ppu_memory_->ReadByte(nt_index + p_h + 8 + (0x1000 * reg_ctrl_.flags.background_addr));
+                for (int p_w = 0; p_w < 8; p_w++)
                 {
                     int base_index = ((h * 32 * (8 * 8)) + (w * 8) + (p_h * 32 * 8) + p_w);
-                    screen_buffer_[base_index] = 0;
-                    if(nt_tile != 0x24)
-                    {
-                        screen_buffer_[base_index] = 1;
-                    }
-                }                
+                    screen_buffer_[base_index] = (((top_byte >> (7 - p_w)) & 0b00000001) << 1) + ((bottom_byte >> (7 - p_w)) & 0b00000001);
+                }
             }
-
         }
     }
 }
