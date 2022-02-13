@@ -117,9 +117,6 @@ int main(int argc, char **argv)
     ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
     delete[] rom_data;
 
-    content_screen = new NESSDLVideo(cpu_memory, ppu_memory);
-    content_screen->InitVideo();
-
     controller = new DemoController(cpu_memory);
     controller->InitController();
 
@@ -128,6 +125,9 @@ int main(int argc, char **argv)
     cpu->Reset();
 
     ppu = new PPU(ppu_memory, cpu_memory);
+
+    content_screen = new NESSDLVideo(ppu, ppu_memory);
+    content_screen->InitVideo();
 
     emulator = new Emulator(ppu, cpu, cpu_opcodes);
 
