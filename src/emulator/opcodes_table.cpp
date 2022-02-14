@@ -328,6 +328,7 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeAccumulator(CPU *cpu)
 
 OpCodesTable::AddressingVal OpCodesTable::AddressingModeImmediate(CPU *cpu)
 {
+    
     auto immediate_val = cpu->GetCurrentOpCode();
     cpu->AdvanceProgramCounter();
     return {immediate_val, false, 2};
@@ -416,10 +417,15 @@ OpCodesTable::AddressingVal OpCodesTable::AddressingModeIndirectY(CPU *cpu)
     Byte lo_address = cpu->GetMemoryByte(lo_byte);
     Byte high_address = cpu->GetMemoryByte(high_byte);
     Word dereferenced_addr = ((high_address << 8) | lo_address);
-    Word addr = ((high_address << 8) | lo_address) + cpu->GetYIndex();
+    
+    // check overflow case to increment cycle
+    if (dereferenced_addr + cpu->GetYIndex() > 0xffff){
+        cycles++;
+    }
 
+    Word addr = dereferenced_addr + cpu->GetYIndex();
     cpu->AdvanceProgramCounter();
-
+    
     if ((addr >> 8) > (dereferenced_addr >> 8))
         cycles++;
 
@@ -1229,12 +1235,15 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpBEQ(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-    if (cpu->GetStatusRegister().flags.z == 1)
+    Byte flags = cpu->GetStatusRegister().data;
+    
+    if ((flags & 0b00000010) >> 1 == 1)
     {
+        
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BNE
@@ -1248,7 +1257,7 @@ void OpCodesTable::OpBNE(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BCS
@@ -1262,7 +1271,7 @@ void OpCodesTable::OpBCS(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BCC
@@ -1276,7 +1285,7 @@ void OpCodesTable::OpBCC(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BVS
@@ -1290,7 +1299,7 @@ void OpCodesTable::OpBVS(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BVC
@@ -1304,7 +1313,7 @@ void OpCodesTable::OpBVC(CPU *cpu, Byte opcode)
         cpu->SetProgramCounter(address_mode_val.value);
         cpu->IncreaseCycleCount(1);
     }
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BMI
@@ -1319,7 +1328,7 @@ void OpCodesTable::OpBMI(CPU *cpu, Byte opcode)
         cpu->IncreaseCycleCount(1);
     }
 
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // BPL
@@ -1334,7 +1343,7 @@ void OpCodesTable::OpBPL(CPU *cpu, Byte opcode)
         cpu->IncreaseCycleCount(1);
     }
 
-    cpu->IncreaseCycleCount(address_mode_val.cycles);
+    cpu->IncreaseCycleCount(2);
 }
 
 // INC

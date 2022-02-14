@@ -31,6 +31,7 @@ TEST_CASE("Rom Tests - nestest.nes")
     OpCodesTable cpu_opcodes;
     PPU ppu;
     CPU cpu({.sp = 0xFD, .sr = {.data = 0b00100100}, .pc = 0xc000}, &cpu_memory);
+    cpu.IncreaseCycleCount(7); // // https://www.pagetable.com/?p=410
     Emulator emu(&ppu, &cpu, &cpu_opcodes);
     bool next = true;
 
