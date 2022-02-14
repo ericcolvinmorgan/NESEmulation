@@ -27,15 +27,7 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     break;
 
     // NES APU and I/O registers
-    case 0x4000 ... 0x4015:
-    case 0x4016:
-    {
-        const Byte value = memory_[0x4016];
-        AfterPlayerOneRead_();
-        return value;
-    }
-        break;
-    case 0x4017:
+    case 0x4000 ... 0x4017:
     // APU and I/O functionality that is normally disabled
     case 0x4018 ... 0x401F:
     // Cartridge space: PRG ROM, PRG RAM, and mapper registers
@@ -77,14 +69,7 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppre
     break;
 
     // NES APU and I/O registers
-    case 0x4000 ... 0x4015:
-    case 0x4016:
-    {
-        WritePlayerOneMemory(data);
-        AfterPlayerOneWrite_(data);
-    }
-        break;
-    case 0x4017:
+    case 0x4000 ... 0x4017:
     // APU and I/O functionality that is normally disabled
     case 0x4018 ... 0x401F:
     // Cartridge space: PRG ROM, PRG RAM, and mapper registers
@@ -108,15 +93,4 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data, bool suppre
 void NESCPUMemoryAccessor::WriteMemory(uint16_t location, const Byte *data, uint16_t length)
 {
     std::memcpy(&memory_[location], data, length);
-}
-
-void NESCPUMemoryAccessor::WritePlayerOneMemory(Byte data)
-{
-    memory_[0x4016] = data;
-}
-
-void NESCPUMemoryAccessor::SetPlayerOneCallbacks(std::function<void(void)> afterRead, std::function<void(Byte)> afterWrite)
-{
-    AfterPlayerOneRead_ = std::move(afterRead);
-    AfterPlayerOneWrite_ = std::move(afterWrite);
 }
