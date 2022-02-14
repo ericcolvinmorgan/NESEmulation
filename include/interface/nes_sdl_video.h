@@ -1,5 +1,6 @@
 #pragma once
 #include "../emulator/video_interface.h"
+#include "../emulator/ppu.h"
 
 class NESSDLVideo : public VideoInterface
 {
@@ -19,23 +20,26 @@ private:
             0xc1, 0xdf, 0xf1, 0xc7, 0xc2, 0xe8, 0xd0, 0xaa, 0xd9, 0xda, 0x9d, 0xc9, 0xe2, 0x9e, 0xbc, 0xe6,
             0xae, 0xb4, 0xe5, 0xc7, 0xb5, 0xdf, 0xe4, 0xa9, 0xa9, 0xa9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    const int kScreenWidth = 1024;
-    const int kScreenHeight = 512;
+    // const int kScreenWidth = 1024;
+    // const int kScreenHeight = 512;
+    const int kScreenWidth = 256;
+    const int kScreenHeight = 240;
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;
-    MemoryAccessorInterface *cpu_memory_ = nullptr;
+    PPU *ppu_ = nullptr;
     MemoryAccessorInterface *ppu_memory_ = nullptr;
 
 public:
-    NESSDLVideo(MemoryAccessorInterface *cpu_memory, MemoryAccessorInterface *ppu_memory) : VideoInterface()
+    NESSDLVideo(PPU *ppu, MemoryAccessorInterface *ppu_memory) : VideoInterface()
     {
-        cpu_memory_ = cpu_memory;
+        ppu_ = ppu;
         ppu_memory_ = ppu_memory;
     }
     
     ~NESSDLVideo();
     void InitVideo();
     void RenderFrame();
+    void RenderPalette();
     void GetInput();
 };

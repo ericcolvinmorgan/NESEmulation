@@ -12,7 +12,7 @@ private:
     CPU *cpu_;
     OpCodesInterface *cpu_opcodes_;
     int frame_ = 0;
-    bool enable_logging_;
+    bool enable_logging_ = false;
 
 public:
     Emulator(PPU *ppu, CPU *cpu, OpCodesInterface *opcodes, int cpu_cycles_per_frame = 29780)
