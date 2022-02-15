@@ -34,9 +34,9 @@ PPU::PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memor
                                                { this->HandlePPUDATAWrite(address); });
     cpu_memory_->SubscribeMemoryChange(kPPUDATA, on_ppudata_write_);
 
-    on_ppudata_write_ = new MemoryEventHandler([this](void *address)
+    on_oamdma_write_ = new MemoryEventHandler([this](void *address)
                                                { this->HandleOAMDMAWrite(address); });
-    cpu_memory_->SubscribeMemoryChange(kOAMDMA, on_ppudata_write_);
+    cpu_memory_->SubscribeMemoryChange(kOAMDMA, on_oamdma_write_);
 }
 
 void PPU::HandlePPUCTRLWrite(void *address)

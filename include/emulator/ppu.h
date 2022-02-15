@@ -106,6 +106,7 @@ private:
     MemoryEventHandler *on_ppuscroll_write_ = nullptr;
     MemoryEventHandler *on_ppuaddr_write_ = nullptr;
     MemoryEventHandler *on_ppudata_write_ = nullptr;
+    MemoryEventHandler *on_oamdma_write_ = nullptr;
 
     // PPU Register Write Events
     void HandlePPUCTRLWrite(void *address);
@@ -122,7 +123,6 @@ private:
 
     // This is a temporary function for initial testing, we will need to fill the buffer incrementally as we further implement cycles. 
     void FillScreenBuffer();
-    void FillSpriteBuffer();
 
 public:
     PPU(){};
