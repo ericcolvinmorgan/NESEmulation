@@ -16,13 +16,16 @@ private:
     const uint16_t kPPUSCROLL = 0x2005;
     const uint16_t kPPUADDR = 0x2006;
     const uint16_t kPPUDATA = 0x2007;
+    const uint16_t kOAMDMA = 0x4014;
 
     Byte pattern_table_[8 * 1024] = {0}; // static ch-rom
     Byte name_table_[4 * 1024] = {0};    // dynamic vram
     Byte palette_[32] = {0};             // color palette
-    Byte oam_[64] = {0};                 // object attribute memory
-
     Byte screen_buffer_[(32 * 8) * (30 * 8)] = {0};
+
+    Byte oam_[256] = {0};                // object attribute memory
+    Byte secondary_oam_[32] {0};         // list of sprites to draw
+    int num_sprites = 0;                 // max per scanline is 8
 
     struct PPUCtrl
     {
@@ -85,9 +88,16 @@ private:
     int16_t cycle_pixel_ = 0;
     int16_t cycle_scanline_ = 0;
     bool nmi_requested_ = false;
+    uint16_t oam_address_ = 0x00;
+    Byte dma_addr_page = 0x00;
+    bool is_dma_transferring = false;
+    Byte dma_data = 0;
+    Byte oam_data = 0;
 
     MemoryAccessorInterface *ppu_memory_;
     MemoryAccessorInterface *cpu_memory_;
+
+
 
     MemoryEventHandler *on_ppuctrl_write_ = nullptr;
     MemoryEventHandler *on_ppumask_write_ = nullptr;
@@ -105,12 +115,14 @@ private:
     void HandlePPUSCROLLWrite(void *address);
     void HandlePPUADDRWrite(void *address);
     void HandlePPUDATAWrite(void *address);
+    void HandleOAMDMAWrite(void *address);
     void RunEvents();
 
     void IncrementPPUAddr();
 
     // This is a temporary function for initial testing, we will need to fill the buffer incrementally as we further implement cycles. 
     void FillScreenBuffer();
+    void FillSpriteBuffer();
 
 public:
     PPU(){};
@@ -126,4 +138,6 @@ public:
     bool NMIRequested() { return nmi_requested_; };
     void ClearNMIRequest() { nmi_requested_ = false; };
     Byte* GetScreenBuffer() { return screen_buffer_; }
+
+    // Byte* GetSprites() {}
 };

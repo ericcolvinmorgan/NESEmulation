@@ -33,6 +33,10 @@ PPU::PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memor
     on_ppudata_write_ = new MemoryEventHandler([this](void *address)
                                                { this->HandlePPUDATAWrite(address); });
     cpu_memory_->SubscribeMemoryChange(kPPUDATA, on_ppudata_write_);
+
+    on_ppudata_write_ = new MemoryEventHandler([this](void *address)
+                                               { this->HandleOAMDMAWrite(address); });
+    cpu_memory_->SubscribeMemoryChange(kOAMDMA, on_ppudata_write_);
 }
 
 void PPU::HandlePPUCTRLWrite(void *address)
@@ -85,6 +89,15 @@ void PPU::HandlePPUDATAWrite(void *address)
     IncrementPPUAddr();
 }
 
+// a write to 0x4014 indicates DMA transfer of 256 bytes from CPU memory
+// starting at operand %XX
+void PPU::HandleOAMDMAWrite(void *address)
+{
+    Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
+    dma_addr_page = data;
+    is_dma_transferring = true;
+}
+
 // still need to implement as handler
 Byte PPU::HandlePPUDATARead()
 {
@@ -109,7 +122,38 @@ void PPU::RunEvents()
 
         switch (cycle_pixel_)
         {
-        case 1 ... 256:
+        case 1 ... 64: 
+        {
+            std::fill(secondary_oam_, secondary_oam_ + 32, (Byte)0xFF); // clear sprites
+        }
+        case 65 ... 256:
+        {
+            // sprite evaluation
+            int n = 0;
+            while (n < 64 && num_sprites < 9)
+            {
+                Byte y_pos = oam_[n * 4];
+                if (cycle_scanline_ - y_pos >= 0) // top position in range
+                {
+                    if (num_sprites < 8)
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            secondary_oam_[(num_sprites * 4) + i] = oam_[(n * 4) + i];
+                        }
+                        num_sprites++;
+                    }
+                }
+                n++;
+            }
+
+            if (num_sprites == 9)
+            {
+                reg_status_.flags.overflow = 1;
+            }
+            
+        }
+
         case 321 ... 336:
         {
             if ((cycle_pixel_ % 8) == 1) // Nametable Fetch
@@ -140,6 +184,18 @@ void PPU::RunEvents()
             if (reg_ctrl_.flags.nmi)
                 nmi_requested_ = true;
         }
+
+        if (is_dma_transferring){
+            for(int i = 0; i < 256; i++){
+                dma_data = cpu_memory_->ReadByte((dma_addr_page << 8) | oam_address_);
+                oam_[oam_address_] = dma_data;
+                oam_address_++;
+            }
+            
+            is_dma_transferring = false;
+            oam_address_ = 0;
+        }
+        
     }
     break;
 
@@ -150,6 +206,8 @@ void PPU::RunEvents()
         {
             Byte status = cpu_memory_->ReadByte(kPPUSTATUS);
             cpu_memory_->WriteMemory(kPPUSTATUS, (Byte)(status | 0b00000000), true);
+
+            reg_status_.flags.overflow = 0;
         }
 
         switch (cycle_pixel_)
