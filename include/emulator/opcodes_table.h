@@ -157,4 +157,6 @@ public:
     void OpSTY(CPU *cpu, Byte opcode);
     template <OpCodesTable::AddressMode A>
     void OpLDY(CPU *cpu, Byte opcode);
+    template <OpCodesTable::AddressMode A>
+    void OpISC(CPU *cpu, Byte opcode);
 };
