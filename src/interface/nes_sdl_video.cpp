@@ -22,25 +22,23 @@ void NESSDLVideo::RenderFrame()
     auto pixels = ppu_->GetScreenBuffer();
     SDL_Texture *screen_texture = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 256, 240);
 
-    int palette[4] = {0x31, 0x16, 0x0d, 0x37};
     for (int h = 0; h < height; h++)
     {
         for (int w = 0; w < width; w++)
         {
             Byte color = pixels[(h * width) + w];
-
             screen[(h * width * 4) + (w * 4)] = 1;
-            screen[(h * width * 4) + (w * 4) + 1] = kColorMap[(palette[color] * 3) + 2];
-            screen[(h * width * 4) + (w * 4) + 2] = kColorMap[(palette[color] * 3) + 1];
-            screen[(h * width * 4) + (w * 4) + 3] = kColorMap[(palette[color] * 3) + 0];
+            screen[(h * width * 4) + (w * 4) + 1] = kColorMap[(color * 3) + 2];
+            screen[(h * width * 4) + (w * 4) + 2] = kColorMap[(color * 3) + 1];
+            screen[(h * width * 4) + (w * 4) + 3] = kColorMap[(color * 3) + 0];
         }
     }
 
     SDL_Rect table_1_viewport;
     table_1_viewport.x = 0;
     table_1_viewport.y = 0;
-    table_1_viewport.w = 256;
-    table_1_viewport.h = 240;
+    table_1_viewport.w = 512;
+    table_1_viewport.h = 480;
     SDL_RenderSetViewport(renderer_, &table_1_viewport);
     SDL_UpdateTexture(screen_texture, NULL, screen, width * 4);
     SDL_RenderCopy(renderer_, screen_texture, NULL, NULL);

@@ -86,7 +86,7 @@ void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppre
     }
     break;
 
-    // Mirrors of $2000-$2EFF
+    // Palette RAM indexes
     case 0x3f00 ... 0x3f1f:
     {
         memory_[location] = data;
