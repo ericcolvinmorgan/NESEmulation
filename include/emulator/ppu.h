@@ -123,6 +123,7 @@ private:
 
     // This is a temporary function for initial testing, we will need to fill the buffer incrementally as we further implement cycles. 
     void FillScreenBuffer();
+    void RenderSprites();
 
 public:
     PPU(){};
@@ -138,6 +139,4 @@ public:
     bool NMIRequested() { return nmi_requested_; };
     void ClearNMIRequest() { nmi_requested_ = false; };
     Byte* GetScreenBuffer() { return screen_buffer_; }
-
-    // Byte* GetSprites() {}
 };

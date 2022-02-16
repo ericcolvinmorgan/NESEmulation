@@ -95,7 +95,7 @@ void PPU::HandleOAMDMAWrite(void *address)
 {
     Byte data = cpu_memory_->ReadByte(*(uint16_t *)address);
     dma_addr_page = data;
-    is_dma_transferring = true;
+    is_dma_transferring = true;  
 }
 
 // still need to implement as handler
@@ -130,6 +130,7 @@ void PPU::RunEvents()
         {
             // sprite evaluation
             int n = 0;
+            num_sprites = 0;
             while (n < 64 && num_sprites < 9)
             {
                 Byte y_pos = oam_[n * 4];
@@ -194,8 +195,7 @@ void PPU::RunEvents()
             
             is_dma_transferring = false;
             oam_address_ = 0;
-        }
-        
+        } 
     }
     break;
 
@@ -234,6 +234,7 @@ void PPU::RunEvents()
         case 340:
         {
             FillScreenBuffer();
+            RenderSprites();
         }
         break;
         }
@@ -316,6 +317,38 @@ void PPU::FillScreenBuffer()
                     uint8_t palette_index = ((top_byte >> (7 - p_w)) & 0b00000001) | (((bottom_byte >> (7 - p_w)) & 0b00000001) << 1);
                     Byte color = ppu_memory_->ReadByte(0x3f00 + (sub_palette * 4) + palette_index);
                     screen_buffer_[base_index] = color;
+                }
+            }
+        }
+    }
+}
+
+void PPU::RenderSprites()
+{
+
+    for (int i = 0; i < 8; i++)
+    {
+        
+        Byte y_pos = secondary_oam_[i * 4];
+        Byte x_pos = secondary_oam_[(i * 4) + 3] - 15;
+        
+        Word patten_table_base = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
+        Byte tile_index = secondary_oam_[(i*4) + 1];
+        
+        Byte sprite_tile_low_byte = ppu_memory_->ReadByte(patten_table_base | tile_index);
+        Byte sprite_tile_high_byte = ppu_memory_->ReadByte((patten_table_base | tile_index) + 8);
+
+        for (int p_h = 0; p_h < 8; p_h++)
+        {
+            for (int p_w = 0; p_w < 8; p_w++)
+            {
+                int base_index = ((y_pos * 30 * 8) + x_pos + (p_h * 8) + p_w);
+                uint8_t palette_index = ((sprite_tile_high_byte >> (7 - p_w)) & 0b00000001) | (((sprite_tile_low_byte >> (7 - p_w)) & 0b00000001) << 1);
+                
+                //TODO fix color palette selection
+                if(base_index < 240 * 232){
+                    Byte color = ppu_memory_->ReadByte(0x3f11 + palette_index);
+                    screen_buffer_[base_index] = palette_index;
                 }
             }
         }
