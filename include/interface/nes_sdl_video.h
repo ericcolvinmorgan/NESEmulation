@@ -22,8 +22,8 @@ private:
 
     // const int kScreenWidth = 1024;
     // const int kScreenHeight = 512;
-    const int kScreenWidth = 256;
-    const int kScreenHeight = 240;
+    const int kScreenWidth = 512;
+    const int kScreenHeight = 480;
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
     SDL_Texture *texture_ = nullptr;

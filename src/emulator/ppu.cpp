@@ -267,12 +267,22 @@ void PPU::FillScreenBuffer()
 {
     // Current Nametable
     uint16_t base_nametable = 0x2000;
+    uint16_t base_attribute = 0x23c0;
     if (reg_ctrl_.flags.nametable == 1)
+    {
         base_nametable = 0x2400;
+        base_attribute = 0x27c0;
+    }
     else if (reg_ctrl_.flags.nametable == 2)
+    {
         base_nametable = 0x2800;
+        base_attribute = 0x2bc0;
+    }
     else if (reg_ctrl_.flags.nametable == 3)
+    {
         base_nametable = 0x2c00;
+        base_attribute = 0x2fc0;
+    }
 
     for (int w = 0; w < 32; w++)
     {
@@ -282,6 +292,9 @@ void PPU::FillScreenBuffer()
             Byte nt_tile = ppu_memory_->ReadByte(base_nametable + ((h * 32) + w));
             int16_t nt_index = nt_tile << 4;
 
+            int16_t addr = base_attribute + ((h / 4) * 8) + (w / 4);
+            Byte palette_tile = ppu_memory_->ReadByte(base_attribute + ((h / 4) * 8) + (w / 4));
+            
             // Each tile represents an 8X8 tile of pixels
             for (int p_h = 0; p_h < 8; p_h++)
             {
@@ -291,7 +304,18 @@ void PPU::FillScreenBuffer()
                 for (int p_w = 0; p_w < 8; p_w++)
                 {
                     int base_index = ((h * 32 * (8 * 8)) + (w * 8) + (p_h * 32 * 8) + p_w);
-                    screen_buffer_[base_index] = (((top_byte >> (7 - p_w)) & 0b00000001) << 1) + ((bottom_byte >> (7 - p_w)) & 0b00000001);
+                    
+                    Byte sub_palette = palette_tile;
+                    if((w % 4) >= 2)
+                        sub_palette = sub_palette >> 2;
+
+                    if((h % 4) >= 2)
+                        sub_palette = sub_palette >> 4;
+                        
+                    sub_palette &= 0b00000011;
+                    uint8_t palette_index = ((top_byte >> (7 - p_w)) & 0b00000001) | (((bottom_byte >> (7 - p_w)) & 0b00000001) << 1);
+                    Byte color = ppu_memory_->ReadByte(0x3f00 + (sub_palette * 4) + palette_index);
+                    screen_buffer_[base_index] = color;
                 }
             }
         }
