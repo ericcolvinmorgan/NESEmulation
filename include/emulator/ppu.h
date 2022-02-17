@@ -22,6 +22,8 @@ private:
     Byte palette_[32] = {0};             // color palette
     Byte oam_[64] = {0};                 // object attribute memory
 
+    Byte screen_buffer_[(32 * 8) * (30 * 8)] = {0};
+
     struct PPUCtrl
     {
         union
@@ -29,15 +31,14 @@ private:
             Byte data; // 0bVPHBSINN
             struct
             {
-                Byte nametable0 : 1;          //
-                Byte nametable1 : 1;          // ^ base nametable address
+                Byte nametable : 2;          // ^ base nametable address
                 Byte increment : 1;           // vram increment per cpu read/write of PPUDATA
                                               // if 0, increment 1 else increment 32
                 Byte sprite_addr : 1;         // sprite pattern table address
                 Byte background_addr : 1;     // background pattern table address
                 Byte sprite_size : 1;         // sprite size
                 Byte master_slave_select : 1; // PPU master/slave select
-                Byte vblank : 1;              // generate NMI at start of vblank
+                Byte nmi : 1;                 // generate NMI at start of vblank
             } flags;
         };
     } reg_ctrl_; // PPUCTRL $2000 > Write
@@ -74,15 +75,16 @@ private:
                 Byte vblank_started : 1; // vblank has started
             } flags;
         };
-    } reg_status_; // PPUMASK $2001 > Write
+    } reg_status_; // PPUMASK $2002 > Write
 
-    Word temp_address_ = 0; // used with ppuaddr
-    Word vram_address_ = 0;
+    uint16_t temp_address_ = 0; // used with ppuaddr
+    uint16_t vram_address_ = 0;
     Byte latch_ = 0;          // indicates firts or second write in ppuaddr
     Byte interal_buffer_ = 0; // holds discarded value on first read from ppudata
 
     int16_t cycle_pixel_ = 0;
     int16_t cycle_scanline_ = 0;
+    bool nmi_requested_ = false;
 
     MemoryAccessorInterface *ppu_memory_;
     MemoryAccessorInterface *cpu_memory_;
@@ -105,6 +107,11 @@ private:
     void HandlePPUDATAWrite(void *address);
     void RunEvents();
 
+    void IncrementPPUAddr();
+
+    // This is a temporary function for initial testing, we will need to fill the buffer incrementally as we further implement cycles. 
+    void FillScreenBuffer();
+
 public:
     PPU(){};
     PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
@@ -115,4 +122,8 @@ public:
     Word getVram() { return vram_address_; };
     void setPPUCTRLData(Byte data) { reg_ctrl_.data = data; }
     void RunCycle();
+
+    bool NMIRequested() { return nmi_requested_; };
+    void ClearNMIRequest() { nmi_requested_ = false; };
+    Byte* GetScreenBuffer() { return screen_buffer_; }
 };
