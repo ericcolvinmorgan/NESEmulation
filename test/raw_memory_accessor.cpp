@@ -70,3 +70,22 @@ TEST_CASE("RawMemoryAccessor - Successfully adds and alerts subscribers")
   memory.WriteMemory(0x01005, (Byte)0xaf);
   REQUIRE(x == (0x01005 & 0x00af));
 }
+
+TEST_CASE("RawMemoryAccessor - Successfully adds and alerts memory read subscribers")
+{
+  int x = 0;
+  auto func = [&x](void *address)
+  { x = *((Word *)(address)) & 0xaf; };
+  MemoryEventHandler handler(func);
+
+  RawMemoryAccessor memory;
+  memory.SubscribeMemoryRead(0x01001, &handler);
+  memory.ReadByte(0x01000);
+  REQUIRE(x == 0);
+
+  memory.ReadByte(0x01002);
+  REQUIRE(x == 0);
+
+  memory.ReadByte(0x01001);
+  REQUIRE(x == (0x01001 & 0x00af));
+}

@@ -3,9 +3,12 @@
 #include <cstring>
 #include "../../include/emulator/raw_memory_accessor.h"
 
-Byte RawMemoryAccessor::ReadByte(uint16_t location)
+Byte RawMemoryAccessor::ReadByte(uint16_t location, bool suppress_event)
 {
-    return memory_[location];
+    const Byte value = memory_[location];
+    if(!suppress_event)
+        OnMemoryRead(location);
+    return value;
 }
 
 Word RawMemoryAccessor::ReadWord(uint16_t location)
