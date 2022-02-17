@@ -1,6 +1,6 @@
 #include "../../include/interface/nes_controller.h"
 
-NESController::NESController(NESCPUMemoryAccessor *memory, InputInterface *input, Player player)
+NESController::NESController(MemoryAccessorInterface *memory, InputInterface *input, Player player)
         : memory_(memory)
         , inputInterface_(input)
 {

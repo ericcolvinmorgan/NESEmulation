@@ -1,5 +1,4 @@
 #pragma once
-#include <functional>
 #include "memory_accessor_interface.h"
 
 class NESCPUMemoryAccessor : public MemoryAccessorInterface
