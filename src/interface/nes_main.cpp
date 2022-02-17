@@ -18,6 +18,7 @@
 #include "../../include/interface/demo_controller.h"
 #include "../../include/interface/nes_controller.h"
 #include "../../include/interface/nes_sdl_video.h"
+#include "../../include/interface/keyboard_interface.h"
 
 #include <fstream>
 #include <ios>
@@ -121,14 +122,7 @@ int main(int argc, char **argv)
     content_screen = new NESSDLVideo(cpu_memory, ppu_memory);
     content_screen->InitVideo();
 
-    controller = new NESController(cpu_memory);
-    const auto AfterPlayerOneRead = [](){
-        controller->AfterRead();
-    };
-    const auto AfterPlayerOneWrite = [](uint8_t valueWritten){
-        controller->AfterWrite(valueWritten);
-    };
-    cpu_memory->SetPlayerOneCallbacks(AfterPlayerOneRead, AfterPlayerOneWrite);
+    controller = new NESController(cpu_memory, new KeyboardInterface());
 
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
