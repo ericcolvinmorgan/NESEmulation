@@ -125,6 +125,8 @@ private:
     void FillScreenBuffer();
     void RenderSprites();
 
+    Byte ReverseBits(Byte);
+
 public:
     PPU(){};
     PPU(MemoryAccessorInterface *ppu_memory, MemoryAccessorInterface *cpu_memory);
@@ -139,4 +141,5 @@ public:
     bool NMIRequested() { return nmi_requested_; };
     void ClearNMIRequest() { nmi_requested_ = false; };
     Byte* GetScreenBuffer() { return screen_buffer_; }
+
 };

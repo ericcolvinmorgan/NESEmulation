@@ -329,6 +329,9 @@ void PPU::FillScreenBuffer()
 
 void PPU::RenderSprites()
 {
+
+    Byte y_offset = 0x00;
+    
     for (int i = 0; i < num_sprites; i++)
     {
         Word sprite_pt_addr_lo = 0x0; // stores sprite tile address
@@ -339,39 +342,80 @@ void PPU::RenderSprites()
         {
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
             Word id_offset = secondary_oam_[i * num_sprites + 1] * 16;
-            Byte y_offset = 7 - (cycle_scanline_ - secondary_oam_[i * num_sprites]);
+            y_offset = 7 - (cycle_scanline_ - secondary_oam_[i * num_sprites]);
             sprite_pt_addr_lo = base_pt_addr | id_offset | y_offset;
-
+            // printf("numsprites = %d\n", num_sprites);
+            // printf("base add: %x\n", base_pt_addr);
+            // printf("id offset: %x\n", id_offset);
+            // printf("y offset: %x\n", y_offset);
         }
         else // normal orientation
         {
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
             Word id_offset = secondary_oam_[i * num_sprites + 1] * 16;
-            Byte y_offset = cycle_scanline_ - secondary_oam_[i * num_sprites];
+            y_offset = (cycle_scanline_ - secondary_oam_[i * num_sprites]);
             sprite_pt_addr_lo = base_pt_addr | id_offset | y_offset;
+            // printf("numsprites = %d\n", num_sprites);
+            // printf("base add: %x\n", base_pt_addr);
+            // printf("id offset: %x\n", id_offset);
+            // printf("y offset: %x\n", y_offset);
         }
-        
-        // sprite bit planes
-        Byte sprite_tile_low_byte = ppu_memory_->ReadByte(sprite_pt_addr_lo);
-        Byte sprite_tile_high_byte = ppu_memory_->ReadByte(sprite_pt_addr_lo + 8);
-        
+
         // position coordinate on screen for start of sprite
         Byte y_pos = secondary_oam_[i * 4];
         Byte x_pos = secondary_oam_[(i * 4) + 3];
 
-
+    
         for (int p_h = 0; p_h < 8; p_h++)
         {
+            // sprite bit planes
+            Byte sprite_tile_low_byte = ppu_memory_->ReadByte(sprite_pt_addr_lo + p_h - y_offset);
+            Byte sprite_tile_high_byte = ppu_memory_->ReadByte(sprite_pt_addr_lo + p_h + 8 - y_offset);
+
+            if(!secondary_oam_[i*num_sprites + 2] & 0x40){
+                sprite_tile_low_byte = ReverseBits(sprite_tile_low_byte);
+                sprite_tile_high_byte = ReverseBits(sprite_tile_high_byte);
+
+            }
+
             for (int p_w = 0; p_w < 8; p_w++)
             {
                 int base_index = ((y_pos * 32 * 8) + (p_h * 256) + x_pos + p_w);
                 
                 int base_palette = (secondary_oam_[i * 4 + 2] & 0b00000011); // indicates sprite palette 4-7
-                uint8_t palette_index = ((sprite_tile_high_byte >> (7 - p_w)) & 0b00000001) | (((sprite_tile_low_byte >> (7 - p_w)) & 0b00000001) << 1);
-
-                Byte color = ppu_memory_->ReadByte(0x3f11 + base_palette*4 + palette_index);
+                uint8_t palette_index = (((sprite_tile_low_byte) >> (7 - p_w)) & 0b00000001) | ((((sprite_tile_high_byte ) >> (7 - p_w)) & 0b00000001) << 1);
+                Byte color = ppu_memory_->ReadByte(0x3f10 + (base_palette * 4) + palette_index);
+                // printf("%d ", palette_index);
+                
                 screen_buffer_[base_index] = color;
             }
+            // printf("\n");
         }
     }
+}
+
+// for flipping horizontally
+// https://www.geeksforgeeks.org/reverse-actual-bits-given-number/
+Byte PPU::ReverseBits(Byte n){
+    unsigned int rev = 0;
+     
+    // traversing bits of 'n' from the right
+    while (n > 0)
+    {
+        // bitwise left shift
+        // 'rev' by 1
+        rev <<= 1;
+         
+        // if current bit is '1'
+        if (n & 1 == 1)
+            rev ^= 1;
+         
+        // bitwise right shift
+        // 'n' by 1
+        n >>= 1;
+             
+    }
+     
+    // required number
+    return rev;
 }
