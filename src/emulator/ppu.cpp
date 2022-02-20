@@ -105,7 +105,7 @@ void PPU::HandleOAMDMAWrite(void *address)
 
     oam_address_ = 0;
 
-    // print first part of OAM for debugging
+   // print first part of OAM for debugging
     // for(int i = 0; i < 20; i++){
     //     printf("OAM %d: (%d %d) ID: %x AT: %x\n", i, oam_[i*4 + 3], oam_[i*4 + 0], oam_[i*4 + 1], oam_[i*4 + 2]);
     // } 
@@ -135,9 +135,10 @@ void PPU::RunEvents()
                 case 1 ... 256: {}
 
                 case 257 ... 339: {
-
+                    
                     // determine sprites for next scanline at end of current scanline
                     std::fill(secondary_oam_, secondary_oam_ + 32, (Byte)0xFF); // clear sprite buffer
+
                     int n = 0;
                     num_sprites = 0;
                     while (n < 64 && num_sprites < 8) // 8 sprites max, 64 sprites max in OAM
@@ -323,16 +324,15 @@ void PPU::FillScreenBuffer()
 void PPU::RenderSprites()
 {
 
-    Byte y_offset = 0x00;
-    
+    if (num_sprites != 0){
+    }
     for (int i = 0; i < num_sprites; i++)
     {
             Word sprite_pt_addr_lo = 0x0; // stores sprite tile address
-
-        
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
-            Word id_offset = secondary_oam_[i * num_sprites + 1] * 16;
-            sprite_pt_addr_lo = base_pt_addr | id_offset;
+            Word id_offset = secondary_oam_[i * 4 + 1] * 16;
+            Byte y_offset = cycle_scanline_ - secondary_oam_[i * 4];
+            sprite_pt_addr_lo = base_pt_addr | id_offset | y_offset;
 
             // position coordinate on screen for start of sprite
             Byte y_pos = secondary_oam_[i * 4];
@@ -345,10 +345,10 @@ void PPU::RenderSprites()
                 Byte sprite_tile_hi_byte_row = 0;
 
                 // cycle through bit plane from bottom up if vertically flipped
-                Byte vert_flag = (secondary_oam_[i * num_sprites + 2] & 0b10000000) >> 7;
+                Byte vert_flag = (secondary_oam_[i * 4 + 2] & 0b10000000) >> 7;
                 if (vert_flag)
                 {
-                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) - y_offset);
+                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h)) - y_offset;
                     sprite_tile_hi_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) + 8 - y_offset);
                 }
                 else
@@ -377,9 +377,21 @@ void PPU::RenderSprites()
 
                     Byte color = ppu_memory_->ReadByte(0x3f10 + (base_palette * 4) + palette_index);    
                     
-                    // TEMPORARY HACK TO REMOVE UNNECESSARY BLACK PIXELS THAT SHOW OVER BACKGROUND
-                    if(palette_index != 0){
-                        screen_buffer_[base_index] = color;
+                    // determine sprite vs bg priority
+                    if (palette_index != 0) // sprite is visible
+                    {
+                        if (screen_buffer_[base_index] != 0) // bg visible also
+                        {
+                            Byte bg_priority = (secondary_oam_[i * 4 + 2] & 0b00100000) >> 5; // 0 sprite drawn, 1 bg drawn
+                            if (!bg_priority)
+                            {
+                                screen_buffer_[base_index] = color;
+                            }
+                        }
+                        else {
+                            screen_buffer_[base_index] = color;
+                        }
+                        
                     }        
                     
                 }
@@ -388,28 +400,12 @@ void PPU::RenderSprites()
 }
 
 // for flipping horizontally
-// https://www.geeksforgeeks.org/reverse-actual-bits-given-number/
-Byte PPU::ReverseBits(Byte n)
+// https://stackoverflow.com/questions/2602823/in-c-c-whats-the-simplest-way-to-reverse-the-order-of-bits-in-a-byte
+Byte PPU::ReverseBits(Byte b)
 {
-    unsigned int rev = 0;
-     
-    // traversing bits of 'n' from the right
-    while (n > 0)
-    {
-        // bitwise left shift
-        // 'rev' by 1
-        rev <<= 1;
-         
-        // if current bit is '1'
-        if (n & 1 == 1)
-            rev ^= 1;
-         
-        // bitwise right shift
-        // 'n' by 1
-        n >>= 1;
-             
-    }
-     
-    // required number
-    return rev;
+    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+    b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+    return b;
+
 }
