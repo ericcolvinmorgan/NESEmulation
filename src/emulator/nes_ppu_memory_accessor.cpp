@@ -3,7 +3,7 @@
 #include <cstring>
 #include "../../include/emulator/nes_ppu_memory_accessor.h"
 
-Byte NESPPUMemoryAccessor::ReadByte(uint16_t location)
+Byte NESPPUMemoryAccessor::ReadByte(uint16_t location, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/PPU_memory_map
     switch (location)

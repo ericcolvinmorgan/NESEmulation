@@ -16,7 +16,9 @@
 #include "../../include/emulator/opcodes_table.h"
 #include "../../include/emulator/ppu.h"
 #include "../../include/interface/demo_controller.h"
+#include "../../include/interface/nes_controller.h"
 #include "../../include/interface/nes_sdl_video.h"
+#include "../../include/interface/keyboard_interface.h"
 
 #include <fstream>
 #include <ios>
@@ -31,7 +33,7 @@ Emulator *emulator = nullptr;
 MemoryAccessorInterface *cpu_memory = nullptr;
 MemoryAccessorInterface *ppu_memory = nullptr;
 VideoInterface *content_screen = nullptr;
-ControllerInterface *controller = nullptr;
+NESController *controller = nullptr;
 bool request_exit = false;
 
 static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
@@ -47,7 +49,7 @@ static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
 void RenderFrame()
 {
     emulator->AdvanceFrame();
-    controller->WriteInput(0x4016);
+    controller->PollInputIfStrobing();
     content_screen->RenderFrame();
 }
 
@@ -117,8 +119,7 @@ int main(int argc, char **argv)
     ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
     delete[] rom_data;
 
-    controller = new DemoController(cpu_memory);
-    controller->InitController();
+    controller = new NESController(cpu_memory, new KeyboardInterface());
 
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
