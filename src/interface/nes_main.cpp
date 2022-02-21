@@ -35,14 +35,23 @@ MemoryAccessorInterface *ppu_memory = nullptr;
 VideoInterface *content_screen = nullptr;
 NESController *controller = nullptr;
 bool request_exit = false;
+bool toggle_logging = false;
 
-static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
+static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
 {
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_t)
+    {
+        toggle_logging = !toggle_logging;
+
+        if (emulator != nullptr)
+            emulator->EnableLogging(toggle_logging);
+    }
+
     if (event->type == SDL_QUIT)
     {
-        bool *exit = (bool *)userdata;
-        *exit = true;
+        request_exit = true;
     }
+
     return 1; // let all events be added to the queue since we always return 1.
 }
 
@@ -61,7 +70,7 @@ void RunEmulator()
 #else
 void RunEmulator()
 {
-    SDL_SetEventFilter(HandleExit, &request_exit);
+    SDL_SetEventFilter(HandleEvents, NULL);
     while (!request_exit)
     {
         Uint64 start = SDL_GetPerformanceCounter();
