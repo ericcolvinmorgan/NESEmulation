@@ -16,7 +16,7 @@ struct ImmediateTestCase
 
 TEST_CASE("OpCodes Table - Ops - Throws Exception on Not Implemented")
 {
-    Byte test_case[] = {0xFF, 0xF0};
+    Byte test_case[] = {0x02, 0xF0};
     Registers registers{.a = 0xAF, .pc = 0x0600};
 
     RawMemoryAccessor memory;
@@ -24,7 +24,7 @@ TEST_CASE("OpCodes Table - Ops - Throws Exception on Not Implemented")
 
     CPU cpu(registers, &memory);
     auto opcode = cpu.GetCurrentOpCode();
-    REQUIRE(opcode == 0xFF);
+    REQUIRE(opcode == 0x02);
 
     cpu.AdvanceProgramCounter();
     OpCodesTable opcodes;

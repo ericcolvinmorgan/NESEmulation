@@ -121,12 +121,31 @@ int main(int argc, char **argv)
 
     // Initialize
     cpu_memory = new NESCPUMemoryAccessor();
-    cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
-    cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
 
-    ppu_memory = new NESPPUMemoryAccessor();
-    ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
-    delete[] rom_data;
+    if(rom_data[4] == 0x01)
+    {
+        cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+        cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
+        ppu_memory = new NESPPUMemoryAccessor();
+        ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
+        delete[] rom_data;
+    }
+    else if(rom_data[4] == 0x02)
+    {
+        cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+        cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
+        ppu_memory = new NESPPUMemoryAccessor();
+        ppu_memory->WriteMemory(0x0000, rom_data + 16 + 0x8000, 0x2000);
+        delete[] rom_data;
+    }
+    else
+    {
+        std::cout << "Invalid mapper 0 configuration.\n";
+        delete cpu_memory;
+        cpu_memory = nullptr;
+        delete[] rom_data;
+        return 0;
+    }
 
     controller = new NESController(cpu_memory, new KeyboardInterface());
 
