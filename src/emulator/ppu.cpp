@@ -204,7 +204,7 @@ void PPU::RunEvents()
             if (cycle_pixel_ == 1)
             {
                 Byte status = cpu_memory_->ReadByte(kPPUSTATUS);
-                cpu_memory_->WriteMemory(kPPUSTATUS, (Byte)(status | 0b00000000), true);
+                cpu_memory_->WriteMemory(kPPUSTATUS, (Byte)(status & 0b01111111), true);
 
                 reg_status_.flags.overflow = 0;
             }
