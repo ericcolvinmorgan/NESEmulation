@@ -15,6 +15,50 @@ void NESSDLVideo::RenderFrame()
     SDL_RenderClear(renderer_);
 
     // Load image at specified path
+    int width = 256;
+    int height = 240;
+
+    uint8_t *screen = new uint8_t[width * height * 4];
+    auto pixels = ppu_->GetScreenBuffer();
+    SDL_Texture *screen_texture = SDL_CreateTexture(renderer_, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, 256, 240);
+
+    for (int h = 0; h < height; h++)
+    {
+        for (int w = 0; w < width; w++)
+        {
+            Byte color = pixels[(h * width) + w];
+            screen[(h * width * 4) + (w * 4)] = 1;
+            screen[(h * width * 4) + (w * 4) + 1] = kColorMap[(color * 3) + 2];
+            screen[(h * width * 4) + (w * 4) + 2] = kColorMap[(color * 3) + 1];
+            screen[(h * width * 4) + (w * 4) + 3] = kColorMap[(color * 3) + 0];
+        }
+    }
+
+    SDL_Rect table_1_viewport;
+    table_1_viewport.x = 0;
+    table_1_viewport.y = 0;
+    table_1_viewport.w = 512;
+    table_1_viewport.h = 480;
+    SDL_RenderSetViewport(renderer_, &table_1_viewport);
+    SDL_UpdateTexture(screen_texture, NULL, screen, width * 4);
+    SDL_RenderCopy(renderer_, screen_texture, NULL, NULL);
+
+    delete[] screen;
+    SDL_DestroyTexture(screen_texture);
+
+    // // Render texture to screen
+    // SDL_RenderCopy(renderer_, texture_, NULL, NULL);
+
+    // Update screen
+    SDL_RenderPresent(renderer_);
+}
+
+void NESSDLVideo::RenderPalette()
+{
+    // Clear screen
+    SDL_RenderClear(renderer_);
+
+    // Load image at specified path
     int width = 128;
     int height = 128;
 
@@ -60,18 +104,18 @@ void NESSDLVideo::RenderFrame()
     table_1_viewport.y = 0;
     table_1_viewport.w = 512;
     table_1_viewport.h = 512;
-    SDL_RenderSetViewport( renderer_, &table_1_viewport );
+    SDL_RenderSetViewport(renderer_, &table_1_viewport);
     SDL_UpdateTexture(table1_texture, NULL, table1, width * 4);
-    SDL_RenderCopy( renderer_, table1_texture, NULL, NULL );
+    SDL_RenderCopy(renderer_, table1_texture, NULL, NULL);
 
     SDL_Rect table_2_viewport;
     table_2_viewport.x = 512;
     table_2_viewport.y = 0;
     table_2_viewport.w = 512;
     table_2_viewport.h = 512;
-    SDL_RenderSetViewport( renderer_, &table_2_viewport );
+    SDL_RenderSetViewport(renderer_, &table_2_viewport);
     SDL_UpdateTexture(table2_texture, NULL, table2, width * 4);
-    SDL_RenderCopy( renderer_, table2_texture, NULL, NULL );
+    SDL_RenderCopy(renderer_, table2_texture, NULL, NULL);
 
     delete[] table1;
     delete[] table2;

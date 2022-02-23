@@ -11,11 +11,14 @@
 #include <SDL2/SDL.h>
 #include "../../include/emulator/cpu.h"
 #include "../../include/emulator/emulator.h"
-#include "../../include/emulator/opcodes_table.h"
 #include "../../include/emulator/nes_cpu_memory_accessor.h"
 #include "../../include/emulator/nes_ppu_memory_accessor.h"
+#include "../../include/emulator/opcodes_table.h"
+#include "../../include/emulator/ppu.h"
 #include "../../include/interface/demo_controller.h"
+#include "../../include/interface/nes_controller.h"
 #include "../../include/interface/nes_sdl_video.h"
+#include "../../include/interface/keyboard_interface.h"
 
 #include <fstream>
 #include <ios>
@@ -24,29 +27,38 @@ const int kFPS = 60;
 std::random_device r;
 std::default_random_engine generator(r());
 CPU *cpu = nullptr;
+PPU *ppu = nullptr;
 OpCodesInterface *cpu_opcodes = nullptr;
 Emulator *emulator = nullptr;
 MemoryAccessorInterface *cpu_memory = nullptr;
 MemoryAccessorInterface *ppu_memory = nullptr;
 VideoInterface *content_screen = nullptr;
-ControllerInterface *controller = nullptr;
+NESController *controller = nullptr;
 bool request_exit = false;
+bool toggle_logging = false;
 
-static int SDLCALL HandleExit(void *userdata, SDL_Event *event)
+static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
 {
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_t)
+    {
+        toggle_logging = !toggle_logging;
+
+        if (emulator != nullptr)
+            emulator->EnableLogging(toggle_logging);
+    }
+
     if (event->type == SDL_QUIT)
     {
-        bool *exit = (bool *)userdata;
-        *exit = true;
+        request_exit = true;
     }
+
     return 1; // let all events be added to the queue since we always return 1.
 }
 
 void RenderFrame()
 {
-    // Set Random Number
-    // emulator->AdvanceFrame();
-    controller->WriteInput(0x4016);
+    emulator->AdvanceFrame();
+    controller->PollInputIfStrobing();
     content_screen->RenderFrame();
 }
 
@@ -58,7 +70,7 @@ void RunEmulator()
 #else
 void RunEmulator()
 {
-    SDL_SetEventFilter(HandleExit, &request_exit);
+    SDL_SetEventFilter(HandleEvents, NULL);
     while (!request_exit)
     {
         Uint64 start = SDL_GetPerformanceCounter();
@@ -76,6 +88,9 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
+    #ifdef __EMSCRIPTEN__
+    std::ifstream input_file("nestest.nes", std::ios::binary);
+    #else
     if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
@@ -88,6 +103,7 @@ int main(int argc, char **argv)
         std::cout << "The provided file is not accessible.\n";
         return 0;
     }
+    #endif
 
     // Determine the file length
     input_file.seekg(0, std::ios_base::end);
@@ -109,23 +125,44 @@ int main(int argc, char **argv)
 
     // Initialize
     cpu_memory = new NESCPUMemoryAccessor();
-    cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
-    cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
 
-    ppu_memory = new NESPPUMemoryAccessor();
-    ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
-    delete[] rom_data;
+    if(rom_data[4] == 0x01)
+    {
+        cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+        cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
+        ppu_memory = new NESPPUMemoryAccessor();
+        ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
+        delete[] rom_data;
+    }
+    else if(rom_data[4] == 0x02)
+    {
+        cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+        cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
+        ppu_memory = new NESPPUMemoryAccessor();
+        ppu_memory->WriteMemory(0x0000, rom_data + 16 + 0x8000, 0x2000);
+        delete[] rom_data;
+    }
+    else
+    {
+        std::cout << "Invalid mapper 0 configuration.\n";
+        delete cpu_memory;
+        cpu_memory = nullptr;
+        delete[] rom_data;
+        return 0;
+    }
 
-    content_screen = new NESSDLVideo(cpu_memory, ppu_memory);
-    content_screen->InitVideo();
-
-    controller = new DemoController(cpu_memory);
-    controller->InitController();
+    controller = new NESController(cpu_memory, new KeyboardInterface());
 
     cpu = new CPU({.sp = 0xFF, .pc = 0xc000}, cpu_memory);
     cpu_opcodes = new OpCodesTable();
     cpu->Reset();
-    emulator = new Emulator(cpu, cpu_opcodes);
+
+    ppu = new PPU(ppu_memory, cpu_memory);
+
+    content_screen = new NESSDLVideo(ppu, ppu_memory);
+    content_screen->InitVideo();
+
+    emulator = new Emulator(ppu, cpu, cpu_opcodes);
 
     RunEmulator();
 

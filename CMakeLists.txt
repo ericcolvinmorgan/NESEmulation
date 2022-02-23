@@ -5,6 +5,11 @@ add_subdirectory(src/emulator)
 add_subdirectory(src/interface)
 add_subdirectory(test)
 
-target_include_directories(emulator PUBLIC
+target_include_directories(6502_emulator PUBLIC
+                           "${PROJECT_BINARY_DIR}"
+                           )
+
+
+target_include_directories(nes_emulator PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )

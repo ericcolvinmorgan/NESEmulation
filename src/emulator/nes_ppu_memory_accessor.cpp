@@ -3,7 +3,7 @@
 #include <cstring>
 #include "../../include/emulator/nes_ppu_memory_accessor.h"
 
-Byte NESPPUMemoryAccessor::ReadByte(uint16_t location)
+Byte NESPPUMemoryAccessor::ReadByte(uint16_t location, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/PPU_memory_map
     switch (location)
@@ -56,7 +56,7 @@ Word NESPPUMemoryAccessor::ReadWord(uint16_t location)
     return ReadByte(location) | (ReadByte(location + 1) << 8);
 }
 
-void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
+void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/PPU_memory_map
     switch (location)
@@ -86,7 +86,7 @@ void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
     break;
 
-    // Mirrors of $2000-$2EFF
+    // Palette RAM indexes
     case 0x3f00 ... 0x3f1f:
     {
         memory_[location] = data;
@@ -103,7 +103,7 @@ void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
 }
 
-void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Word data)
+void NESPPUMemoryAccessor::WriteMemory(uint16_t location, Word data, bool suppress_event)
 {
     WriteMemory(location, (Byte)data);
     WriteMemory(location + 1, (Byte)(data >> 8));

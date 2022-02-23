@@ -6,7 +6,9 @@
     //"testMate.cpp.test.executables": "{build,Build,BUILD,out,Out,OUT}/**/*{test,Test,TEST}*"
     "testMate.cpp.test.executables": "build/test/*_tests",
     "coverage-gutters.coverageReportFileName": "**/build/coverage/**/index.html",
-    "coverage-gutters.coverageFileNames": ["output_filtered.info"],
+    "coverage-gutters.coverageFileNames": [
+        "output_filtered.info"
+    ],
     "files.associations": {
         "optional": "cpp",
         "chrono": "cpp",
@@ -30,6 +32,7 @@
         "unordered_map": "cpp",
         "utility": "cpp",
         "vector": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "*.tcc": "cpp"
     }
 }

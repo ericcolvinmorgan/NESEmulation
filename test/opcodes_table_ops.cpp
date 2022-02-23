@@ -16,7 +16,7 @@ struct ImmediateTestCase
 
 TEST_CASE("OpCodes Table - Ops - Throws Exception on Not Implemented")
 {
-    Byte test_case[] = {0xFF, 0xF0};
+    Byte test_case[] = {0x02, 0xF0};
     Registers registers{.a = 0xAF, .pc = 0x0600};
 
     RawMemoryAccessor memory;
@@ -24,7 +24,7 @@ TEST_CASE("OpCodes Table - Ops - Throws Exception on Not Implemented")
 
     CPU cpu(registers, &memory);
     auto opcode = cpu.GetCurrentOpCode();
-    REQUIRE(opcode == 0xFF);
+    REQUIRE(opcode == 0x02);
 
     cpu.AdvanceProgramCounter();
     OpCodesTable opcodes;
@@ -346,6 +346,29 @@ TEST_CASE("OpCodes Table - Ops - LDA - Absolute Y - Load Accumulator with Memory
     REQUIRE(cpu.GetAccumulator() == 0xA2);
     REQUIRE(cpu.GetStatusRegister().data == 0b10100000);
     REQUIRE(cpu.GetCycleCount() == 5);
+}
+
+TEST_CASE("OpCodes Table - Ops - LDA - Indirect Y - Load Accumulator with Memory - Overflow")
+{
+    Byte test_case[] = {0xb1, 0x97};
+    Registers registers{.a = 0x00, .y = 0x34, .pc = 0x0600};
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(0x0600, test_case, 2);
+    memory.WriteMemory(0x97, (Byte)0xff);
+    memory.WriteMemory(0x98, (Byte)0xff);
+    memory.WriteMemory(0x33, (Byte)0xa3);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter();
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode);
+
+    REQUIRE(opcode == 0xb1);
+    REQUIRE(cpu.GetAccumulator() == 0xa3);
+    REQUIRE(cpu.GetCycleCount() == 6);
 }
 
 TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
@@ -3232,8 +3255,28 @@ TEST_CASE("OpCodes Table - Ops - BEQ - Relative - Branch on zero set")
     opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
 
     REQUIRE(opcode == 0xf0);
-    REQUIRE(cpu.GetProgramCounter() == 0x0102 + 0x12);
     REQUIRE(cpu.GetCycleCount() == 3); // 2 for opcode and 1 for branch
+}
+
+TEST_CASE("OpCodes Table - Ops - BEQ - Relative - No Branch on A5")
+{
+    Byte test_case[] = {0xf0, 0x12};
+    Registers registers{.pc = 0x0100};
+    registers.sr.data = 0xa5;
+
+    RawMemoryAccessor memory;
+    memory.WriteMemory(registers.pc, test_case, 2);
+
+    CPU cpu(registers, &memory);
+    auto opcode = cpu.GetCurrentOpCode();
+    cpu.AdvanceProgramCounter(); // pc -> 0x0101
+
+    OpCodesTable opcodes;
+    opcodes.RunOpCode(&cpu, opcode); // pc -> 0x0102
+
+    REQUIRE(opcode == 0xf0);
+    REQUIRE(registers.sr.flags.z == 0);
+    REQUIRE(cpu.GetCycleCount() == 2); // 2 for opcode and 1 for branch
 }
 
 TEST_CASE("OpCodes Table - Ops - BEQ - Relative - No branch on zero cleared")

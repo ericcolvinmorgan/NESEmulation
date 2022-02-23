@@ -3,8 +3,9 @@
 #include <cstring>
 #include "../../include/emulator/nes_cpu_memory_accessor.h"
 
-Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
+Byte NESCPUMemoryAccessor::ReadByte(uint16_t location, bool suppress_event)
 {
+    uint16_t readLocation;
     // https://wiki.nesdev.org/w/index.php/CPU_memory_map
     switch (location)
     {
@@ -12,8 +13,7 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     // 2KB internal RAM
     case 0x0000 ... 0x1FFF:
     {
-        uint16_t ram_location = location % 0x0800;
-        return memory_[ram_location];
+        readLocation = location % 0x0800;
     }
     break;
 
@@ -21,8 +21,7 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     // NES PPU registers
     case 0x2000 ... 0x3FFF:
     {
-        uint16_t ppu_location = 0x2000 + ((location - 0x2000) % 0x08);
-        return memory_[ppu_location];
+        readLocation = 0x2000 + ((location - 0x2000) % 0x08);
     }
     break;
 
@@ -34,10 +33,15 @@ Byte NESCPUMemoryAccessor::ReadByte(uint16_t location)
     case 0x4020 ... 0xFFFF:
     default:
     {
-        return memory_[location];
+        readLocation = location;
     }
     break;
     }
+    const Byte value = memory_[readLocation];
+    if(!suppress_event)
+        OnMemoryRead(location);
+
+    return value;
 }
 
 Word NESCPUMemoryAccessor::ReadWord(uint16_t location)
@@ -45,7 +49,7 @@ Word NESCPUMemoryAccessor::ReadWord(uint16_t location)
     return ReadByte(location) | (ReadByte(location + 1) << 8);
 }
 
-void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
+void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data, bool suppress_event)
 {
     // https://wiki.nesdev.org/w/index.php/CPU_memory_map
     switch (location)
@@ -79,12 +83,15 @@ void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Byte data)
     }
     break;
     }
+
+    if(!suppress_event)
+        OnMemoryWrite(location);
 }
 
-void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data)
+void NESCPUMemoryAccessor::WriteMemory(uint16_t location, Word data, bool suppress_event)
 {
-    WriteMemory(location, (Byte)data);
-    WriteMemory(location + 1, (Byte)(data >> 8));
+    WriteMemory(location, (Byte)data, suppress_event);
+    WriteMemory(location + 1, (Byte)(data >> 8), true);
 }
 
 void NESCPUMemoryAccessor::WriteMemory(uint16_t location, const Byte *data, uint16_t length)
