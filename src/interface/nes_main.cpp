@@ -88,6 +88,9 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
+    #ifdef __EMSCRIPTEN__
+    std::ifstream input_file("nestest.nes", std::ios::binary);
+    #else
     if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
@@ -100,6 +103,7 @@ int main(int argc, char **argv)
         std::cout << "The provided file is not accessible.\n";
         return 0;
     }
+    #endif
 
     // Determine the file length
     input_file.seekg(0, std::ios_base::end);
