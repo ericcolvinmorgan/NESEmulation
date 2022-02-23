@@ -104,11 +104,6 @@ void PPU::HandleOAMDMAWrite(void *address)
     }  
 
     oam_address_ = 0;
-
-   // print first part of OAM for debugging
-    // for(int i = 0; i < 20; i++){
-    //     printf("OAM %d: (%d %d) ID: %x AT: %x\n", i, oam_[i*4 + 3], oam_[i*4 + 0], oam_[i*4 + 1], oam_[i*4 + 2]);
-    // } 
 }
 
 // still need to implement as handler
@@ -257,9 +252,14 @@ void PPU::RunCycle()
 {
     RunEvents();
 
-    cycle_pixel_ = ++cycle_pixel_ % 341;
-    if (cycle_pixel_ == 0)
-        cycle_scanline_ = ++cycle_scanline_ % 262;
+    cycle_pixel_++;
+    if (cycle_pixel_ == 341)
+        cycle_pixel_ = 0;
+        cycle_scanline_++;
+
+    if (cycle_scanline_ == 262){
+        cycle_scanline_ = 0;
+    }
 }
 
 void PPU::FillScreenBuffer()
@@ -323,19 +323,15 @@ void PPU::FillScreenBuffer()
 
 void PPU::RenderSprites()
 {
-
-    if (num_sprites != 0){
-    }
     for (int i = 0; i < num_sprites; i++)
     {
-            Word sprite_pt_addr_lo = 0x0; // stores sprite tile address
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
             Word id_offset = secondary_oam_[i * 4 + 1] * 16;
             Byte y_offset = cycle_scanline_ - secondary_oam_[i * 4];
-            sprite_pt_addr_lo = base_pt_addr | id_offset | y_offset;
+            Word sprite_pt_addr_lo = base_pt_addr | id_offset | y_offset;
 
             // position coordinate on screen for start of sprite
-            Byte y_pos = secondary_oam_[i * 4];
+            Byte y_pos = secondary_oam_[i * 4] + 1;
             Byte x_pos = secondary_oam_[(i * 4) + 3];
 
             for (int p_h = 0; p_h < 8; p_h++) // 8 bytes per bit plane
@@ -376,7 +372,6 @@ void PPU::RenderSprites()
                                             ((((sprite_tile_hi_byte_row ) >> (7 - p_w)) & 0b00000001) << 1);
 
                     Byte color = ppu_memory_->ReadByte(0x3f10 + (base_palette * 4) + palette_index);    
-                    
                     // determine sprite vs bg priority
                     if (palette_index != 0) // sprite is visible
                     {
