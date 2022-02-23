@@ -1,6 +1,6 @@
 
 if(EMSCRIPTEN)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2") 
     set(SDL2_LIBRARIES "-s USE_SDL=2")
     add_executable(6502 sdl_video.cpp demo_controller.cpp 6502_main.cpp)
@@ -9,6 +9,7 @@ if(EMSCRIPTEN)
 
     add_executable(nes nes_sdl_video.cpp demo_controller.cpp nes_controller.cpp keyboard_interface.cpp nes_main.cpp)
     target_link_libraries (nes LINK_PUBLIC nes_emulator ${SDL2_LIBRARIES})
+    set_target_properties(nes PROPERTIES LINK_FLAGS "--preload-file ../../../roms/nes-test/nestest.nes@nestest.nes")
 
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}") 
