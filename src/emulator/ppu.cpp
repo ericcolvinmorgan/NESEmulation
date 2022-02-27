@@ -344,7 +344,7 @@ void PPU::RenderSprites()
                 Byte vert_flag = (secondary_oam_[i * 4 + 2] & 0b10000000) >> 7;
                 if (vert_flag)
                 {
-                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h)) - y_offset;
+                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) - y_offset);
                     sprite_tile_hi_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) + 8 - y_offset);
                 }
                 else
