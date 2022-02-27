@@ -37,6 +37,59 @@ NESController *controller = nullptr;
 bool request_exit = false;
 bool toggle_logging = false;
 
+extern "C"
+{
+    void LoadROM(const int size, const Byte *data)
+    {
+        std::ifstream input_file("nestest.nes", std::ios::binary);
+        // Determine the file length
+        input_file.seekg(0, std::ios_base::end);
+        std::size_t rom_size = input_file.tellg();
+        input_file.seekg(0, std::ios_base::beg);
+
+        // Read contents to memory and close file.
+        Byte *rom_data = new Byte[rom_size];
+        input_file.read((char *)rom_data, rom_size);
+        input_file.close();
+
+        // Attempt to read NES file format header.
+        if (rom_data[0] != 'N' || rom_data[1] != 'E' || rom_data[2] != 'S' || rom_data[3] != 0x1a)
+        {
+            std::cout << "The provided file is not a valid NES ROM.\n";
+            delete[] rom_data;
+        }
+
+        // Initialize
+        cpu_memory = new NESCPUMemoryAccessor();
+
+        if (rom_data[4] == 0x01)
+        {
+            cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
+            ppu_memory = new NESPPUMemoryAccessor();
+            ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
+            delete[] rom_data;
+        }
+        else if (rom_data[4] == 0x02)
+        {
+            cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
+            ppu_memory = new NESPPUMemoryAccessor();
+            ppu_memory->WriteMemory(0x0000, rom_data + 16 + 0x8000, 0x2000);
+            delete[] rom_data;
+        }
+        else
+        {
+            std::cout << "Invalid mapper 0 configuration.\n";
+            delete cpu_memory;
+            cpu_memory = nullptr;
+            delete[] rom_data;
+        }
+
+        cpu->Reset();
+    }
+}
+
 static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
 {
     if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_t)
@@ -88,9 +141,9 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
-    #ifdef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
     std::ifstream input_file("nestest.nes", std::ios::binary);
-    #else
+#else
     if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
@@ -103,7 +156,7 @@ int main(int argc, char **argv)
         std::cout << "The provided file is not accessible.\n";
         return 0;
     }
-    #endif
+#endif
 
     // Determine the file length
     input_file.seekg(0, std::ios_base::end);
@@ -126,7 +179,7 @@ int main(int argc, char **argv)
     // Initialize
     cpu_memory = new NESCPUMemoryAccessor();
 
-    if(rom_data[4] == 0x01)
+    if (rom_data[4] == 0x01)
     {
         cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
         cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
@@ -134,7 +187,7 @@ int main(int argc, char **argv)
         ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
         delete[] rom_data;
     }
-    else if(rom_data[4] == 0x02)
+    else if (rom_data[4] == 0x02)
     {
         cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
         cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
