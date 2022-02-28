@@ -9,7 +9,8 @@ if(EMSCRIPTEN)
 
     add_executable(nes nes_sdl_video.cpp demo_controller.cpp nes_controller.cpp keyboard_interface.cpp nes_main.cpp)
     target_link_libraries (nes LINK_PUBLIC nes_emulator ${SDL2_LIBRARIES})
-    set_target_properties(nes PROPERTIES LINK_FLAGS "--preload-file ../../../roms/nes-test/nestest.nes@nestest.nes -s EXPORTED_FUNCTIONS='['_main', '_LoadROM']' -s EXPORTED_RUNTIME_METHODS='['ccall','cwrap']'")
+    # set_target_properties(nes PROPERTIES LINK_FLAGS "--preload-file ../../../roms/nes-test/nestest.nes@nestest.nes -s EXPORTED_FUNCTIONS='['_main', '_LoadROM']' -s EXPORTED_RUNTIME_METHODS='['ccall','cwrap']'")
+    set_target_properties(nes PROPERTIES LINK_FLAGS "--preload-file ../../../roms/nes/donkeykong.nes@nestest.nes -s EXPORTED_FUNCTIONS='['_main', '_LoadROM']' -s EXPORTED_RUNTIME_METHODS='['ccall','cwrap']'")
 
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}") 

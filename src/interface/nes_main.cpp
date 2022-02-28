@@ -37,6 +37,9 @@ NESController *controller = nullptr;
 bool request_exit = false;
 bool toggle_logging = false;
 
+Byte *patterntable1 = new Byte[128 * 128 * 4];
+Byte *patterntable2 = new Byte[128 * 128 * 4];
+
 extern "C"
 {
     void LoadROM(const int size, const Byte *data)
@@ -100,6 +103,20 @@ static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
             emulator->EnableLogging(toggle_logging);
     }
 
+#ifdef __EMSCRIPTEN__
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_r)
+    {
+        if (emulator != nullptr)
+        {
+            ppu->RenderPatterntable(0, patterntable1);
+            ppu->RenderPatterntable(1, patterntable2);
+            EM_ASM({
+                Patterntables.update();
+            });
+        }
+    }
+#endif
+
     if (event->type == SDL_QUIT)
     {
         request_exit = true;
@@ -113,11 +130,41 @@ void RenderFrame()
     emulator->AdvanceFrame();
     controller->PollInputIfStrobing();
     content_screen->RenderFrame();
+    std::cout << "hello\n";
+
+#ifdef __EMSCRIPTEN__
+    // if (emulator->GetFrame() % 60 == 1)
+    // {
+    //     EM_ASM({
+    //         Interface.updateScreen();
+    //     });
+    // }
+#endif
 }
 
 #ifdef __EMSCRIPTEN__
 void RunEmulator()
 {
+    EM_ASM(
+        {
+            Patterntables.patterntable1 = new Uint8ClampedArray(
+                Module.HEAPU8.buffer,
+                $0,
+                128 * 128 * 4);
+
+            Patterntables.patterntable2 = new Uint8ClampedArray(
+                Module.HEAPU8.buffer,
+                $1,
+                128 * 128 * 4);
+        },
+        patterntable1, patterntable2);
+
+    ppu->RenderPatterntable(0, patterntable1);
+    ppu->RenderPatterntable(1, patterntable2);
+    EM_ASM({
+        Patterntables.update();
+    });
+
     emscripten_set_main_loop(RenderFrame, kFPS, 1);
 }
 #else
@@ -141,6 +188,7 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
+    std::cout << "welcome\n";
 #ifdef __EMSCRIPTEN__
     std::ifstream input_file("nestest.nes", std::ios::binary);
 #else
@@ -239,6 +287,12 @@ int main(int argc, char **argv)
 
     delete ppu_memory;
     ppu_memory = nullptr;
+
+    delete[] patterntable1;
+    patterntable1 = nullptr;
+
+    delete[] patterntable2;
+    patterntable2 = nullptr;
 
     return 0;
 }
