@@ -130,15 +130,17 @@ void RenderFrame()
     emulator->AdvanceFrame();
     controller->PollInputIfStrobing();
     content_screen->RenderFrame();
-    std::cout << "hello\n";
 
 #ifdef __EMSCRIPTEN__
-    // if (emulator->GetFrame() % 60 == 1)
-    // {
-    //     EM_ASM({
-    //         Interface.updateScreen();
-    //     });
-    // }
+    if (emulator->GetFrame() % 60 == 1)
+    {
+        ppu->RenderPatterntable(0, patterntable1);
+        ppu->RenderPatterntable(1, patterntable2);
+        EM_ASM({
+            Patterntables.update();
+            Interface.updateScreen();
+        });
+    }
 #endif
 }
 
@@ -188,7 +190,6 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
-    std::cout << "welcome\n";
 #ifdef __EMSCRIPTEN__
     std::ifstream input_file("nestest.nes", std::ios::binary);
 #else

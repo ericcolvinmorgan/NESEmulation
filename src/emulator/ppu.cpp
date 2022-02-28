@@ -420,7 +420,12 @@ void PPU::RenderPatterntable(int table, Byte* data)
             uint8_t top_byte_1 = ppu_memory_->ReadByte(location + (0x1000 * table));
             uint8_t bottom_byte_1 = ppu_memory_->ReadByte(location + 8 + (0x1000 * table));
             uint8_t color_1 = (((top_byte_1 >> (7 - w_bit)) & 0b00000001) << 1) + ((bottom_byte_1 >> (7 - w_bit)) & 0b00000001);
-            int palette[4] = {0x31, 0x16, 0x0d, 0x37};
+            int palette[4] = {
+                ppu_memory_->ReadByte(0x3f00 + 0),
+                ppu_memory_->ReadByte(0x3f00 + 1),
+                ppu_memory_->ReadByte(0x3f00 + 2),
+                ppu_memory_->ReadByte(0x3f00 + 3)
+            };
 
             data[(h * 128 * 4) + (w * 4)] = kColorMap[(palette[color_1] * 3) + 0];
             data[(h * 128 * 4) + (w * 4) + 1] = kColorMap[(palette[color_1] * 3) + 1];
