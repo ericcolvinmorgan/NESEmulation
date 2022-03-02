@@ -1,11 +1,22 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {    
     document.querySelector("#loadGame").onclick = async (event) => {
-        const data = [12, 6, 0]; 
-        const gameData = new Uint8Array(data);
-        Module.ccall('LoadROM', null, ['number', 'array'], [3, gameData]);
+        const fileSelect = document.getElementById('selected-file');
+        fileSelect.click();
     }
 
 });
+
+const loadROM = (input) => {
+    let file = input.files[0];
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+
+    reader.onloadend = () => {
+        const data = reader.result; 
+        const gameData = new Uint8Array(data);
+        Module.ccall('LoadROM', null, ['number', 'array'], [gameData.length, gameData]);
+    }
+}
 
 const Patterntables = {
     patterntable1Canvas: document.getElementById('canvas-patterntable1'),

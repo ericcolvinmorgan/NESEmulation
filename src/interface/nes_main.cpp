@@ -44,49 +44,32 @@ extern "C"
 {
     void LoadROM(const int size, const Byte *data)
     {
-        std::ifstream input_file("nestest.nes", std::ios::binary);
-        // Determine the file length
-        input_file.seekg(0, std::ios_base::end);
-        std::size_t rom_size = input_file.tellg();
-        input_file.seekg(0, std::ios_base::beg);
-
-        // Read contents to memory and close file.
-        Byte *rom_data = new Byte[rom_size];
-        input_file.read((char *)rom_data, rom_size);
-        input_file.close();
-
         // Attempt to read NES file format header.
-        if (rom_data[0] != 'N' || rom_data[1] != 'E' || rom_data[2] != 'S' || rom_data[3] != 0x1a)
+        if (data[0] != 'N' || data[1] != 'E' || data[2] != 'S' || data[3] != 0x1a)
         {
             std::cout << "The provided file is not a valid NES ROM.\n";
-            delete[] rom_data;
+            return;
         }
 
-        // Initialize
-        cpu_memory = new NESCPUMemoryAccessor();
-
-        if (rom_data[4] == 0x01)
+        if (data[4] == 0x01)
         {
-            cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
-            cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
-            ppu_memory = new NESPPUMemoryAccessor();
-            ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
-            delete[] rom_data;
+            std::cout << "Loading 16kb Mapper 0.\n";
+            cpu_memory->WriteMemory(0x8000, data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, data + 16, 0x4000);
+            ppu_memory->WriteMemory(0x0000, data + 16 + 16384, 0x2000);
         }
-        else if (rom_data[4] == 0x02)
+        else if (data[4] == 0x02)
         {
-            cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
-            cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
-            ppu_memory = new NESPPUMemoryAccessor();
-            ppu_memory->WriteMemory(0x0000, rom_data + 16 + 0x8000, 0x2000);
-            delete[] rom_data;
+            std::cout << "Loading 32kb Mapper 0.\n";
+            cpu_memory->WriteMemory(0x8000, data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, data + 16 + 0x4000, 0x4000);
+            ppu_memory->WriteMemory(0x0000, data + 16 + 0x8000, 0x2000);
         }
         else
         {
             std::cout << "Invalid mapper 0 configuration.\n";
             delete cpu_memory;
             cpu_memory = nullptr;
-            delete[] rom_data;
         }
 
         cpu->Reset();
