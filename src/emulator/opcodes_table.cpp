@@ -514,7 +514,8 @@ template <OpCodesTable::AddressMode A>
 void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
 {
     struct OpCodesTable::AddressingVal address_mode_val = ((*this).*A)(cpu);
-    cpu->SetStatusRegisterFlag(kBreakFlag);
+    StatusRegister copied_sr = cpu->GetStatusRegister();
+    copied_sr.flags.b = 1;
 
     Byte pc_h = (cpu->GetProgramCounter() & 0xFF00) >> 8;
     Byte pc_l = cpu->GetProgramCounter() & 0xFF;
@@ -525,7 +526,7 @@ void OpCodesTable::OpBRK(CPU *cpu, Byte opcode)
     cpu->WriteMemory(0x100 + cpu->GetStackPointer(), pc_l);
     cpu->DecrementStackPointer();
 
-    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), cpu->GetStatusRegister().data);
+    cpu->WriteMemory(0x100 + cpu->GetStackPointer(), copied_sr.data);
     cpu->DecrementStackPointer();
 
     Word new_pc = cpu->GetMemoryWord(0xFFFE);

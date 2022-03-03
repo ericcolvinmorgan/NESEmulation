@@ -391,10 +391,13 @@ TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
     OpCodesTable opcodes;
     opcodes.RunOpCode(&cpu, 0x00);
 
+    StatusRegister copied_sr = cpu.GetStatusRegister();
+    copied_sr.flags.b = 1;
+
     // check stack data
     REQUIRE(cpu.GetMemoryByte(0x1FF) == 0x80);
     REQUIRE(cpu.GetMemoryByte(0x1FE) == 0x20);
-    REQUIRE(cpu.GetMemoryByte(0x1FD) == cpu.GetStatusRegister().data);
+    REQUIRE(cpu.GetMemoryByte(0x1FD) == copied_sr.data);
 
     // sp decremented 3x
     REQUIRE(cpu.GetStackPointer() == 0xff - 3);
@@ -402,7 +405,7 @@ TEST_CASE("OpCodes Table - Ops - BRK - Implied - Break via interrupt")
     // pcl set to 0xFFFE, pch set to 0xFFFF
     REQUIRE(cpu.GetProgramCounter() == 0xEE55);
 
-    REQUIRE(cpu.GetStatusRegister().flags.b == 1);
+    REQUIRE(cpu.GetStatusRegister().flags.b == 0);
 
     // cpu cycle count should increase by 7
     REQUIRE(cpu.GetCycleCount() == 7);
