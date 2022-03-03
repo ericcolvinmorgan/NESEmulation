@@ -323,6 +323,8 @@ void PPU::FillScreenBuffer()
 
 void PPU::RenderSprites()
 {
+    Byte visitedPixels[240 * 256] = {0}; // track visited sprites to maintain priority
+
     for (int i = 0; i < num_sprites; i++)
     {
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
@@ -372,19 +374,23 @@ void PPU::RenderSprites()
                                             ((((sprite_tile_hi_byte_row ) >> (7 - p_w)) & 0b00000001) << 1);
 
                     Byte color = ppu_memory_->ReadByte(0x3f10 + (base_palette * 4) + palette_index);    
+                    
                     // determine sprite vs bg priority
                     if (palette_index != 0) // sprite is visible
                     {
-                        if (screen_buffer_[base_index] != 0) // bg visible also
-                        {
-                            Byte bg_priority = (secondary_oam_[i * 4 + 2] & 0b00100000) >> 5; // 0 sprite drawn, 1 bg drawn
-                            if (!bg_priority)
+                        if (visitedPixels[base_index] != 1){ // sprite has not been visited yet
+                            if (screen_buffer_[base_index] != 0) // bg visible also
                             {
+                                Byte bg_priority = (secondary_oam_[i * 4 + 2] & 0b00100000) >> 5; // 0 sprite drawn, 1 bg drawn
+                                if (!bg_priority)
+                                {
+                                    screen_buffer_[base_index] = color;
+                                }
+                            }
+                            else {
                                 screen_buffer_[base_index] = color;
                             }
-                        }
-                        else {
-                            screen_buffer_[base_index] = color;
+                            visitedPixels[base_index] = 1; // mark as visited so it won't be drawn again this scanline
                         }
                         
                     }        
