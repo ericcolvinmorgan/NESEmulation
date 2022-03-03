@@ -402,5 +402,35 @@ Byte PPU::ReverseBits(Byte b)
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
     return b;
+}
 
+void PPU::RenderPatterntable(int table, Byte* data)
+{
+    for (int h = 0; h < 128; h++)
+    {
+        int h_tile = h / 8;
+        int h_byte = h % 8;
+        for (int w = 0; w < 128; w++)
+        {
+            int w_tile = w / 8;
+            int w_bit = w % 8;
+
+            Word location = (h_tile << 8) | (w_tile << 4) | h_byte;
+
+            uint8_t top_byte_1 = ppu_memory_->ReadByte(location + (0x1000 * table));
+            uint8_t bottom_byte_1 = ppu_memory_->ReadByte(location + 8 + (0x1000 * table));
+            uint8_t color_1 = (((top_byte_1 >> (7 - w_bit)) & 0b00000001) << 1) + ((bottom_byte_1 >> (7 - w_bit)) & 0b00000001);
+            int palette[4] = {
+                ppu_memory_->ReadByte(0x3f00 + 0),
+                ppu_memory_->ReadByte(0x3f00 + 1),
+                ppu_memory_->ReadByte(0x3f00 + 2),
+                ppu_memory_->ReadByte(0x3f00 + 3)
+            };
+
+            data[(h * 128 * 4) + (w * 4)] = kColorMap[(palette[color_1] * 3) + 0];
+            data[(h * 128 * 4) + (w * 4) + 1] = kColorMap[(palette[color_1] * 3) + 1];
+            data[(h * 128 * 4) + (w * 4) + 2] = kColorMap[(palette[color_1] * 3) + 2];
+            data[(h * 128 * 4) + (w * 4) + 3] = 255;
+        }
+    }
 }

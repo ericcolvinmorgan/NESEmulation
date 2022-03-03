@@ -11,7 +11,7 @@ private:
     PPU *ppu_;
     CPU *cpu_;
     OpCodesInterface *cpu_opcodes_;
-    int frame_ = 0;
+    uint32_t frame_ = 0;
     bool enable_logging_ = false;
 
 public:
@@ -23,7 +23,7 @@ public:
         cpu_cycles_per_frame_ = cpu_cycles_per_frame;
     };
     ~Emulator(){};
-    int GetFrame() { return frame_; };
+    uint32_t GetFrame() { return frame_; };
     void AdvanceFrame();
     void EnableLogging(bool enable_logging) { enable_logging_ = enable_logging; };
 };

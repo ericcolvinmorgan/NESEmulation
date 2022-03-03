@@ -142,4 +142,5 @@ public:
     void ClearNMIRequest() { nmi_requested_ = false; };
     Byte* GetScreenBuffer() { return screen_buffer_; }
 
+    void RenderPatterntable(int table, Byte* data);
 };

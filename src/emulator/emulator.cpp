@@ -45,4 +45,5 @@ void Emulator::AdvanceFrame()
 
     }
     cpu_->ResetCycleCount();
+    frame_++;
 }
