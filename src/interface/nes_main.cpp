@@ -121,6 +121,12 @@ void RenderFrame()
         ppu->RenderPatterntable(1, patterntable2);
         EM_ASM({
             Patterntables.update();
+        });
+    }
+
+    if (emulator->GetFrame() % 10 == 1)
+    {
+        EM_ASM({
             Interface.updateScreen();
         });
     }
@@ -141,8 +147,13 @@ void RunEmulator()
                 Module.HEAPU8.buffer,
                 $1,
                 128 * 128 * 4);
+
+            Interface.registers = new Uint8Array(
+                Module.HEAPU8.buffer,
+                $2,
+                7);
         },
-        patterntable1, patterntable2);
+        patterntable1, patterntable2, cpu->GetRegistersSnapshot());
 
     ppu->RenderPatterntable(0, patterntable1);
     ppu->RenderPatterntable(1, patterntable2);

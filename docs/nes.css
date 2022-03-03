@@ -17,6 +17,13 @@ body {
     margin-right: auto;
 }
 
+#registers {
+    font-size: x-small;
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #bottom-text {
     max-width: 500px;
     font-size: smaller;

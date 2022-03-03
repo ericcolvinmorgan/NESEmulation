@@ -35,8 +35,10 @@ const Patterntables = {
 }
 
 const Interface = {
-    patterntableCanvas: document.getElementById('canvas-patterntable'),
-    patterntableDetail: null,
+    registers: null,
+    registersElement: document.getElementById('registers'),
     updateScreen() {
+        const detail = `Accumulator: ${this.registers[0].toString(16)} X: ${this.registers[1].toString(16)} Y: ${this.registers[2].toString(16)} SP: ${this.registers[3].toString(16)} SR: ${("0000000" + this.registers[4].toString(2)).substr(-8)}`;
+        this.registersElement.innerText = detail;
     }
 }
