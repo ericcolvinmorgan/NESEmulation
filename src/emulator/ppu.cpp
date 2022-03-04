@@ -323,6 +323,8 @@ void PPU::FillScreenBuffer()
 
 void PPU::RenderSprites()
 {
+    Byte visitedPixels[240 * 256] = {0}; // track visited sprites to maintain priority
+
     for (int i = 0; i < num_sprites; i++)
     {
             Word base_pt_addr = reg_ctrl_.flags.sprite_addr ? 0x1000 : 0x0000;
@@ -344,7 +346,7 @@ void PPU::RenderSprites()
                 Byte vert_flag = (secondary_oam_[i * 4 + 2] & 0b10000000) >> 7;
                 if (vert_flag)
                 {
-                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h)) - y_offset;
+                    sprite_tile_lo_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) - y_offset);
                     sprite_tile_hi_byte_row = ppu_memory_->ReadByte(sprite_pt_addr_lo + (7-p_h) + 8 - y_offset);
                 }
                 else
@@ -372,19 +374,23 @@ void PPU::RenderSprites()
                                             ((((sprite_tile_hi_byte_row ) >> (7 - p_w)) & 0b00000001) << 1);
 
                     Byte color = ppu_memory_->ReadByte(0x3f10 + (base_palette * 4) + palette_index);    
+                    
                     // determine sprite vs bg priority
                     if (palette_index != 0) // sprite is visible
                     {
-                        if (screen_buffer_[base_index] != 0) // bg visible also
-                        {
-                            Byte bg_priority = (secondary_oam_[i * 4 + 2] & 0b00100000) >> 5; // 0 sprite drawn, 1 bg drawn
-                            if (!bg_priority)
+                        if (visitedPixels[base_index] != 1){ // sprite has not been visited yet
+                            if (screen_buffer_[base_index] != 0) // bg visible also
                             {
+                                Byte bg_priority = (secondary_oam_[i * 4 + 2] & 0b00100000) >> 5; // 0 sprite drawn, 1 bg drawn
+                                if (!bg_priority)
+                                {
+                                    screen_buffer_[base_index] = color;
+                                }
+                            }
+                            else {
                                 screen_buffer_[base_index] = color;
                             }
-                        }
-                        else {
-                            screen_buffer_[base_index] = color;
+                            visitedPixels[base_index] = 1; // mark as visited so it won't be drawn again this scanline
                         }
                         
                     }        
@@ -402,5 +408,35 @@ Byte PPU::ReverseBits(Byte b)
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
     return b;
+}
 
+void PPU::RenderPatterntable(int table, Byte* data)
+{
+    for (int h = 0; h < 128; h++)
+    {
+        int h_tile = h / 8;
+        int h_byte = h % 8;
+        for (int w = 0; w < 128; w++)
+        {
+            int w_tile = w / 8;
+            int w_bit = w % 8;
+
+            Word location = (h_tile << 8) | (w_tile << 4) | h_byte;
+
+            uint8_t top_byte_1 = ppu_memory_->ReadByte(location + (0x1000 * table));
+            uint8_t bottom_byte_1 = ppu_memory_->ReadByte(location + 8 + (0x1000 * table));
+            uint8_t color_1 = (((top_byte_1 >> (7 - w_bit)) & 0b00000001) << 1) + ((bottom_byte_1 >> (7 - w_bit)) & 0b00000001);
+            int palette[4] = {
+                ppu_memory_->ReadByte(0x3f00 + 0),
+                ppu_memory_->ReadByte(0x3f00 + 1),
+                ppu_memory_->ReadByte(0x3f00 + 2),
+                ppu_memory_->ReadByte(0x3f00 + 3)
+            };
+
+            data[(h * 128 * 4) + (w * 4)] = kColorMap[(palette[color_1] * 3) + 0];
+            data[(h * 128 * 4) + (w * 4) + 1] = kColorMap[(palette[color_1] * 3) + 1];
+            data[(h * 128 * 4) + (w * 4) + 2] = kColorMap[(palette[color_1] * 3) + 2];
+            data[(h * 128 * 4) + (w * 4) + 3] = 255;
+        }
+    }
 }

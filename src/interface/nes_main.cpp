@@ -37,6 +37,45 @@ NESController *controller = nullptr;
 bool request_exit = false;
 bool toggle_logging = false;
 
+Byte *patterntable1 = new Byte[128 * 128 * 4];
+Byte *patterntable2 = new Byte[128 * 128 * 4];
+
+extern "C"
+{
+    void LoadROM(const int size, const Byte *data)
+    {
+        // Attempt to read NES file format header.
+        if (data[0] != 'N' || data[1] != 'E' || data[2] != 'S' || data[3] != 0x1a)
+        {
+            std::cout << "The provided file is not a valid NES ROM.\n";
+            return;
+        }
+
+        if (data[4] == 0x01)
+        {
+            std::cout << "Loading 16kb Mapper 0.\n";
+            cpu_memory->WriteMemory(0x8000, data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, data + 16, 0x4000);
+            ppu_memory->WriteMemory(0x0000, data + 16 + 16384, 0x2000);
+        }
+        else if (data[4] == 0x02)
+        {
+            std::cout << "Loading 32kb Mapper 0.\n";
+            cpu_memory->WriteMemory(0x8000, data + 16, 0x4000);
+            cpu_memory->WriteMemory(0xc000, data + 16 + 0x4000, 0x4000);
+            ppu_memory->WriteMemory(0x0000, data + 16 + 0x8000, 0x2000);
+        }
+        else
+        {
+            std::cout << "Invalid mapper 0 configuration.\n";
+            delete cpu_memory;
+            cpu_memory = nullptr;
+        }
+
+        cpu->Reset();
+    }
+}
+
 static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
 {
     if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_t)
@@ -46,6 +85,20 @@ static int SDLCALL HandleEvents(void *userdata, SDL_Event *event)
         if (emulator != nullptr)
             emulator->EnableLogging(toggle_logging);
     }
+
+#ifdef __EMSCRIPTEN__
+    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_r)
+    {
+        if (emulator != nullptr)
+        {
+            ppu->RenderPatterntable(0, patterntable1);
+            ppu->RenderPatterntable(1, patterntable2);
+            EM_ASM({
+                Patterntables.update();
+            });
+        }
+    }
+#endif
 
     if (event->type == SDL_QUIT)
     {
@@ -60,11 +113,54 @@ void RenderFrame()
     emulator->AdvanceFrame();
     controller->PollInputIfStrobing();
     content_screen->RenderFrame();
+
+#ifdef __EMSCRIPTEN__
+    if (emulator->GetFrame() % 60 == 1)
+    {
+        ppu->RenderPatterntable(0, patterntable1);
+        ppu->RenderPatterntable(1, patterntable2);
+        EM_ASM({
+            Patterntables.update();
+        });
+    }
+
+    if (emulator->GetFrame() % 10 == 1)
+    {
+        EM_ASM({
+            Interface.updateScreen();
+        });
+    }
+#endif
 }
 
 #ifdef __EMSCRIPTEN__
 void RunEmulator()
 {
+    EM_ASM(
+        {
+            Patterntables.patterntable1 = new Uint8ClampedArray(
+                Module.HEAPU8.buffer,
+                $0,
+                128 * 128 * 4);
+
+            Patterntables.patterntable2 = new Uint8ClampedArray(
+                Module.HEAPU8.buffer,
+                $1,
+                128 * 128 * 4);
+
+            Interface.registers = new Uint8Array(
+                Module.HEAPU8.buffer,
+                $2,
+                7);
+        },
+        patterntable1, patterntable2, cpu->GetRegistersSnapshot());
+
+    ppu->RenderPatterntable(0, patterntable1);
+    ppu->RenderPatterntable(1, patterntable2);
+    EM_ASM({
+        Patterntables.update();
+    });
+
     emscripten_set_main_loop(RenderFrame, kFPS, 1);
 }
 #else
@@ -88,9 +184,9 @@ void RunEmulator()
 
 int main(int argc, char **argv)
 {
-    #ifdef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
     std::ifstream input_file("nestest.nes", std::ios::binary);
-    #else
+#else
     if (argc != 2)
     {
         std::cout << "Please provide a file path argument.\n";
@@ -103,7 +199,7 @@ int main(int argc, char **argv)
         std::cout << "The provided file is not accessible.\n";
         return 0;
     }
-    #endif
+#endif
 
     // Determine the file length
     input_file.seekg(0, std::ios_base::end);
@@ -126,7 +222,7 @@ int main(int argc, char **argv)
     // Initialize
     cpu_memory = new NESCPUMemoryAccessor();
 
-    if(rom_data[4] == 0x01)
+    if (rom_data[4] == 0x01)
     {
         cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
         cpu_memory->WriteMemory(0xc000, rom_data + 16, 0x4000);
@@ -134,7 +230,7 @@ int main(int argc, char **argv)
         ppu_memory->WriteMemory(0x0000, rom_data + 16 + 16384, 0x2000);
         delete[] rom_data;
     }
-    else if(rom_data[4] == 0x02)
+    else if (rom_data[4] == 0x02)
     {
         cpu_memory->WriteMemory(0x8000, rom_data + 16, 0x4000);
         cpu_memory->WriteMemory(0xc000, rom_data + 16 + 0x4000, 0x4000);
@@ -186,6 +282,12 @@ int main(int argc, char **argv)
 
     delete ppu_memory;
     ppu_memory = nullptr;
+
+    delete[] patterntable1;
+    patterntable1 = nullptr;
+
+    delete[] patterntable2;
+    patterntable2 = nullptr;
 
     return 0;
 }

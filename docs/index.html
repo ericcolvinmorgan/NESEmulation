@@ -8,17 +8,27 @@
 </head>
 
 <body>
-    <div>
+    <div class="page-container">
         <div id="top-bar" class="text-center">
             <div>NES Emulator</div>
         </div>
-        <div id="window">
-            <canvas id="canvas" style="display: block;
-            margin-left: auto;
-            margin-right: auto;"></canvas>
+        <div class="content-container">
+            <div class="content-main">
+                <canvas id="canvas"></canvas>
+            </div>
+            <div class="content-patterntable">
+                <canvas id="canvas-patterntable1"></canvas>
+                <canvas id="canvas-patterntable2"></canvas>
+            </div>
+            <div class="content-palettes"><canvas id="canvas-palettes"></canvas></div>
         </div>
         <div id="bottom-bar" class="text-center">
-            <div>Welcome to our NES emulator!  You can use your keyboard to play control the screen.  The arrow keys control the d-pad, J = A, K = B, Enter = Start, Space = Select.</div>
+            <button type="button" id="loadGame">LOAD</button>
+        </div>
+        <div id="registers" class="text-center"></div>
+        <div id="bottom-text" class="text-center">
+            <div>Welcome to our NES emulator! You can use your keyboard to play your selected game. The arrow keys
+                control the d-pad, J = A, K = B, Enter = Start, Space = Select.</div>
         </div>
     </div>
 </body>
@@ -27,6 +37,7 @@
         canvas: (function () { return document.getElementById('canvas'); })()
     };
 </script>
+<script src="interface.js"></script>
 <script src="nes.js"></script>
-
+<input id="selected-file" type="file" onchange="loadROM(this)" hidden />
 </html>
